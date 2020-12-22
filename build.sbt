@@ -1,0 +1,110 @@
+val ScalaVer = "2.13.4"
+
+enablePlugins(Protodep)
+
+ThisBuild / scalaVersion := ScalaVer
+
+val commonSettings = Seq(
+  organization := "com.coralogix",
+  version      := "0.1"
+)
+
+lazy val root = Project("coralogix-kubernetes-operator", file("."))
+  .aggregate(
+    client,
+    app
+  )
+
+lazy val client = Project("zio-k8s-client", file("client"))
+  .settings(commonSettings)
+  .settings(
+    scalaVersion := ScalaVer,
+    libraryDependencies ++= Seq(
+      "dev.zio"                       %% "zio"                    % "1.0.3",
+      "dev.zio"                       %% "zio-streams"            % "1.0.3",
+      "dev.zio"                       %% "zio-config"             % "1.0.0-RC30-1",
+      "com.softwaremill.sttp.client3" %% "httpclient-backend-zio" % "3.0.0-RC10",
+      "com.softwaremill.sttp.client3" %% "circe"                  % "3.0.0-RC10",
+      "io.circe"                      %% "circe-core"             % "0.13.0",
+      "io.circe"                      %% "circe-parser"           % "0.13.0",
+      "io.circe"                      %% "circe-yaml"             % "0.13.0",
+      "dev.zio"                       %% "zio-test"               % "1.0.3" % Test,
+      "dev.zio"                       %% "zio-test-sbt"           % "1.0.3" % Test
+    ),
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+  )
+
+lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
+  .settings(commonSettings)
+  .settings(
+    scalaVersion := ScalaVer,
+    resolvers += Resolver.jcenterRepo,
+    libraryDependencies ++= Seq(
+      "com.softwaremill.quicklens" %% "quicklens"  % "1.6.1",
+      "nl.vroste"                  %% "rezilience" % "0.5.1",
+      // Config
+      "dev.zio" %% "zio-config"          % "1.0.0-RC30-1",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC30-1",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC30-1",
+      // STTP
+      "com.softwaremill.sttp.client3" %% "slf4j-backend" % "3.0.0-RC10",
+      // Logging
+      "dev.zio"  %% "zio-logging" % "0.5.3",
+      "org.slf4j" % "slf4j-api"   % "1.7.30",
+      // gRPC
+      "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
+      "io.grpc"                             % "grpc-netty"                              % "1.31.1",
+      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0" % "protobuf",
+      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0",
+      "io.github.scalapb-json"             %% "scalapb-circe"                           % "0.7.1",
+      // Metrics
+      "dev.zio" %% "zio-metrics-prometheus" % "1.0.1",
+      // Tests
+      "dev.zio" %% "zio-test"          % "1.0.3" % Test,
+      "dev.zio" %% "zio-test-sbt"      % "1.0.3" % Test,
+      "dev.zio" %% "zio-test-magnolia" % "1.0.3" % Test
+      //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
+    ),
+    PB.targets in Compile := Seq(
+      scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
+      scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
+    ),
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    fork          := true,
+    Test / fork   := true,
+    run / envVars := Map("CORALOGIX_CONFIG" -> "./.chart/config/development.conf"),
+    // K8s
+    externalCustomResourceDefinitions := Seq(
+      file("crds/crd-coralogix-rule-group-set.yaml")
+    ),
+    // Native image
+    Compile / mainClass := Some("com.coralogix.operator.Main"),
+    nativeImageVersion  := "20.3.0",
+    nativeImageOptions ++= Seq(
+      "--initialize-at-build-time=org.slf4j",
+      "--initialize-at-build-time=scala.Predef$",
+      "--initialize-at-build-time=scala.collection",
+      "--initialize-at-build-time=scala.reflect",
+      "--initialize-at-build-time=scala.package$",
+      "--initialize-at-build-time=scala.math",
+      "--enable-https",
+      "--no-fallback",
+      "--allow-incomplete-classpath",
+      "--report-unsupported-elements-at-runtime",
+      "--install-exit-handlers",
+      "-H:+ReportExceptionStackTraces",
+      "-H:+AllowVMInspection",
+      "-H:JNIConfigurationFiles=../../src/graalvm/jni-config.json",
+      "-H:ReflectionConfigurationFiles=../../src/graalvm/reflect-config.json",
+      "-H:DynamicProxyConfigurationFiles=../../src/graalvm/proxy-config.json",
+      "-H:ResourceConfigurationFiles=../../src/graalvm/resource-config.json"
+    )
+  )
+  .dependsOn(client)
+  .dependsOn(LocalProject("grpc-deps"))
+  .enablePlugins(
+    UniversalPlugin,
+    JavaAppPackaging,
+    K8sCustomResourceCodegenPlugin,
+    NativeImagePlugin
+  )

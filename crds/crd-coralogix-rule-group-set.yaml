@@ -1,0 +1,178 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: rulegroupsets.coralogix.com
+spec:
+  group: coralogix.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required:
+            - spec
+          properties:
+            spec:
+              type: object
+              required:
+                - rule-groups-sequence
+              properties:
+                rule-groups-sequence:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - matcher
+                      - and-sequence
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: RuleGroupName
+                      description:
+                        type: string
+                      enabled:
+                        type: boolean
+                      hidden:
+                        type: boolean
+                      matcher:
+                        type: object
+                        properties:
+                          applications:
+                            type: array
+                            items:
+                              type: string
+                              x-scala-type: ApplicationName
+                          subsystems:
+                            type: array
+                            items:
+                              type: string
+                              x-scala-type: SubsystemName
+                          severities:
+                            type: array
+                            items:
+                              type: string
+                              enum:
+                                - DEBUG
+                                - VERBOSE
+                                - INFO
+                                - WARNING
+                                - ERROR
+                                - CRITICAL
+                      and-sequence:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - or-group
+                          properties:
+                            or-group:
+                              type: array
+                              items:
+                                 type: object
+                                 required:
+                                   - name
+                                   - source-field
+                                   - rule
+                                   - enabled
+                                 properties:
+                                   name:
+                                     type: string
+                                     x-scala-type: RuleName
+                                   description:
+                                     type: string
+                                   source-field:
+                                     type: string
+                                     x-scala-type: FieldName
+                                   rule:
+                                     type: string
+                                   enabled:
+                                     type: boolean
+
+                                   # Parameter types, only one of them should be present
+                                   extract:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         x-scala-type: FieldName
+
+                                   json-extract:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         enum:
+                                           - CATEGORY
+                                           - CLASSNAME
+                                           - METHODNAME
+                                           - THREADID
+                                           - SEVERITY
+                                   replace:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                       - new-value
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         x-scala-type: FieldName
+                                       new-value:
+                                         type: string
+                                   parse:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         x-scala-type: FieldName
+                                   allow:
+                                     type: object
+                                     properties: {}
+                                   block:
+                                     type: object
+                                     required:
+                                       - keep-blocked-logs
+                                     properties:
+                                       keep-blocked-logs:
+                                         type: boolean
+
+            status:
+              type: object
+              properties:
+                # Maps the name of rule-groups in the spec to coralogix IDs. Rule groups without an associated
+                # Coralogix rule group are omitted
+                group-ids:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - id
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: RuleGroupName
+                      id:
+                        type: string
+                        x-scala-type: RuleGroupId
+                last-uploaded-generation:
+                  type: integer
+                  format: int64
+
+      subresources:
+        status: {}
+  scope: Namespaced
+  names:
+    plural: rulegroupsets
+    singular: rulegroupset
+    kind: RuleGroupSet
+    shortNames:
+      - rg
