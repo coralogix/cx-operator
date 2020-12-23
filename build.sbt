@@ -69,6 +69,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
       scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
     ),
+    PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     fork          := true,
     Test / fork   := true,
