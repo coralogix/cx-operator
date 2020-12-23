@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}  
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+    - name: prometheus
+      port: {{ .Values.serviceMonitor.port }}
+      targetPort: {{ .Values.serviceMonitor.port }}
+  selector:
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+  config.path: {{ printf "config/%s" .Values.config.location }}
+  operator.conf: |-
+    include required(classpath("shared.conf"))
+
+    grpc {
+      clients {
+        rulegroups {
+          name = {{ .Values.config.coralogixApi.host }}
+          port = {{ .Values.config.coralogixApi.port }}
+          tls = {{ .Values.config.coralogixApi.tls }}
+          token = ${RULES_API_TOKEN}
+          headers {
+            X-Coralogix-API: rules
+          }
+        }
+      }
+    }

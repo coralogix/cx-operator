@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Release.Name }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+      release: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        release: {{ .Release.Name }}
+{{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8}}
+{{- end}}
+    spec:
+      terminationGracePeriodSeconds: 60
+{{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+{{- end }}
+{{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+{{- end }}
+      priorityClassName: {{ .Values.priorityClassName }}
+{{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+{{- end }}
+      serviceAccountName: {{ template ".chart.serviceAccount.name" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: cx-operator:latest
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CORALOGIX_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: config.path
+          {{- if .Values.envFromSecret }}
+          envFrom:
+          {{- range $name := .Values.envFromSecret }}
+          - secretRef:
+              name: {{ $name }}
+          {{- end }}
+          {{- end }}
+          args:
+            - -J-XX:+UseContainerSupport
+            - -J-XX:+UseG1GC
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:9090"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            exec:
+              command: [ "/bin/grpc_health_probe", "-service=CoralogixOperator", "-addr=:9090" ]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            requests:
+                memory: {{ .Values.resources.memoryMb }}Mi
+                cpu: {{ .Values.resources.cpus }}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /app/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: {{ .Release.Name }}-configmap
+          defaultMode: 0744 # Add u+x so we can run the scripts in the configmap

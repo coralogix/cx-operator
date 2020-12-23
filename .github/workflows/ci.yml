@@ -1,7 +1,11 @@
 name: CI
 on:
   pull_request:
+    branches-ignore:
+      - gh-pages
   push:
+    branches-ignore:
+      - gh-pages
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -49,3 +53,16 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+  publish_helm:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' }}
+    steps:
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.1.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
