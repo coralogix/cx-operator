@@ -39,11 +39,12 @@ jobs:
           find $HOME/.sbt
 
       - name: Build container
-        id: docker_build
-        uses: docker/build-push-action@v2
+        uses: elgohr/Publish-Docker-Github-Action@master
         with:
-          push: false
-          tags: user/app:latest
+          name: coralogix/cx-operator
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          no_push: true # TODO
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
