@@ -1,3 +1,5 @@
+resolvers += Resolver.bintrayIvyRepo("coralogix", "sbt-plugins")
+
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"        % "2.4.2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
 addSbtPlugin("com.thesamet"     % "sbt-protoc"          % "1.0.0-RC4")

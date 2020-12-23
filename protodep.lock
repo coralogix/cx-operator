@@ -1,0 +1,7 @@
+proto_outdir = "./grpc-deps/target/protobuf_external_src"
+
+[[dependencies]]
+  target = "github.com/coralogix/rules-api-protobuf/"
+  revision = "00fae9ab0aa1c168fad7c9dc626032e16e8ee5bc"
+  branch = ""
+  path = ""
