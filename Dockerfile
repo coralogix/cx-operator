@@ -10,6 +10,6 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.4 && \
     chmod +x /bin/grpc_health_probe
 
 WORKDIR /app
-COPY ./app/target/native-image/coralogix-kubernetes-operator-app ./
+COPY coralogix-kubernetes-operator-app /app
 ENTRYPOINT ["/app/coralogix-kubernetes-operator-app"]
 STOPSIGNAL SIGTERM
