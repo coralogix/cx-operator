@@ -1,29 +1,23 @@
-replicaCount: 1
-
-image:
-  repository: coralogixrepo
-  pullPolicy: IfNotPresent
-  tag: ""
-
-serviceAccount:
-  create: true
-
-service:
-  port: 9090
-
-serviceMonitor:
-  create: false
-  port: 8080
-  namespace: monitoring
-  interval: 20s
-
-resources:
-  memoryMb: 1024
-  cpus: 1
-
 config:
-  location: operator.conf
   coralogixApi:
     host: grpc-api.coralogix.net
     port: 443
     tls: true
+  location: operator.conf
+image:
+  pullPolicy: IfNotPresent
+  repository: coralogixrepo
+  tag: 0.1.2
+replicaCount: 1
+resources:
+  cpus: 1
+  memoryMb: 1024
+service:
+  port: 9090
+serviceAccount:
+  create: true
+serviceMonitor:
+  create: false
+  interval: 20s
+  namespace: monitoring
+  port: 8080
