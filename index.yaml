@@ -2,6 +2,18 @@ apiVersion: v1
 entries:
   cx-operator:
   - apiVersion: v2
+    appVersion: 0.1.1
+    created: "2020-12-28T12:44:49.008162537Z"
+    description: Coralogix Kubernetes Operator
+    digest: 0d9c596078398cc630030807656987de769d4d09c024ce32a047f4894f6ffae7
+    name: cx-operator
+    sources:
+    - https://github.com/coralogix/cx-operator
+    type: application
+    urls:
+    - https://github.com/coralogix/cx-operator/releases/download/cx-operator-0.1.1/cx-operator-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2020-12-23T13:21:38.824817729Z"
     description: Coralogix Kubernetes Operator
