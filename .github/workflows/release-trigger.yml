@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Calculate short SHA
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Install Helm
         uses: azure/setup-helm@v1
@@ -49,13 +52,14 @@ jobs:
         run: |
           git add charts -v
           git commit -m "Release ${{ github.event.inputs.version }}"
+          git tag -a ${{ github.event.inputs.version }}-final -m ${{ github.event.inputs.version }}-final
           git push
           git push --tags
 
       - name: Tag Docker image
         run: |
-          docker pull coralogixrepo/cx-operator:sha-${{ github.sha }}
-          docker tag coralogixrepo/cx-operator:sha-${{ github.sha }} coralogixrepo/cx-operator:${{ github.event.inputs.version }}
+          docker pull coralogixrepo/cx-operator:sha-${{ steps.vars.outputs.sha_short }}
+          docker tag coralogixrepo/cx-operator:sha-${{ steps.vars.outputs.sha_short }} coralogixrepo/cx-operator:${{ github.event.inputs.version }}
           docker push coralogixrepo/cx-operator:${{ github.event.inputs.version }}
 
       - name: Create Release
