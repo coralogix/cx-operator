@@ -1,0 +1,20 @@
+{{- if .Values.serviceMonitor.create -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-exporter
+  namespace: {{ .Values.serviceMonitor.namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  endpoints:
+    - port: prometheus
+      path: /
+      interval: {{ .Values.serviceMonitor.interval }}
+  namespaceSelector:
+    any: true
+{{- end -}}

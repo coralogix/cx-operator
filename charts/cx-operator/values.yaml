@@ -10,8 +10,12 @@ serviceAccount:
 
 service:
   port: 9090
+
 serviceMonitor:
+  create: false
   port: 8080
+  namespace: monitoring
+  interval: 20s
 
 resources:
   memoryMb: 1024
