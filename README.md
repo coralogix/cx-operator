@@ -97,14 +97,16 @@ $ kubectl create secret generic coralogix-operator-secrets --from-literal=RULES_
 
 Install the operator with the following helm command:
 
+For accounts in Europe:
 ```shell
-$ helm install cx-operator cx-operator/cx-operator
+$ helm install --set config.coralogixApi.host=grpc-api.coralogix.com cx-operator cx-operator/cx-operator
+```
+For accounts in India:
+```shell
+$ helm install --set config.coralogixApi.host=grpc-api.app.coralogix.in cx-operator cx-operator/cx-operator
 ```
 
-To also install a _Prometheus_ `ServiceMonitor` object, use:
-
-```shell
-$ helm install --set serviceMonitor.create=true cx-operator cx-operator/cx-operator
+To also install a _Prometheus_ `ServiceMonitor` object, add: `--set serviceMonitor.create=true`
 ```
 
 ### Links
