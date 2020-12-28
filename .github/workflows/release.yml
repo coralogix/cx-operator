@@ -1,8 +1,7 @@
 name: 'Release helm chart'
 on:
-  push:
-    tags:
-      - '*-final'
+  release:
+    types: [published]
 
 jobs:
   release:
