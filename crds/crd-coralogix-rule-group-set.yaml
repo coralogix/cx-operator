@@ -94,12 +94,7 @@ spec:
                                    # Parameter types, only one of them should be present
                                    extract:
                                      type: object
-                                     required:
-                                       - dest-field
-                                     properties:
-                                       dest-field:
-                                         type: string
-                                         x-scala-type: FieldName
+                                     properties: {}
 
                                    json-extract:
                                      type: object

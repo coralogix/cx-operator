@@ -79,7 +79,7 @@ object ModelTransformations {
   private def toParameters(rule: OrGroup): RuleParameters =
     RuleParameters(
       rule.extract.map(p =>
-        RuleParameters.RuleParameters.ExtractParameters(ExtractParameters(Some(p.destField.name)))
+        RuleParameters.RuleParameters.ExtractParameters(ExtractParameters())
       ) orElse
         rule.jsonExtract.map(p =>
           RuleParameters.RuleParameters.JsonExtractParameters(
