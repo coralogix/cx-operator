@@ -69,10 +69,43 @@ spec:
 - Exposes Prometheus metrics on HTTP on port `8080`
 
 ### Installation instructions
-TODO
 
-#### Configuration
-- The Coralogix gRPC API requires an API TOKEN which must be stored under the `coralogix-operator-secrets` K8s secret's `RULES_API_TOKEN` key.
+First add `cx-opeator`'s helm repository:
+
+```shell
+$ helm repo add cx-operator https://coralogix.github.io/cx-operator/
+```
+
+Check if it can find the `cx-operator` chart:
+
+```shell
+$ helm search repo cx-operator
+NAME                   	CHART VERSION	APP VERSION	DESCRIPTION
+cx-operator/cx-operator	0.1.0        	0.1.0      	Coralogix Kubernetes Operator
+```
+
+The Coralogix gRPC API requires an _API TOKEN_ which must be stored under the `coralogix-operator-secrets` K8s secret's `RULES_API_TOKEN` key.
+
+First create the token on the Coralogix page:
+In Settings –> Account, Choose ‘Alerts API Access’ option and generate new Alerts & Rules API key.
+
+Then store the generated token in a Kubernetes secret:
+
+```shell
+$ kubectl create secret generic coralogix-operator-secrets --from-literal=RULES_API_TOKEN=00000000-0000-0000-0000-000000000000
+```
+
+Install the operator with the following helm command:
+
+```shell
+$ helm install cx-operator cx-operator/cx-operator
+```
+
+To also install a _Prometheus_ `ServiceMonitor` object, use:
+
+```shell
+$ helm install --set serviceMonitor.create=true cx-operator cx-operator/cx-operator
+```
 
 ### Links
 - [Rule group set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-rule-group-set.yaml)
