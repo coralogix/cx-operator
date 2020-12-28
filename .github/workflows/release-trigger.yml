@@ -42,6 +42,7 @@ jobs:
         run: |
           git add charts -v
           git commit -m "Release ${{ github.event.input.version }}"
+          git push
           git push --tags
 
       - name: Create Release
