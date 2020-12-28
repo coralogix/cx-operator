@@ -75,5 +75,5 @@ TODO
 - The Coralogix gRPC API requires an API TOKEN which must be stored under the `coralogix-operator-secrets` K8s secret's `RULES_API_TOKEN` key.
 
 ### Links
-- [Rule group set CRD](https://github.com/coralogix/coralogix-kubernetes-operator/blob/master/crds/crd-coralogix-rule-group-set.yaml)
+- [Rule group set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-rule-group-set.yaml)
 
