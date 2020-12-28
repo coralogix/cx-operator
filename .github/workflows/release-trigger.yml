@@ -52,7 +52,8 @@ jobs:
         run: |
           git add charts -v
           git commit -m "Release ${{ github.event.inputs.version }}"
-          git tag -a ${{ github.event.inputs.version }}-final -m ${{ github.event.inputs.version }}-final
+          git tag -d ${{ github.event.inputs.version }}
+          git tag -a ${{ github.event.inputs.version }} -m ${{ github.event.inputs.version }}
           git push
           git push --tags
 
@@ -73,3 +74,8 @@ jobs:
           body: ${{ github.event.inputs.changelog }}
           draft: false
           prerelease: false
+
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
