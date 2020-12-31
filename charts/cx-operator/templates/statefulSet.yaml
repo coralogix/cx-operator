@@ -39,7 +39,7 @@ spec:
       serviceAccountName: {{ template ".chart.serviceAccount.name" . }}
       containers:
         - name: {{ .Chart.Name }}
-          image: {{ .Values.image.respository }}/cx-operator:{{ .Values.image.tag }}
+          image: {{ .Values.image.repository }}/cx-operator:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: CORALOGIX_CONFIG
