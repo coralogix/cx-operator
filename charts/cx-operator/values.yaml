@@ -1,6 +1,6 @@
 config:
   coralogixApi:
-    host: grpc-api.coralogix.net
+    host: grpc-api.coralogix.com # or grpc-api.app.coralogix.in
     port: 443
     tls: true
   location: operator.conf
