@@ -1,13 +1,13 @@
 config:
   coralogixApi:
-    host: grpc-api.coralogix.com # or grpc-api.app.coralogix.in
+    host: grpc-api.coralogix.com
     port: 443
     tls: true
   location: operator.conf
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
-  tag: 0.1.9
+  tag: 0.1.10
 replicaCount: 1
 resources:
   cpus: 1
