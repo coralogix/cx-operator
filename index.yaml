@@ -2,8 +2,20 @@ apiVersion: v1
 entries:
   cx-operator:
   - apiVersion: v2
+    appVersion: 0.1.10
+    created: "2020-12-31T10:34:48.868912368Z"
+    description: Coralogix Kubernetes Operator
+    digest: 9efc4b9bb6f15a198e468132e6d4b2e47259612a127be63602d7cbbb19d923a6
+    name: cx-operator
+    sources:
+    - https://github.com/coralogix/cx-operator
+    type: application
+    urls:
+    - https://coralogix.github.io/cx-operator/cx-operator-0.1.10+ace4fbb.tgz
+    version: 0.1.10+ace4fbb
+  - apiVersion: v2
     appVersion: 0.1.9
-    created: "2020-12-31T09:57:35.232714641Z"
+    created: "2020-12-31T10:34:48.87035195Z"
     description: Coralogix Kubernetes Operator
     digest: 83e2d75178731815b9936a7817f5e88ce59c2226c3e4812911175c7bb93d36f9
     name: cx-operator
@@ -15,7 +27,7 @@ entries:
     version: 0.1.9+03810bf
   - apiVersion: v2
     appVersion: 0.1.8
-    created: "2020-12-31T09:57:35.232319541Z"
+    created: "2020-12-31T10:34:48.870026031Z"
     description: Coralogix Kubernetes Operator
     digest: ac2a8e8dfe65bb94f9df5f3845241a1134e7995deb96f4144a28f1c54e31d919
     name: cx-operator
@@ -27,7 +39,7 @@ entries:
     version: 0.1.8+a2fc764
   - apiVersion: v2
     appVersion: 0.1.7
-    created: "2020-12-31T09:57:35.231881541Z"
+    created: "2020-12-31T10:34:48.869676211Z"
     description: Coralogix Kubernetes Operator
     digest: 4d334d5e9742436a03222b545b49d2b7378e35cc913d336f2174ed1345bf5ecf
     name: cx-operator
@@ -39,7 +51,7 @@ entries:
     version: 0.1.7+d761d7a
   - apiVersion: v2
     appVersion: 0.1.6
-    created: "2020-12-31T09:57:35.231018442Z"
+    created: "2020-12-31T10:34:48.86930119Z"
     description: Coralogix Kubernetes Operator
     digest: 4b3a49af29a47879d2f1f7ec16a22dbcf729fad9cf4f781c882289a38530e9e8
     name: cx-operator
@@ -73,4 +85,4 @@ entries:
     urls:
     - https://github.com/coralogix/cx-operator/releases/download/cx-operator-0.1.0/cx-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2020-12-31T09:57:35.230157342Z"
+generated: "2020-12-31T10:34:48.868290433Z"
