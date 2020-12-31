@@ -47,13 +47,9 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-configmap
                   key: config.path
-          {{- if .Values.envFromSecret }}
           envFrom:
-          {{- range $name := .Values.envFromSecret }}
-          - secretRef:
-              name: {{ $name }}
-          {{- end }}
-          {{- end }}
+            - secretRef:
+                name: coralogix-operator-secrets
           args:
             - -J-XX:+UseContainerSupport
             - -J-XX:+UseG1GC
