@@ -7,7 +7,7 @@ config:
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
-  tag: 0.1.10
+  tag: 0.1.11
 replicaCount: 1
 resources:
   cpus: 1
@@ -21,14 +21,3 @@ serviceMonitor:
   interval: 20s
   namespace: monitoring
   port: 8080
-
-resources:
-  memoryMb: 1024
-  cpus: 1
-
-config:
-  location: operator.conf
-  coralogixApi:
-    host: grpc-api.coralogix.com # or grpc-api.app.coralogix.in
-    port: 443
-    tls: true
