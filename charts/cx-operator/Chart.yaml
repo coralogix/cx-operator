@@ -5,4 +5,4 @@ name: cx-operator
 sources:
 - https://github.com/coralogix/cx-operator
 type: application
-version: 0.1.10+ace4fbb
+version: 0.1.11
