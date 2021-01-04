@@ -22,11 +22,12 @@ data:
     }
 
     resources {
+      defaultBuffer = {{ .Values.config.resources.defaultBuffer }}
       rulegroups = [
         {{- range .Values.config.resources.rulegroups }}
         {
           namespace = {{ .namespace }}
-          buffer = {{ if .buffer }}{{ .buffer }}{{ else }}{{ $.Values.config.resources.defaultBuffer }}{{ end }}
+          {{ if .buffer }}buffer = {{ .buffer }}{{ end }}
         },
         {{- end }}
       ]

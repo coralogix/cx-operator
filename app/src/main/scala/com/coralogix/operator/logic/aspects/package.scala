@@ -19,7 +19,7 @@ package object aspects {
         f: EventProcessor[R1, StatusT, T]
       ): EventProcessor[R1, StatusT, T] =
         (ctx, event) =>
-          log.locally(OperatorLogging(ctx)) {
+          log.locally(OperatorLogging(ctx.withSpecificNamespace(event.namespace))) {
             (event match {
               case event @ Reseted =>
                 log.debug(s"State reseted") *>
@@ -59,7 +59,11 @@ package object aspects {
         f: EventProcessor[R1, StatusT, T]
       ): EventProcessor[R1, StatusT, T] =
         (ctx, event) => {
-          val labels = OperatorMetrics.labels(event, ctx.resourceType.resourceType, ctx.namespace)
+          val labels = OperatorMetrics.labels(
+            event,
+            ctx.resourceType.resourceType,
+            ctx.namespace.orElse(event.namespace)
+          )
 
           operatorMetrics.eventCounter.inc(labels).ignore *>
             f(ctx, event).timed.flatMap {

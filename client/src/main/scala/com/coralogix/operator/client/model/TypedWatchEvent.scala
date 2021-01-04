@@ -7,22 +7,30 @@ import zio.IO
 
 sealed trait TypedWatchEvent[+T] {
   val resourceVersion: Option[String]
+  val namespace: Option[K8sNamespace]
 }
 
 case object Reseted extends TypedWatchEvent[Nothing] {
   override val resourceVersion: Option[String] = None
+  override val namespace: Option[K8sNamespace] = None
 }
 
 final case class Added[StatusT, T <: Object[StatusT]](item: T) extends TypedWatchEvent[T] {
   override val resourceVersion: Option[String] = item.metadata.flatMap(_.resourceVersion)
+  override val namespace: Option[K8sNamespace] =
+    item.metadata.flatMap(_.namespace).map(K8sNamespace.apply)
 }
 
 final case class Modified[StatusT, T <: Object[StatusT]](item: T) extends TypedWatchEvent[T] {
   override val resourceVersion: Option[String] = item.metadata.flatMap(_.resourceVersion)
+  override val namespace: Option[K8sNamespace] =
+    item.metadata.flatMap(_.namespace).map(K8sNamespace.apply)
 }
 
 final case class Deleted[StatusT, T <: Object[StatusT]](item: T) extends TypedWatchEvent[T] {
   override val resourceVersion: Option[String] = item.metadata.flatMap(_.resourceVersion)
+  override val namespace: Option[K8sNamespace] =
+    item.metadata.flatMap(_.namespace).map(K8sNamespace.apply)
 }
 
 object TypedWatchEvent {
