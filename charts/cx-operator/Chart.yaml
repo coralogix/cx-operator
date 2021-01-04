@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: 0.1.11
+appVersion: 0.1.12
 description: Coralogix Kubernetes Operator
 name: cx-operator
 sources:
 - https://github.com/coralogix/cx-operator
 type: application
-version: 0.1.11+4f28198
+version: 0.1.12+3df6bad
