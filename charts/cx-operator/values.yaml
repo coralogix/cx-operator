@@ -1,9 +1,9 @@
 config:
-  location: operator.conf
   coralogixApi:
     host: grpc-api.coralogix.com
     port: 443
     tls: true
+  location: operator.conf
   resources:
     defaultBuffer: 1024 # applied to all resources/namespaces;
     rulegroups: []
@@ -12,7 +12,7 @@ config:
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
-  tag: 0.1.12
+  tag: 0.1.13
 replicaCount: 1
 resources:
   cpus: 1
