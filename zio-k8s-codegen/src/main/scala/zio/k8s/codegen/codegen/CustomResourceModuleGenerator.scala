@@ -88,61 +88,61 @@ object CustomResourceModuleGenerator {
                 crd <- ZIO.fromEither(io.circe.yaml.parser.parse(rawYaml).flatMap(_.as[CustomResourceDefinition]))
               } yield crd
 
-            def live: ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[Resource[$statusT, $entityT]]] =
+            def live: ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[NamespacedResource[$statusT, $entityT]]] =
               ResourceClient.namespaced.live[$statusT, $entityT](metadata.resourceType)
 
               def getAll(
                 namespace: Option[K8sNamespace],
                 chunkSize: Int = 10
-              ): ZStream[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZStream[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.getAll(namespace, chunkSize)
 
               def watch(
                 namespace: Option[K8sNamespace],
                 resourceVersion: Option[String]
-              ): ZStream[Has[Resource[$statusT, $entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
+              ): ZStream[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
                 ResourceClient.namespaced.watch(namespace, resourceVersion)
 
               def watchForever[T, R, E](
                 namespace: Option[K8sNamespace]
-              ): ZStream[Has[Resource[$statusT, $entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
+              ): ZStream[Has[NamespacedResource[$statusT, $entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
                 ResourceClient.namespaced.watchForever(namespace)
 
               def get(
                 name: String,
-                namespace: Option[K8sNamespace]
-              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
+                namespace: K8sNamespace
+              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.get(name, namespace)
 
               def create(
                 newResource: $entityT,
-                namespace: Option[K8sNamespace],
+                namespace: K8sNamespace,
                 dryRun: Boolean = false
-              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.create(newResource, namespace, dryRun)
 
               def replace(
                 name: String,
                 updatedResource: $entityT,
-                namespace: Option[K8sNamespace],
+                namespace: K8sNamespace,
                 dryRun: Boolean = false
-              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.replace(name, updatedResource, namespace, dryRun)
 
               def replaceStatus(
                 of: $entityT,
                 updatedStatus: $statusT,
-                namespace: Option[K8sNamespace],
+                namespace: K8sNamespace,
                 dryRun: Boolean = false
-              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.replaceStatus(of, updatedStatus, namespace, dryRun)
 
               def delete(
                 name: String,
                 deleteOptions: DeleteOptions,
-                namespace: Option[K8sNamespace],
+                namespace: K8sNamespace,
                 dryRun: Boolean = false
-              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, Status] =
+              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, Status] =
                 ResourceClient.namespaced.delete(name, deleteOptions, namespace, dryRun)
           }
           }

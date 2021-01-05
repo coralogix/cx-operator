@@ -1,6 +1,6 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.operator.client.Resource
+import com.coralogix.operator.client.{ NamespacedResource, Resource }
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
 import com.coralogix.operator.client.rulegroupset.{ v1 => rulegroupset }
 import com.coralogix.operator.client.model._
@@ -25,7 +25,7 @@ object RulegroupsetOperator {
 
   /** The central rulegroupset event processor logic */
   private def eventProcessor(): EventProcessor[Logging with Has[
-    Resource[Rulegroupset.Status, Rulegroupset]
+    NamespacedResource[Rulegroupset.Status, Rulegroupset]
   ] with RuleGroupsServiceClient, Rulegroupset.Status, Rulegroupset] =
     (ctx, event) =>
       event match {
@@ -177,7 +177,7 @@ object RulegroupsetOperator {
     resource: Rulegroupset,
     updates: Vector[StatusUpdate]
   ): ZIO[Logging with Has[
-    Resource[Rulegroupset.Status, Rulegroupset]
+    NamespacedResource[Rulegroupset.Status, Rulegroupset]
   ], KubernetesFailure, Unit] = {
     val initialStatus =
       resource.status.getOrElse(Rulegroupset.Status(groupIds = Some(Vector.empty)))
@@ -187,7 +187,10 @@ object RulegroupsetOperator {
       .replaceStatus(
         resource,
         updatedStatus,
-        ctx.namespace
+        resource.metadata
+          .flatMap(_.namespace)
+          .map(K8sNamespace.apply)
+          .getOrElse(K8sNamespace.default)
       )
       .mapError(KubernetesFailure.apply)
       .unit
@@ -204,9 +207,9 @@ object RulegroupsetOperator {
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[Has[Resource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
+  ): ZIO[Has[NamespacedResource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
     Clock with Logging with Has[
-      Resource[Rulegroupset.Status, Rulegroupset]
+      NamespacedResource[Rulegroupset.Status, Rulegroupset]
     ] with RuleGroupsServiceClient,
     Rulegroupset.Status,
     Rulegroupset
@@ -218,9 +221,9 @@ object RulegroupsetOperator {
   def forAllNamespaces(
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[Has[Resource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
+  ): ZIO[Has[NamespacedResource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
     Clock with Logging with Has[
-      Resource[Rulegroupset.Status, Rulegroupset]
+      NamespacedResource[Rulegroupset.Status, Rulegroupset]
     ] with RuleGroupsServiceClient,
     Rulegroupset.Status,
     Rulegroupset
@@ -229,9 +232,9 @@ object RulegroupsetOperator {
       eventProcessor() @@ logEvents @@ metered(metrics)
     )(None, buffer)
 
-  def forTest(): ZIO[Has[Resource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
+  def forTest(): ZIO[Has[NamespacedResource[Rulegroupset.Status, Rulegroupset]], Nothing, Operator[
     Logging with Has[
-      Resource[Rulegroupset.Status, Rulegroupset]
+      NamespacedResource[Rulegroupset.Status, Rulegroupset]
     ] with RuleGroupsServiceClient,
     Rulegroupset.Status,
     Rulegroupset

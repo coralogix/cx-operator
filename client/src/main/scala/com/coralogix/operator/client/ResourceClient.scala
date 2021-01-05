@@ -66,6 +66,52 @@ trait Resource[StatusT, T <: Object[StatusT]] {
   ): IO[K8sFailure, Status]
 }
 
+class NamespacedResource[StatusT, T <: Object[StatusT]](impl: Resource[StatusT, T]) {
+  def getAll(namespace: Option[K8sNamespace], chunkSize: Int = 10): Stream[K8sFailure, T] =
+    impl.getAll(namespace, chunkSize)
+
+  def watch(
+    namespace: Option[K8sNamespace],
+    resourceVersion: Option[String]
+  ): Stream[K8sFailure, TypedWatchEvent[T]] =
+    impl.watch(namespace, resourceVersion)
+
+  def watchForever[R, E](
+    namespace: Option[K8sNamespace]
+  ): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
+    impl.watchForever(namespace)
+
+  def get(name: String, namespace: K8sNamespace): IO[K8sFailure, T] =
+    impl.get(name, Some(namespace))
+
+  def create(newResource: T, namespace: K8sNamespace, dryRun: Boolean = false): IO[K8sFailure, T] =
+    impl.create(newResource, Some(namespace), dryRun)
+
+  def replace(
+    name: String,
+    updatedResource: T,
+    namespace: K8sNamespace,
+    dryRun: Boolean = false
+  ): IO[K8sFailure, T] =
+    impl.replace(name, updatedResource, Some(namespace), dryRun)
+
+  def replaceStatus(
+    of: T,
+    updatedResource: StatusT,
+    namespace: K8sNamespace,
+    dryRun: Boolean = false
+  ): IO[K8sFailure, T] =
+    impl.replaceStatus(of, updatedResource, Some(namespace), dryRun)
+
+  def delete(
+    name: String,
+    deleteOptions: DeleteOptions,
+    namespace: K8sNamespace,
+    dryRun: Boolean = false
+  ): IO[K8sFailure, Status] =
+    impl.delete(name, deleteOptions, Some(namespace), dryRun)
+}
+
 class ClusterResource[StatusT, T <: Object[StatusT]](
   impl: Resource[StatusT, T]
 ) {
@@ -334,68 +380,66 @@ object ResourceClient {
   object namespaced {
     def live[StatusT: Encoder: Tag, T <: Object[StatusT]: Encoder: Decoder: Tag](
       resourceType: K8sResourceType
-    ): ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[
-      Resource[StatusT, T]
-    ]] =
-      ZLayer.fromServices[SttpClient.Service, K8sCluster, Resource[StatusT, T]] {
+    ): ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[NamespacedResource[StatusT, T]]] =
+      ZLayer.fromServices[SttpClient.Service, K8sCluster, NamespacedResource[StatusT, T]] {
         (backend: SttpClient.Service, cluster: K8sCluster) =>
-          new ResourceClient[StatusT, T](resourceType, cluster, backend)
+          new NamespacedResource(new ResourceClient[StatusT, T](resourceType, cluster, backend))
       }
 
     def getAll[StatusT: Tag, T <: Object[StatusT]: Tag](
       namespace: Option[K8sNamespace],
       chunkSize: Int = 10
-    ): ZStream[Has[Resource[StatusT, T]], K8sFailure, T] =
+    ): ZStream[Has[NamespacedResource[StatusT, T]], K8sFailure, T] =
       ZStream.accessStream(_.get.getAll(namespace, chunkSize))
 
     def watch[StatusT: Tag, T <: Object[StatusT]: Tag](
       namespace: Option[K8sNamespace],
       resourceVersion: Option[String]
-    ): ZStream[Has[Resource[StatusT, T]], K8sFailure, TypedWatchEvent[T]] =
+    ): ZStream[Has[NamespacedResource[StatusT, T]], K8sFailure, TypedWatchEvent[T]] =
       ZStream.accessStream(_.get.watch(namespace, resourceVersion))
 
     def watchForever[StatusT: Tag, T <: Object[StatusT]: Tag, R, E](
       namespace: Option[K8sNamespace]
-    ): ZStream[Has[Resource[StatusT, T]] with Clock, K8sFailure, TypedWatchEvent[
+    ): ZStream[Has[NamespacedResource[StatusT, T]] with Clock, K8sFailure, TypedWatchEvent[
       T
     ]] =
       ZStream.accessStream(_.get.watchForever(namespace))
 
     def get[StatusT: Tag, T <: Object[StatusT]: Tag](
       name: String,
-      namespace: Option[K8sNamespace]
-    ): ZIO[Has[Resource[StatusT, T]], K8sFailure, T] =
+      namespace: K8sNamespace
+    ): ZIO[Has[NamespacedResource[StatusT, T]], K8sFailure, T] =
       ZIO.accessM(_.get.get(name, namespace))
 
     def create[StatusT: Tag, T <: Object[StatusT]: Tag](
       newResource: T,
-      namespace: Option[K8sNamespace],
+      namespace: K8sNamespace,
       dryRun: Boolean = false
-    ): ZIO[Has[Resource[StatusT, T]], K8sFailure, T] =
+    ): ZIO[Has[NamespacedResource[StatusT, T]], K8sFailure, T] =
       ZIO.accessM(_.get.create(newResource, namespace, dryRun))
 
     def replace[StatusT: Tag, T <: Object[StatusT]: Tag](
       name: String,
       updatedResource: T,
-      namespace: Option[K8sNamespace],
+      namespace: K8sNamespace,
       dryRun: Boolean = false
-    ): ZIO[Has[Resource[StatusT, T]], K8sFailure, T] =
+    ): ZIO[Has[NamespacedResource[StatusT, T]], K8sFailure, T] =
       ZIO.accessM(_.get.replace(name, updatedResource, namespace, dryRun))
 
     def replaceStatus[StatusT: Tag, T <: Object[StatusT]: Tag](
       of: T,
       updatedStatus: StatusT,
-      namespace: Option[K8sNamespace],
+      namespace: K8sNamespace,
       dryRun: Boolean = false
-    ): ZIO[Has[Resource[StatusT, T]], K8sFailure, T] =
+    ): ZIO[Has[NamespacedResource[StatusT, T]], K8sFailure, T] =
       ZIO.accessM(_.get.replaceStatus(of, updatedStatus, namespace, dryRun))
 
     def delete[StatusT: Tag, T <: Object[StatusT]: Tag](
       name: String,
       deleteOptions: DeleteOptions,
-      namespace: Option[K8sNamespace],
+      namespace: K8sNamespace,
       dryRun: Boolean = false
-    ): ZIO[Has[Resource[StatusT, T]], K8sFailure, Status] =
+    ): ZIO[Has[NamespacedResource[StatusT, T]], K8sFailure, Status] =
       ZIO.accessM(_.get.delete(name, deleteOptions, namespace, dryRun))
   }
 

@@ -1,7 +1,7 @@
 package com.coralogix.operator
 
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.operator.client.{ crd, Resource }
+import com.coralogix.operator.client.{ crd, NamespacedResource, Resource }
 import com.coralogix.operator.client.rulegroupset.{ v1 => rulegroupset }
 import com.coralogix.operator.config.{ OperatorConfig, OperatorResources }
 import com.coralogix.operator.config.OperatorConfig.k8sCluster
@@ -78,7 +78,7 @@ object Main extends App {
     metrics: OperatorMetrics,
     resources: OperatorResources
   ): ZIO[Clock with Logging with Has[
-    Resource[Rulegroupset.Status, Rulegroupset]
+    NamespacedResource[Rulegroupset.Status, Rulegroupset]
   ] with RuleGroupsServiceClient, Nothing, List[Fiber.Runtime[Nothing, Unit]]] =
     if (resources.rulegroups.isEmpty)
       for {
