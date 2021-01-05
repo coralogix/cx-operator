@@ -8,7 +8,7 @@ import com.coralogix.operator.client.model.{
   ResourceMetadata,
   TypedWatchEvent
 }
-import com.coralogix.operator.client.{ ClusterResource, K8sFailure, Resource }
+import com.coralogix.operator.client.{ ClusterResource, K8sFailure, NamespacedResource, Resource }
 import com.coralogix.operator.logging.{ logFailure, OperatorLogging }
 import com.coralogix.operator.logic.Operator.OperatorContext
 import izumi.reflect.Tag
@@ -59,7 +59,7 @@ trait Operator[R, StatusT, T <: Object[StatusT]] {
 }
 
 abstract class NamespacedOperator[R, StatusT, T <: Object[StatusT]](
-  client: Resource[StatusT, T],
+  client: NamespacedResource[StatusT, T],
   namespace: Option[K8sNamespace]
 ) extends Operator[R, StatusT, T] {
   override protected def watchStream(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
@@ -94,8 +94,8 @@ object Operator {
   )(
     namespace: Option[K8sNamespace],
     buffer: Int
-  ): ZIO[Has[Resource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
-    ZIO.service[Resource[StatusT, T]].map { client =>
+  ): ZIO[Has[NamespacedResource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
+    ZIO.service[NamespacedResource[StatusT, T]].map { client =>
       val ctx = OperatorContext(implicitly[ResourceMetadata[T]].resourceType, namespace)
       new NamespacedOperator[R, StatusT, T](client, namespace) {
         override def processEvent(event: TypedWatchEvent[T]): ZIO[R, OperatorFailure, Unit] =
