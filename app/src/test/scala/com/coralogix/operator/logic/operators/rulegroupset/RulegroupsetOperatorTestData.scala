@@ -3,6 +3,7 @@ package com.coralogix.operator.logic.operators.rulegroupset
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
+import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.Allow
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
 import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.{
   AndSequence,
@@ -39,8 +40,7 @@ trait RulegroupsetOperatorTestData {
             name = RuleName("rule1"),
             enabled = true,
             sourceField = FieldName("field1"),
-            rule = "rule",
-            allow = Some(Json.obj())
+            allow = Some(Allow(keepBlockedLogs = false, rule = "rule"))
           )
         )
       )
@@ -61,15 +61,13 @@ trait RulegroupsetOperatorTestData {
             name = RuleName("rule10"),
             enabled = true,
             sourceField = FieldName("field1"),
-            rule = "rule",
-            allow = Some(Json.obj())
+            allow = Some(Allow(keepBlockedLogs = false, rule = "rule"))
           ),
           OrGroup(
             name = RuleName("rule11"),
             enabled = true,
             sourceField = FieldName("field1"),
-            rule = "rule",
-            allow = Some(Json.obj())
+            allow = Some(Allow(keepBlockedLogs = false, rule = "rule"))
           )
         )
       ),
@@ -79,8 +77,7 @@ trait RulegroupsetOperatorTestData {
             name = RuleName("rule12"),
             enabled = true,
             sourceField = FieldName("field1"),
-            rule = "rule",
-            allow = Some(Json.obj())
+            allow = Some(Allow(keepBlockedLogs = false, rule = "rule"))
           )
         )
       )
@@ -114,10 +111,11 @@ trait RulegroupsetOperatorTestData {
                 id = Some("rule1-id"),
                 name = Some("rule1"),
                 enabled = Some(true),
-                rule = Some("rule"),
                 parameters = Some(
                   RuleParameters(
-                    RuleParameters.RuleParameters.AllowParameters(AllowParameters())
+                    RuleParameters.RuleParameters.AllowParameters(
+                      AllowParameters(Some(false), Some("rule"))
+                    )
                   )
                 )
               )
@@ -145,10 +143,11 @@ trait RulegroupsetOperatorTestData {
                 id = Some("rule1-id"),
                 name = Some("rule1"),
                 enabled = Some(true),
-                rule = Some("rule"),
                 parameters = Some(
                   RuleParameters(
-                    RuleParameters.RuleParameters.AllowParameters(AllowParameters())
+                    RuleParameters.RuleParameters.AllowParameters(
+                      AllowParameters(Some(false), Some("rule"))
+                    )
                   )
                 )
               )
@@ -188,10 +187,11 @@ trait RulegroupsetOperatorTestData {
                 id = Some("rule10-id"),
                 name = Some("rule10"),
                 enabled = Some(true),
-                rule = Some("rule"),
                 parameters = Some(
                   RuleParameters(
-                    RuleParameters.RuleParameters.AllowParameters(AllowParameters())
+                    RuleParameters.RuleParameters.AllowParameters(
+                      AllowParameters(Some(false), Some("rule"))
+                    )
                   )
                 )
               ),
@@ -199,10 +199,11 @@ trait RulegroupsetOperatorTestData {
                 id = Some("rule11-id"),
                 name = Some("rule11"),
                 enabled = Some(true),
-                rule = Some("rule"),
                 parameters = Some(
                   RuleParameters(
-                    RuleParameters.RuleParameters.AllowParameters(AllowParameters())
+                    RuleParameters.RuleParameters.AllowParameters(
+                      AllowParameters(Some(false), Some("rule"))
+                    )
                   )
                 )
               )
@@ -215,10 +216,11 @@ trait RulegroupsetOperatorTestData {
                 id = Some("rule12-id"),
                 name = Some("rule12"),
                 enabled = Some(true),
-                rule = Some("rule"),
                 parameters = Some(
                   RuleParameters(
-                    RuleParameters.RuleParameters.AllowParameters(AllowParameters())
+                    RuleParameters.RuleParameters.AllowParameters(
+                      AllowParameters(Some(false), Some("rule"))
+                    )
                   )
                 )
               )

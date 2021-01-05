@@ -75,7 +75,6 @@ spec:
                                  required:
                                    - name
                                    - source-field
-                                   - rule
                                    - enabled
                                  properties:
                                    name:
@@ -86,15 +85,17 @@ spec:
                                    source-field:
                                      type: string
                                      x-scala-type: FieldName
-                                   rule:
-                                     type: string
                                    enabled:
                                      type: boolean
 
                                    # Parameter types, only one of them should be present
                                    extract:
                                      type: object
-                                     properties: {}
+                                     required:
+                                       - rule
+                                     properties:
+                                      rule:
+                                        type: string
 
                                    json-extract:
                                      type: object
@@ -114,30 +115,46 @@ spec:
                                      required:
                                        - dest-field
                                        - new-value
+                                       - rule
                                      properties:
                                        dest-field:
                                          type: string
                                          x-scala-type: FieldName
                                        new-value:
                                          type: string
+                                       rule:
+                                         type: string
                                    parse:
                                      type: object
                                      required:
                                        - dest-field
+                                       - rule
                                      properties:
                                        dest-field:
                                          type: string
                                          x-scala-type: FieldName
+                                       rule:
+                                         type: string
                                    allow:
                                      type: object
-                                     properties: {}
+                                     required:
+                                       - keep-blocked-logs
+                                       - rule
+                                     properties:
+                                       keep-blocked-logs:
+                                         type: boolean
+                                       rule:
+                                         type: string
                                    block:
                                      type: object
                                      required:
                                        - keep-blocked-logs
+                                       - rule
                                      properties:
                                        keep-blocked-logs:
                                          type: boolean
+                                       rule:
+                                         type: string
 
             status:
               type: object

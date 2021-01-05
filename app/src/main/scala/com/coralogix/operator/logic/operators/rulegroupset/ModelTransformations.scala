@@ -79,7 +79,7 @@ object ModelTransformations {
   private def toParameters(rule: OrGroup): RuleParameters =
     RuleParameters(
       rule.extract.map(p =>
-        RuleParameters.RuleParameters.ExtractParameters(ExtractParameters())
+        RuleParameters.RuleParameters.ExtractParameters(ExtractParameters(rule = Some(p.rule)))
       ) orElse
         rule.jsonExtract.map(p =>
           RuleParameters.RuleParameters.JsonExtractParameters(
@@ -88,15 +88,30 @@ object ModelTransformations {
         ) orElse
         rule.replace.map(p =>
           RuleParameters.RuleParameters.ReplaceParameters(
-            ReplaceParameters(Some(p.destField.name), Some(p.newValue))
+            ReplaceParameters(
+              destinationField = Some(p.destField.name),
+              replaceNewVal = Some(p.newValue),
+              rule = Some(p.rule)
+            )
           )
         ) orElse
         rule.parse.map(p =>
-          RuleParameters.RuleParameters.ParseParameters(ParseParameters(Some(p.destField.name)))
+          RuleParameters.RuleParameters.ParseParameters(
+            ParseParameters(destinationField = Some(p.destField.name), rule = Some(p.rule))
+          )
         ) orElse
-        rule.allow.map(_ => RuleParameters.RuleParameters.AllowParameters(AllowParameters())) orElse
+        rule.allow.map(p =>
+          RuleParameters.RuleParameters.AllowParameters(
+            AllowParameters(
+              keepBlockedLogs = Some(p.keepBlockedLogs),
+              rule = Some(p.rule)
+            )
+          )
+        ) orElse
         rule.block.map(p =>
-          RuleParameters.RuleParameters.BlockParameters(BlockParameters(Some(p.keepBlockedLogs)))
+          RuleParameters.RuleParameters.BlockParameters(
+            BlockParameters(keepBlockedLogs = Some(p.keepBlockedLogs), rule = Some(p.rule))
+          )
         ) getOrElse RuleParameters.RuleParameters.Empty
     )
 
@@ -106,7 +121,6 @@ object ModelTransformations {
   ): CreateRule =
     CreateRule(
       name = Some(rule.name.value),
-      rule = Some(rule.rule),
       description = rule.description,
       sourceField = Some(rule.sourceField.name),
       parameters = Some(toParameters(rule)),
