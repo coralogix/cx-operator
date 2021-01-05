@@ -5,7 +5,7 @@ import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.St
 import com.coralogix.operator.client.model.generated.apimachinery.v1.{ DeleteOptions, Status }
 import com.coralogix.operator.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.coralogix.operator.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
-import com.coralogix.operator.client.{ K8sFailure, NamespacedResource, Resource }
+import com.coralogix.operator.client.{ K8sFailure, Resource }
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
@@ -195,56 +195,54 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
     TMap.make[String, Rulegroupset.Status]().commit.flatMap { statusMap =>
       val logging = Logging.console(LogLevel.Debug)
       val client = ZLayer.succeed(
-        new NamespacedResource[Rulegroupset.Status, Rulegroupset](
-          new Resource[Rulegroupset.Status, Rulegroupset] {
-            override def watch(
-              namespace: Option[K8sNamespace],
-              resourceVersion: Option[String]
-            ): Stream[K8sFailure, TypedWatchEvent[Rulegroupset]] =
-              Stream.fromIterable(events)
+        new Resource[Rulegroupset.Status, Rulegroupset] {
+          override def watch(
+            namespace: Option[K8sNamespace],
+            resourceVersion: Option[String]
+          ): Stream[K8sFailure, TypedWatchEvent[Rulegroupset]] =
+            Stream.fromIterable(events)
 
-            override def getAll(
-              namespace: Option[K8sNamespace],
-              chunkSize: Int
-            ): Stream[K8sFailure, Rulegroupset] = ???
+          override def getAll(
+            namespace: Option[K8sNamespace],
+            chunkSize: Int
+          ): Stream[K8sFailure, Rulegroupset] = ???
 
-            override def get(
-              name: String,
-              namespace: Option[K8sNamespace]
-            ): IO[K8sFailure, Rulegroupset] = ???
+          override def get(
+            name: String,
+            namespace: Option[K8sNamespace]
+          ): IO[K8sFailure, Rulegroupset] = ???
 
-            override def create(
-              newResource: Rulegroupset,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] = ???
+          override def create(
+            newResource: Rulegroupset,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, Rulegroupset] = ???
 
-            override def replace(
-              name: String,
-              updatedResource: Rulegroupset,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] = ???
+          override def replace(
+            name: String,
+            updatedResource: Rulegroupset,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, Rulegroupset] = ???
 
-            override def replaceStatus(
-              of: Rulegroupset,
-              updatedStatus: Rulegroupset.Status,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] =
-              for {
-                name <- of.getName
-                _    <- statusMap.put(name, updatedStatus).commit
-              } yield of.copy(status = Some(updatedStatus))
+          override def replaceStatus(
+            of: Rulegroupset,
+            updatedStatus: Rulegroupset.Status,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, Rulegroupset] =
+            for {
+              name <- of.getName
+              _    <- statusMap.put(name, updatedStatus).commit
+            } yield of.copy(status = Some(updatedStatus))
 
-            override def delete(
-              name: String,
-              deleteOptions: DeleteOptions,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Status] = ???
-          }
-        )
+          override def delete(
+            name: String,
+            deleteOptions: DeleteOptions,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, Status] = ???
+        }
       )
 
       val test = for {

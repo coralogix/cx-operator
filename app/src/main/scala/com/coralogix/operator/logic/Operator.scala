@@ -8,15 +8,15 @@ import com.coralogix.operator.client.model.{
   ResourceMetadata,
   TypedWatchEvent
 }
-import com.coralogix.operator.client.{ ClusterResource, K8sFailure, NamespacedResource }
-import com.coralogix.operator.logging.{ logFailure, ConvertableToThrowable, OperatorLogging }
+import com.coralogix.operator.client.{ ClusterResource, K8sFailure, Resource }
+import com.coralogix.operator.logging.{ logFailure, OperatorLogging }
 import com.coralogix.operator.logic.Operator.OperatorContext
 import izumi.reflect.Tag
 import zio.clock.Clock
 import zio.duration.durationInt
 import zio.logging.{ log, Logging }
 import zio.stream.ZStream
-import zio.{ Cause, Fiber, Has, Schedule, URIO, ZIO }
+import zio._
 
 /**
   * Core implementation of the operator logic.
@@ -59,8 +59,8 @@ trait Operator[R, StatusT, T <: Object[StatusT]] {
 }
 
 abstract class NamespacedOperator[R, StatusT, T <: Object[StatusT]](
-  client: NamespacedResource[StatusT, T],
-  namespace: K8sNamespace
+  client: Resource[StatusT, T],
+  namespace: Option[K8sNamespace]
 ) extends Operator[R, StatusT, T] {
   override protected def watchStream(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     client.watchForever(namespace)
@@ -78,7 +78,13 @@ object Operator {
   /** Static contextual information for the event processors,
     * usable for implementing generic loggers/metrics etc.
     */
-  case class OperatorContext(resourceType: K8sResourceType, namespace: Option[K8sNamespace])
+  case class OperatorContext(resourceType: K8sResourceType, namespace: Option[K8sNamespace]) {
+    def withSpecificNamespace(namespace: Option[K8sNamespace]): OperatorContext =
+      this.namespace match {
+        case None    => copy(namespace = namespace)
+        case Some(_) => this
+      }
+  }
 
   type EventProcessor[R, StatusT, T <: Object[StatusT]] =
     (OperatorContext, TypedWatchEvent[T]) => ZIO[R, OperatorFailure, Unit]
@@ -86,11 +92,11 @@ object Operator {
   def namespaced[R: Tag, StatusT: Tag, T <: Object[StatusT]: Tag: ResourceMetadata](
     eventProcessor: EventProcessor[R, StatusT, T]
   )(
-    namespace: K8sNamespace,
+    namespace: Option[K8sNamespace],
     buffer: Int
-  ): ZIO[Has[NamespacedResource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
-    ZIO.service[NamespacedResource[StatusT, T]].map { client =>
-      val ctx = OperatorContext(implicitly[ResourceMetadata[T]].resourceType, Some(namespace))
+  ): ZIO[Has[Resource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
+    ZIO.service[Resource[StatusT, T]].map { client =>
+      val ctx = OperatorContext(implicitly[ResourceMetadata[T]].resourceType, namespace)
       new NamespacedOperator[R, StatusT, T](client, namespace) {
         override def processEvent(event: TypedWatchEvent[T]): ZIO[R, OperatorFailure, Unit] =
           eventProcessor(ctx, event)

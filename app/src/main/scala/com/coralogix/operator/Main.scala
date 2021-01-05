@@ -1,21 +1,23 @@
 package com.coralogix.operator
 
-import com.coralogix.operator.client.crd
+import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.operator.client.{ crd, Resource }
 import com.coralogix.operator.client.rulegroupset.{ v1 => rulegroupset }
-import com.coralogix.operator.config.OperatorConfig
+import com.coralogix.operator.config.{ OperatorConfig, OperatorResources }
 import com.coralogix.operator.config.OperatorConfig.k8sCluster
 import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
 import com.coralogix.operator.logic.Registration
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
+import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import org.slf4j.impl.{ StaticLoggerBinder, ZioLoggerFactory }
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import zio.logging.{ log, LogAnnotation }
+import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
-import zio.{ console, App, Cause, ExitCode, URIO, ZIO }
+import zio.{ console, App, Cause, ExitCode, Fiber, Has, URIO, ZIO }
 
 object Main extends App {
 
@@ -54,21 +56,8 @@ object Main extends App {
                  rulegroupset.metadata,
                  rulegroupset.customResourceDefinition
                )
-          rulegroupFibers <- ZIO.foreach(config.resources.rulegroups) { rulegroupConfig =>
-                               for {
-                                 _ <-
-                                   log.info(
-                                     s"Starting rule group operator in namespace ${rulegroupConfig.namespace.value}"
-                                   )
-                                 op <- RulegroupsetOperator.forNamespace(
-                                         rulegroupConfig.namespace,
-                                         rulegroupConfig.buffer,
-                                         metrics
-                                       )
-                                 opFiber <- op.start()
-                               } yield opFiber
-                             }
-          _ <- ZIO.never.raceAll(rulegroupFibers.map(_.await))
+          rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
+          _               <- ZIO.never.raceAll(rulegroupFibers.map(_.await))
         } yield ()
       }
 
@@ -84,4 +73,34 @@ object Main extends App {
         console.putStrLnErr("Shutting down")
       }
   }
+
+  private def spawnRuleGroupOperators(
+    metrics: OperatorMetrics,
+    resources: OperatorResources
+  ): ZIO[Clock with Logging with Has[
+    Resource[Rulegroupset.Status, Rulegroupset]
+  ] with RuleGroupsServiceClient, Nothing, List[Fiber.Runtime[Nothing, Unit]]] =
+    if (resources.rulegroups.isEmpty)
+      for {
+        _ <- log.info(s"Starting rule group operator for all namespaces")
+        op <- RulegroupsetOperator.forAllNamespaces(
+                resources.defaultBuffer,
+                metrics
+              )
+        opFiber <- op.start()
+      } yield List(opFiber)
+    else
+      ZIO.foreach(resources.rulegroups) { rulegroupConfig =>
+        for {
+          _ <- log.info(
+                 s"Starting rule group operator for namespace ${rulegroupConfig.namespace.value}"
+               )
+          op <- RulegroupsetOperator.forNamespace(
+                  rulegroupConfig.namespace,
+                  rulegroupConfig.buffer.getOrElse(resources.defaultBuffer),
+                  metrics
+                )
+          opFiber <- op.start()
+        } yield opFiber
+      }
 }

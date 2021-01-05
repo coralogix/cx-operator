@@ -1,6 +1,7 @@
 val ScalaVer = "2.13.4"
 
 enablePlugins(Protodep)
+Global / protodepUseHttps := true
 
 ThisBuild / scalaVersion := ScalaVer
 

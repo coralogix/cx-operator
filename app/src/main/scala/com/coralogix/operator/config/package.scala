@@ -44,9 +44,10 @@ case class GrpcClientConfig(
   queueSize: Int
 )
 
-case class RulegroupConfig(namespace: K8sNamespace, buffer: Int)
+case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int])
 
 case class OperatorResources(
+  defaultBuffer: Int,
   rulegroups: List[RulegroupConfig]
 )
 

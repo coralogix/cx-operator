@@ -88,58 +88,61 @@ object CustomResourceModuleGenerator {
                 crd <- ZIO.fromEither(io.circe.yaml.parser.parse(rawYaml).flatMap(_.as[CustomResourceDefinition]))
               } yield crd
 
-            def live: ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[NamespacedResource[$statusT, $entityT]]] =
+            def live: ZLayer[SttpClient with ZConfig[K8sCluster], Nothing, Has[Resource[$statusT, $entityT]]] =
               ResourceClient.namespaced.live[$statusT, $entityT](metadata.resourceType)
 
               def getAll(
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 chunkSize: Int = 10
-              ): ZStream[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZStream[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.getAll(namespace, chunkSize)
 
               def watch(
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 resourceVersion: Option[String]
-              ): ZStream[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
+              ): ZStream[Has[Resource[$statusT, $entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
                 ResourceClient.namespaced.watch(namespace, resourceVersion)
 
               def watchForever[T, R, E](
-                namespace: K8sNamespace
-              ): ZStream[Has[NamespacedResource[$statusT, $entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
+                namespace: Option[K8sNamespace]
+              ): ZStream[Has[Resource[$statusT, $entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
                 ResourceClient.namespaced.watchForever(namespace)
 
-              def get(name: String, namespace: K8sNamespace): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
+              def get(
+                name: String,
+                namespace: Option[K8sNamespace]
+              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.get(name, namespace)
 
               def create(
                 newResource: $entityT,
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 dryRun: Boolean = false
-              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.create(newResource, namespace, dryRun)
 
               def replace(
                 name: String,
                 updatedResource: $entityT,
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 dryRun: Boolean = false
-              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.replace(name, updatedResource, namespace, dryRun)
 
               def replaceStatus(
                 of: $entityT,
                 updatedStatus: $statusT,
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 dryRun: Boolean = false
-              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, $entityT] =
+              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, $entityT] =
                 ResourceClient.namespaced.replaceStatus(of, updatedStatus, namespace, dryRun)
 
               def delete(
                 name: String,
                 deleteOptions: DeleteOptions,
-                namespace: K8sNamespace,
+                namespace: Option[K8sNamespace],
                 dryRun: Boolean = false
-              ): ZIO[Has[NamespacedResource[$statusT, $entityT]], K8sFailure, Status] =
+              ): ZIO[Has[Resource[$statusT, $entityT]], K8sFailure, Status] =
                 ResourceClient.namespaced.delete(name, deleteOptions, namespace, dryRun)
           }
           }
