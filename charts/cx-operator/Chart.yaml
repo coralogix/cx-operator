@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: 0.1.15
+appVersion: not-set # set by the release process on the fly
 description: Coralogix Kubernetes Operator
 name: cx-operator
 sources:
 - https://github.com/coralogix/cx-operator
 type: application
-version: 0.1.15+5400422
+version: not-set # set by the release process on the fly

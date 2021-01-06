@@ -10,7 +10,7 @@ config:
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
-  tag: 0.1.15
+  tag: not-set # set by the release process on the fly
 replicaCount: 1
 resources:
   cpus: 1
