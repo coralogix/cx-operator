@@ -45,6 +45,6 @@ jobs:
           docker push coralogixrepo/cx-operator:${{ github.event.release.tag_name }}
 
       - name: Publish Helm charts
-        uses: stefanprodan/helm-gh-pages@master
+        uses: stefanprodan/helm-gh-pages@v1.3.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
