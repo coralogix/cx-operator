@@ -29,8 +29,8 @@ spec:
             - name: 'Delete prefix'
               enabled: true
               source-field: Text
-              rule: '.*{'
               replace:
+                rule: '.*{'
                 dest-field: Text
                 new-value: '{'
         - or-group:
@@ -38,12 +38,11 @@ spec:
               description: 'Extracting bytes and status from message field'
               enabled: true
               source-field: Text
-              rule: '.*'
-              extract: {}
+              extract:
+                rule: '.*'
             - name: 'Worker to category'
               enabled: true
               source-field: worker
-              rule: '.*'
               json-extract:
                 dest-field: Category
 
@@ -56,8 +55,8 @@ spec:
               description: 'Block 28000 pg error'
               enabled: true
               source-field: field1
-              rule: 'sql_error_code\s*=\s*28000'
               block:
+                rule: 'sql_error_code\s*=\s*28000'
                 keep-blocked-logs: false
 ```
 
