@@ -1,8 +1,8 @@
 name: 'Build and publish image'
 on:
   pull_request:
-    branches-ignore:
-      - gh-pages
+    branches:
+      - '**:**'
   push:
     branches-ignore:
       - gh-pages
