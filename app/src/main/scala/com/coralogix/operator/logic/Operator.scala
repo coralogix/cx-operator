@@ -8,7 +8,13 @@ import com.coralogix.operator.client.model.{
   ResourceMetadata,
   TypedWatchEvent
 }
-import com.coralogix.operator.client.{ ClusterResource, K8sFailure, NamespacedResource, Resource }
+import com.coralogix.operator.client.{
+  ClusterResource,
+  K8sFailure,
+  NamespacedResource,
+  NotFound,
+  Resource
+}
 import com.coralogix.operator.logging.{ logFailure, OperatorLogging }
 import com.coralogix.operator.logic.Operator.OperatorContext
 import izumi.reflect.Tag
@@ -42,10 +48,16 @@ trait Operator[R, StatusT, T <: Object[StatusT]] {
       .mapM(processEvent)
       .runDrain
       .foldCauseM(
-        failure =>
-          log.locally(OperatorLogging(context)) {
-            logFailure(s"Watch stream failed", failure)
-          },
+        {
+          case Cause.Fail(KubernetesFailure(NotFound)) =>
+            log.locally(OperatorLogging(context)) {
+              log.info("Watched resource is not available yet")
+            }
+          case failure =>
+            log.locally(OperatorLogging(context)) {
+              logFailure(s"Watch stream failed", failure)
+            }
+        },
         _ =>
           log.locally(operator.logging.OperatorLogging(context)) {
             log.error(s"Watch stream terminated")

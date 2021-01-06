@@ -1,5 +1,6 @@
 package com.coralogix.operator.logic
 
+import com.coralogix.operator.client.internal.CircePrettyFailure
 import com.coralogix.operator.client.{
   DecodedFailure,
   DeserializationFailure,
@@ -30,7 +31,9 @@ object OperatorFailure {
         case DecodedFailure(status, code) =>
           new RuntimeException(s"K8s error: ${status.message} with code $code")
         case DeserializationFailure(error) =>
-          new RuntimeException(s"K8s deserialization failure: ${error.toList.mkString("\n")}")
+          new RuntimeException(
+            s"K8s deserialization failure: ${error.toList.map(CircePrettyFailure.prettyPrint).mkString("\n")}"
+          )
         case RequestFailure(reason) =>
           new RuntimeException(s"K8s request error", reason)
         case Gone =>

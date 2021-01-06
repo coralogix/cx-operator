@@ -72,6 +72,7 @@ object Main extends App {
       .ensuring {
         console.putStrLnErr("Shutting down")
       }
+      .untraced
   }
 
   private def spawnRuleGroupOperators(
