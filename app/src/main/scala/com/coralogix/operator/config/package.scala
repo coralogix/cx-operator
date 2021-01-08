@@ -1,6 +1,6 @@
 package com.coralogix.operator.config
 
-import com.coralogix.operator.client.model.{ K8sCluster, K8sNamespace }
+import zio.k8s.client.model.{ K8sCluster, K8sNamespace }
 import com.typesafe.config.ConfigFactory
 import sttp.model.Uri
 import zio._

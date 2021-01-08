@@ -16,7 +16,7 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val client = Project("zio-k8s-client", file("client"))
+lazy val client = Project("zio-k8s-client", file("zio-k8s-client"))
   .settings(commonSettings)
   .settings(
     scalaVersion := ScalaVer,
@@ -32,8 +32,10 @@ lazy val client = Project("zio-k8s-client", file("client"))
       "dev.zio"                       %% "zio-test"               % "1.0.3" % Test,
       "dev.zio"                       %% "zio-test-sbt"           % "1.0.3" % Test
     ),
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    Compile / unmanagedSourceDirectories += baseDirectory.value / "src/generated/scala" // NOTE: temporary
   )
+  .enablePlugins(K8sResourceCodegenPlugin)
 
 lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)

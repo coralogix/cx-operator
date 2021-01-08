@@ -1,11 +1,16 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Status.GroupIds
-import com.coralogix.operator.client.model.generated.apimachinery.v1.{ DeleteOptions, Status }
-import com.coralogix.operator.client.model.primitives.{ RuleGroupId, RuleGroupName }
-import com.coralogix.operator.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
-import com.coralogix.operator.client.{ K8sFailure, NamespacedResource, Resource }
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Status.GroupIds
+import zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
+import zio.k8s.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
+import zio.k8s.client.{
+  K8sFailure,
+  NamespacedResource,
+  NamespacedResourceStatus,
+  Resource,
+  ResourceStatus
+}
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
@@ -16,6 +21,7 @@ import com.coralogix.rules.grpc.external.v1.RuleMatcher
 import zio._
 import zio.clock.Clock
 import zio.console.Console
+import zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
 import zio.logging.{ LogLevel, Logging }
 import zio.stm.TMap
 import zio.stream.Stream
@@ -31,7 +37,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("adding a set with a single unassigned rule group") {
         testOperator(
           Seq(
-            Added[Rulegroupset.Status, Rulegroupset](testSet1)
+            Added[Rulegroupset](testSet1)
           ),
           RuleGroupsServiceClientMock.CreateRuleGroup(
             hasField[CreateRuleGroupRequest, Option[String]](
@@ -64,7 +70,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("modifying a set with with unchanged generation does not do anything") {
         testOperator(
           Seq(
-            Modified[Rulegroupset.Status, Rulegroupset](testSet1)
+            Modified[Rulegroupset](testSet1)
           ),
           RuleGroupsServiceClientMock.failing
         ) {
@@ -75,7 +81,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("modifying a set with a single already assigned rule group") {
         testOperator(
           Seq(
-            Modified[Rulegroupset.Status, Rulegroupset](
+            Modified[Rulegroupset](
               testSet1.copy(
                 metadata = Some(testSet1.metadata.get.copy(generation = Some(1L))),
                 status = Some(
@@ -120,7 +126,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("adding a group to a set with an already assigned one") {
         testOperator(
           Seq(
-            Modified[Rulegroupset.Status, Rulegroupset](
+            Modified[Rulegroupset](
               testSet2.copy(
                 metadata = Some(testSet2.metadata.get.copy(generation = Some(1L))),
                 status = Some(
@@ -196,7 +202,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       val logging = Logging.console(LogLevel.Debug)
       val client = ZLayer.succeed(
         new NamespacedResource(
-          new Resource[Rulegroupset.Status, Rulegroupset] {
+          new Resource[Rulegroupset] {
             override def watch(
               namespace: Option[K8sNamespace],
               resourceVersion: Option[String]
@@ -226,6 +232,19 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
               dryRun: Boolean
             ): IO[K8sFailure, Rulegroupset] = ???
 
+            override def delete(
+              name: String,
+              deleteOptions: DeleteOptions,
+              namespace: Option[K8sNamespace],
+              dryRun: Boolean
+            ): IO[K8sFailure, Status] = ???
+          }
+        )
+      )
+
+      val statusClient = ZLayer.succeed(
+        new NamespacedResourceStatus(
+          new ResourceStatus[Rulegroupset.Status, Rulegroupset] {
             override def replaceStatus(
               of: Rulegroupset,
               updatedStatus: Rulegroupset.Status,
@@ -237,23 +256,17 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
                 _    <- statusMap.put(name, updatedStatus).commit
               } yield of.copy(status = Some(updatedStatus))
 
-            override def delete(
-              name: String,
-              deleteOptions: DeleteOptions,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Status] = ???
           }
         )
       )
 
       val test = for {
-        op         <- RulegroupsetOperator.forTest().provideLayer(logging ++ client)
+        op         <- RulegroupsetOperator.forTest().provideLayer(logging ++ client ++ statusClient)
         fiber      <- op.start()
         result     <- fiber.join.cause
         testResult <- f(result, statusMap)
       } yield testResult
 
-      test.provideSomeLayer[Console with Clock](logging ++ client ++ grpc)
+      test.provideSomeLayer[Console with Clock](logging ++ client ++ statusClient ++ grpc)
     }
 }

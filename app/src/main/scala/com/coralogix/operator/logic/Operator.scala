@@ -1,19 +1,20 @@
 package com.coralogix.operator.logic
 
 import com.coralogix.operator
-import com.coralogix.operator.client.model.{
+import zio.k8s.client.model.{
   K8sNamespace,
   K8sResourceType,
   Object,
   ResourceMetadata,
   TypedWatchEvent
 }
-import com.coralogix.operator.client.{
+import zio.k8s.client.{
   ClusterResource,
+  ClusterResourceStatus,
   K8sFailure,
   NamespacedResource,
-  NotFound,
-  Resource
+  NamespacedResourceStatus,
+  NotFound
 }
 import com.coralogix.operator.logging.{ logFailure, OperatorLogging }
 import com.coralogix.operator.logic.Operator.OperatorContext
@@ -30,7 +31,7 @@ import zio._
   *
   * An instance of this is tied to one particular resource type in one namespace.
   */
-trait Operator[R, StatusT, T <: Object[StatusT]] {
+trait Operator[R, T <: Object] {
   protected def watchStream(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]]
 
   def processEvent(event: TypedWatchEvent[T]): ZIO[R, OperatorFailure, Unit]
@@ -70,17 +71,17 @@ trait Operator[R, StatusT, T <: Object[StatusT]] {
       .fork
 }
 
-abstract class NamespacedOperator[R, StatusT, T <: Object[StatusT]](
-  client: NamespacedResource[StatusT, T],
+abstract class NamespacedOperator[R, T <: Object](
+  client: NamespacedResource[T],
   namespace: Option[K8sNamespace]
-) extends Operator[R, StatusT, T] {
+) extends Operator[R, T] {
   override protected def watchStream(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     client.watchForever(namespace)
 }
 
-abstract class ClusterOperator[R, StatusT, T <: Object[StatusT]](
-  client: ClusterResource[StatusT, T]
-) extends Operator[R, StatusT, T] {
+abstract class ClusterOperator[R, T <: Object](
+  client: ClusterResource[T]
+) extends Operator[R, T] {
   override protected def watchStream(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     client.watchForever()
 }
@@ -98,18 +99,18 @@ object Operator {
       }
   }
 
-  type EventProcessor[R, StatusT, T <: Object[StatusT]] =
+  type EventProcessor[R, T <: Object] =
     (OperatorContext, TypedWatchEvent[T]) => ZIO[R, OperatorFailure, Unit]
 
-  def namespaced[R: Tag, StatusT: Tag, T <: Object[StatusT]: Tag: ResourceMetadata](
-    eventProcessor: EventProcessor[R, StatusT, T]
+  def namespaced[R: Tag, T <: Object: Tag: ResourceMetadata](
+    eventProcessor: EventProcessor[R, T]
   )(
     namespace: Option[K8sNamespace],
     buffer: Int
-  ): ZIO[Has[NamespacedResource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
-    ZIO.service[NamespacedResource[StatusT, T]].map { client =>
+  ): ZIO[Has[NamespacedResource[T]], Nothing, Operator[R, T]] =
+    ZIO.service[NamespacedResource[T]].map { client =>
       val ctx = OperatorContext(implicitly[ResourceMetadata[T]].resourceType, namespace)
-      new NamespacedOperator[R, StatusT, T](client, namespace) {
+      new NamespacedOperator[R, T](client, namespace) {
         override def processEvent(event: TypedWatchEvent[T]): ZIO[R, OperatorFailure, Unit] =
           eventProcessor(ctx, event)
         override val context: OperatorContext = ctx
@@ -117,12 +118,12 @@ object Operator {
       }
     }
 
-  def cluster[R: Tag, StatusT: Tag, T <: Object[StatusT]: Tag: ResourceMetadata](
-    eventProcessor: EventProcessor[R, StatusT, T]
-  )(buffer: Int): ZIO[Has[ClusterResource[StatusT, T]], Nothing, Operator[R, StatusT, T]] =
-    ZIO.service[ClusterResource[StatusT, T]].map { client =>
+  def cluster[R: Tag, T <: Object: Tag: ResourceMetadata](
+    eventProcessor: EventProcessor[R, T]
+  )(buffer: Int): ZIO[Has[ClusterResource[T]], Nothing, Operator[R, T]] =
+    ZIO.service[ClusterResource[T]].map { client =>
       val ctx = OperatorContext(implicitly[ResourceMetadata[T]].resourceType, None)
-      new ClusterOperator[R, StatusT, T](client) {
+      new ClusterOperator[R, T](client) {
         override def processEvent(event: TypedWatchEvent[T]): ZIO[R, OperatorFailure, Unit] =
           eventProcessor(ctx, event)
         override val context: OperatorContext = ctx
@@ -131,27 +132,27 @@ object Operator {
     }
 
   /** Event processor aspect */
-  trait Aspect[-R, StatusT, T <: Object[StatusT]] { self =>
+  trait Aspect[-R, T <: Object] { self =>
     def apply[R1 <: R](
-      f: EventProcessor[R1, StatusT, T]
-    ): EventProcessor[R1, StatusT, T]
+      f: EventProcessor[R1, T]
+    ): EventProcessor[R1, T]
 
-    final def >>>[R1 <: R](that: Aspect[R1, StatusT, T]): Aspect[R1, StatusT, T] =
+    final def >>>[R1 <: R](that: Aspect[R1, T]): Aspect[R1, T] =
       andThen(that)
 
-    final def andThen[R1 <: R](that: Aspect[R1, StatusT, T]): Aspect[R1, StatusT, T] =
-      new Aspect[R1, StatusT, T] {
+    final def andThen[R1 <: R](that: Aspect[R1, T]): Aspect[R1, T] =
+      new Aspect[R1, T] {
         override def apply[R2 <: R1](
-          f: EventProcessor[R2, StatusT, T]
-        ): EventProcessor[R2, StatusT, T] =
+          f: EventProcessor[R2, T]
+        ): EventProcessor[R2, T] =
           that(self(f))
       }
   }
 
-  implicit class EventProcessorOps[R, StatusT, T <: Object[StatusT]](
-    eventProcessor: EventProcessor[R, StatusT, T]
+  implicit class EventProcessorOps[R, T <: Object](
+    eventProcessor: EventProcessor[R, T]
   ) {
-    def @@[R1 <: R](aspect: Aspect[R1, StatusT, T]): EventProcessor[R1, StatusT, T] =
+    def @@[R1 <: R](aspect: Aspect[R1, T]): EventProcessor[R1, T] =
       aspect[R1](eventProcessor)
   }
 }

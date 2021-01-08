@@ -1,6 +1,6 @@
 package com.coralogix.operator.monitoring
 
-import com.coralogix.operator.client.model._
+import zio.k8s.client.model._
 import zio.ZIO
 import zio.metrics.prometheus.helpers._
 import zio.metrics.prometheus.{ Counter, Histogram, Registry }

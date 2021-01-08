@@ -1,23 +1,23 @@
 package com.coralogix.operator
 
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.operator.client.{ crd, NamespacedResource, Resource }
-import com.coralogix.operator.client.rulegroupset.{ v1 => rulegroupset }
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
+import zio.k8s.client.com.coralogix.rulegroupset.{ v1 => rulegroupset }
 import com.coralogix.operator.config.{ OperatorConfig, OperatorResources }
 import com.coralogix.operator.config.OperatorConfig.k8sCluster
 import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
 import com.coralogix.operator.logic.Registration
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
-import org.slf4j.impl.{ StaticLoggerBinder, ZioLoggerFactory }
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
+import zio.k8s.client.{ NamespacedResource, NamespacedResourceStatus }
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
-import zio.{ console, App, Cause, ExitCode, Fiber, Has, URIO, ZIO }
+import zio.{ console, App, ExitCode, Fiber, Has, URIO, ZIO }
 
 object Main extends App {
 
@@ -78,9 +78,11 @@ object Main extends App {
   private def spawnRuleGroupOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[Clock with Logging with Has[
-    NamespacedResource[Rulegroupset.Status, Rulegroupset]
-  ] with RuleGroupsServiceClient, Nothing, List[Fiber.Runtime[Nothing, Unit]]] =
+  ): ZIO[
+    Clock with Logging with rulegroupset.Rulegroupsets with RuleGroupsServiceClient,
+    Nothing,
+    List[Fiber.Runtime[Nothing, Unit]]
+  ] =
     if (resources.rulegroups.isEmpty)
       for {
         _ <- log.info(s"Starting rule group operator for all namespaces")
