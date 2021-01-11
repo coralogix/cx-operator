@@ -28,11 +28,19 @@ case class GrpcClientConfig(
   queueSize: Int
 )
 
-case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int])
+trait BaseOperatorConfig {
+  val namespace: K8sNamespace
+  val buffer: Option[Int]
+}
+
+case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int]) extends BaseOperatorConfig
+case class CoralogixLoggerConfig(namespace: K8sNamespace, buffer: Option[Int])
+    extends BaseOperatorConfig
 
 case class OperatorResources(
   defaultBuffer: Int,
-  rulegroups: List[RulegroupConfig]
+  rulegroups: List[RulegroupConfig],
+  coralogixLoggers: List[CoralogixLoggerConfig]
 )
 
 case class GrpcClientsConfig(rulegroups: GrpcClientConfig)

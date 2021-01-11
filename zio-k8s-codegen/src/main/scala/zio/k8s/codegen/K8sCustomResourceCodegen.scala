@@ -93,7 +93,7 @@ object K8sCustomResourceCodegen extends ClientModuleGenerator {
                  .flattenChunks
                  .mapMPar(4)(format(scalafmt, _))
                  .runCollect
-      _ <- ZIO.effect(log.info(s"Generated:\n${paths.mkString("\n")}"))
+      _ <- ZIO.effect(log.info(s"Generated from $yaml:\n${paths.mkString("\n")}"))
     } yield paths.map(_.toFile)
 
   def generateResource(
