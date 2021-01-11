@@ -6,8 +6,8 @@ import com.coralogix.operator.logic.Operator.EventProcessor
 import com.coralogix.operator.monitoring.OperatorMetrics
 import zio.ZIO
 import zio.clock.Clock
-import zio.k8s.client.com.coralogix.loggers.coralogixlogger.{ v1 => coralogixlogger }
-import zio.k8s.client.com.coralogix.loggers.coralogixlogger.v1.metadata
+import zio.k8s.client.com.coralogix.loggers.coralogixloggers.{ v1 => coralogixloggers }
+import zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.metadata
 import zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
 import zio.k8s.client.model.K8sNamespace
 import zio.logging.Logging
@@ -15,7 +15,7 @@ import zio.logging.Logging
 object CoralogixloggerOperator {
 
   private def eventProcessor(): EventProcessor[
-    Logging with coralogixlogger.Coralogixloggers,
+    Logging with coralogixloggers.Coralogixloggers,
     Coralogixlogger
   ] = ???
 
@@ -23,8 +23,8 @@ object CoralogixloggerOperator {
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[coralogixlogger.Coralogixloggers, Nothing, Operator[
-    Clock with Logging with coralogixlogger.Coralogixloggers,
+  ): ZIO[coralogixloggers.Coralogixloggers, Nothing, Operator[
+    Clock with Logging with coralogixloggers.Coralogixloggers,
     Coralogixlogger
   ]] =
     Operator.namespaced(
@@ -34,8 +34,8 @@ object CoralogixloggerOperator {
   def forAllNamespaces(
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[coralogixlogger.Coralogixloggers, Nothing, Operator[
-    Clock with Logging with coralogixlogger.Coralogixloggers,
+  ): ZIO[coralogixloggers.Coralogixloggers, Nothing, Operator[
+    Clock with Logging with coralogixloggers.Coralogixloggers,
     Coralogixlogger
   ]] =
     Operator.namespaced(

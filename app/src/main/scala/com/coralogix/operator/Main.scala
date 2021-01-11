@@ -2,8 +2,8 @@ package com.coralogix.operator
 
 import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
 import zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
-import zio.k8s.client.com.coralogix.rulegroupset.{ v1 => rulegroupset }
-import zio.k8s.client.com.coralogix.loggers.coralogixlogger.{ v1 => coralogixlogger }
+import zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
+import zio.k8s.client.com.coralogix.loggers.coralogixloggers.{ v1 => coralogixloggers }
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
 import com.coralogix.operator.logic.{ Operator, Registration }
@@ -15,7 +15,7 @@ import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import zio.k8s.client.com.coralogix.loggers.coralogixlogger.v1.Coralogixloggers
+import zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.Coralogixloggers
 import zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
 import zio.k8s.client.config.{ k8sCluster, k8sSttpClient }
 import zio.k8s.client.model.{ K8sNamespace, Object }
@@ -39,8 +39,8 @@ object Main extends App {
     val clients =
       logging.live ++ (operatorEnvironment >>>
         (crd.live ++
-          rulegroupset.live ++
-          coralogixlogger.live))
+          rulegroupsets.live ++
+          coralogixloggers.live))
 
     val grpcServer = (logging.live ++ config.narrow(_.grpc)) >>> grpc.live
 
@@ -57,16 +57,17 @@ object Main extends App {
           metrics <- OperatorMetrics.make
 
           _ <- Registration.registerIfMissing(
-                 rulegroupset.metadata,
-                 rulegroupset.customResourceDefinition
-               )
-          _ <- Registration.registerIfMissing(
-                 coralogixlogger.metadata,
-                 coralogixlogger.customResourceDefinition
-               )
+                 rulegroupsets.metadata,
+                 rulegroupsets.customResourceDefinition
+               ) <&>
+                 Registration.registerIfMissing(
+                   coralogixloggers.metadata,
+                   coralogixloggers.customResourceDefinition
+                 )
           rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
           loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-          _               <- ZIO.never.raceAll(rulegroupFibers.map(_.await))
+          allFibers = rulegroupFibers ::: loggerFibers
+          _ <- ZIO.never.raceAll(allFibers.map(_.await))
         } yield ()
       }
 
@@ -122,7 +123,7 @@ object Main extends App {
     metrics: OperatorMetrics,
     resources: OperatorResources
   ): ZIO[
-    Clock with Logging with rulegroupset.Rulegroupsets with RuleGroupsServiceClient,
+    Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
     Nothing,
     List[Fiber.Runtime[Nothing, Unit]]
   ] =

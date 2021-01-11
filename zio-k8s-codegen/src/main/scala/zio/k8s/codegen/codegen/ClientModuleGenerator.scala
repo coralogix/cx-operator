@@ -81,20 +81,21 @@ trait ClientModuleGenerator {
     version: String,
     yamlPath: Path
   ): Task[String] = {
-    val moduleName = crd.spec.names.singular.getOrElse(crd.spec.names.plural)
+    val entityName = crd.spec.names.singular.getOrElse(crd.spec.names.plural)
+    val moduleName = crd.spec.names.plural
     generateModuleCode(
       "zio.k8s.client",
       if (crd.spec.group.nonEmpty) {
         val groupPart = groupNameToPackageName(crd.spec.group).mkString(".")
-        s"zio.k8s.client.$groupPart.definitions.$moduleName.$version"
+        s"zio.k8s.client.$groupPart.definitions.$entityName.$version"
       } else
-        s"zio.k8s.client.definitions.$moduleName.$version",
+        s"zio.k8s.client.definitions.$entityName.$version",
       moduleName,
-      moduleName.toPascalCase,
+      entityName.toPascalCase,
       crd.spec.versions
         .find(_.name == version)
         .flatMap(_.subresources.flatMap(_.status))
-        .map(_ => moduleName.toPascalCase + ".Status"),
+        .map(_ => entityName.toPascalCase + ".Status"),
       crd.spec.group,
       crd.spec.names.kind,
       version,

@@ -38,7 +38,8 @@ object K8sCustomResourceCodegen extends ClientModuleGenerator {
     yamlPath: Path,
     outputRoot: Path
   ): ZIO[Blocking, Throwable, List[Path]] = {
-    val name = crd.spec.names.singular.getOrElse(crd.spec.names.plural)
+    val entityName = crd.spec.names.singular.getOrElse(crd.spec.names.plural)
+    val pluralName = crd.spec.names.plural
     version.schema.flatMap(_.openApiv3Schema) match {
       case Some(originalSchema) =>
         val schema = adjustSchema(originalSchema)
@@ -54,12 +55,12 @@ object K8sCustomResourceCodegen extends ClientModuleGenerator {
             basePackage.toList,
             useContextForSubPackage = true,
             outputRoot,
-            name,
-            name -> schemaFragment
+            entityName,
+            entityName -> schemaFragment
           )
 
           crdModule <- generateCustomResourceModuleCode(crd, version.name, Path("crds") / yamlPath.filename)
-          modulePathComponents = (basePackage ++ Vector(name, version.name, "package.scala")).map(s => Path(s))
+          modulePathComponents = (basePackage ++ Vector(pluralName, version.name, "package.scala")).map(s => Path(s))
           modulePath = modulePathComponents.foldLeft(outputRoot)(_ / _)
           _ <- Files.createDirectories(modulePath.parent.get)
           _ <- writeTextFile(modulePath, crdModule)
