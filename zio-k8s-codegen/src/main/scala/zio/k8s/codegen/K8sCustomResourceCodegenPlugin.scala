@@ -26,7 +26,7 @@ object K8sCustomResourceCodegenPlugin extends AutoPlugin {
         ) { input: Set[File] =>
           input.foldLeft(Set.empty[File]) { (result, crdYaml) =>
             val fs = runtime.unsafeRun(
-              Codegen.generateSource(
+              K8sCustomResourceCodegen.generateSource(
                 ZPath.fromJava(crdYaml.toPath),
                 ZPath.fromJava(sourcesDir.toPath),
                 log
@@ -55,7 +55,7 @@ object K8sCustomResourceCodegenPlugin extends AutoPlugin {
         ) { input: Set[File] =>
           input.foldLeft(Set.empty[File]) { (result, crdYaml) =>
             val fs = runtime.unsafeRun(
-              Codegen.generateResource(
+              K8sCustomResourceCodegen.generateResource(
                 ZPath.fromJava(crdYaml.toPath),
                 ZPath.fromJava(resourcesDir.toPath),
                 log

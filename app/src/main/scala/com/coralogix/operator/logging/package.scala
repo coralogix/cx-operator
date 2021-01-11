@@ -1,6 +1,6 @@
 package com.coralogix.operator
 
-import com.coralogix.operator.client.model.K8sNamespace
+import zio.k8s.client.model.K8sNamespace
 import org.slf4j.impl.ZioLoggerFactory
 import zio.Cause._
 import zio.clock.Clock

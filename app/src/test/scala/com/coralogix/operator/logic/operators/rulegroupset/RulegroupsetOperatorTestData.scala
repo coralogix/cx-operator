@@ -1,28 +1,22 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.Allow
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
-import com.coralogix.operator.client.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.{
-  AndSequence,
-  Matcher
-}
-import com.coralogix.operator.client.model.generated.apimachinery.v1.ObjectMeta
-import com.coralogix.operator.client.model.primitives.{
-  ApplicationName,
-  FieldName,
-  RuleGroupName,
-  RuleName
-}
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
   CreateRuleGroupResponse,
   UpdateRuleGroupResponse
 }
 import com.coralogix.rules.grpc.external.v1.RuleMatcher.Constraint
 import com.coralogix.rules.grpc.external.v1._
-import io.circe.Json
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.Allow
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
+import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.{
+  AndSequence,
+  Matcher
+}
+import zio.k8s.client.model.primitives.{ ApplicationName, FieldName, RuleGroupName, RuleName }
+import zio.k8s.model.pkg.apis.meta.v1.ObjectMeta
 
 trait RulegroupsetOperatorTestData {
 

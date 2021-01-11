@@ -1,33 +1,17 @@
 package com.coralogix.operator.config
 
-import com.coralogix.operator.client.model.{ K8sCluster, K8sNamespace }
 import com.typesafe.config.ConfigFactory
 import sttp.model.Uri
 import zio._
-import zio.blocking.Blocking
 import zio.config._
 import zio.config.derivation.name
 import zio.config.magnolia.DeriveConfigDescriptor.{ descriptor, Descriptor }
 import zio.config.typesafe.TypesafeConfigSource
 import zio.duration.Duration
+import zio.k8s.client.config._
+import zio.k8s.client.model.K8sNamespace
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.nio.core.file.Path
-import zio.nio.file.Files
-
-import java.io.IOException
-import java.nio.charset.StandardCharsets
-
-case class K8sClusterConfig(
-  host: Uri,
-  token: Option[String],
-  @name("token-file") tokenFile: Path
-)
-
-case class K8sClientConfig(
-  insecure: Boolean, // for testing with minikube
-  debug: Boolean,
-  cert: Path
-)
 
 case class PrometheusConfig(
   port: Int
@@ -68,18 +52,6 @@ object OperatorConfig {
     Descriptor[String].xmap(
       (s: String) => K8sNamespace(s),
       (ns: K8sNamespace) => ns.value
-    )
-
-  private implicit val uriDescriptor: Descriptor[Uri] =
-    Descriptor[String].xmapEither(
-      s => Uri.parse(s),
-      (uri: Uri) => Right(uri.toString)
-    )
-
-  private implicit val pathDescriptor: Descriptor[Path] =
-    Descriptor[String].xmap(
-      s => Path(s),
-      (path: Path) => path.toString()
     )
 
   private val configDescriptor: ConfigDescriptor[OperatorConfig] = descriptor[OperatorConfig]
@@ -123,33 +95,4 @@ object OperatorConfig {
       }
     )
   )
-
-  def k8sCluster: ZLayer[Blocking with ZConfig[K8sClusterConfig], IOException, Has[K8sCluster]] =
-    ZLayer.fromEffect {
-      for {
-        config <- getConfig[K8sClusterConfig]
-        result <- config.token match {
-                    case Some(token) =>
-                      // Explicit API token
-                      ZIO.succeed(
-                        K8sCluster(
-                          host = config.host,
-                          token = token
-                        )
-                      )
-                    case None =>
-                      // No explicit token, loading from file
-                      Files
-                        .readAllBytes(config.tokenFile)
-                        .map(bytes => new String(bytes.toArray, StandardCharsets.UTF_8))
-                        .map { token =>
-                          K8sCluster(
-                            host = config.host,
-                            token = token
-                          )
-                        }
-                  }
-      } yield result
-    }
-
 }

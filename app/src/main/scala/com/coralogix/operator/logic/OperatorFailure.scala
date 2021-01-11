@@ -1,7 +1,9 @@
 package com.coralogix.operator.logic
 
-import com.coralogix.operator.client.internal.CircePrettyFailure
-import com.coralogix.operator.client.{
+import zio.k8s.client.internal.CircePrettyFailure
+import zio.k8s.client.UndefinedField
+import com.coralogix.operator.logging.ConvertableToThrowable
+import zio.k8s.client.{
   DecodedFailure,
   DeserializationFailure,
   Gone,
@@ -13,7 +15,6 @@ import com.coralogix.operator.client.{
   Unauthorized,
   UndefinedField
 }
-import com.coralogix.operator.logging.ConvertableToThrowable
 
 sealed trait OperatorFailure
 case class KubernetesFailure(failure: K8sFailure) extends OperatorFailure

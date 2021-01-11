@@ -1,6 +1,6 @@
 package com.coralogix.operator.logic
 
-import com.coralogix.operator.client.model.{ Added, Deleted, Modified, Object, Reseted }
+import zio.k8s.client.model.{ Added, Deleted, Modified, Object, Reseted }
 import com.coralogix.operator.logging.OperatorLogging
 import com.coralogix.operator.logic.Operator._
 import com.coralogix.operator.monitoring.OperatorMetrics
@@ -13,11 +13,11 @@ package object aspects {
   /**
     * Logs each watch event and event processor failures
     */
-  def logEvents[StatusT, T <: Object[StatusT]]: Aspect[Logging, StatusT, T] =
-    new Aspect[Logging, StatusT, T] {
+  def logEvents[T <: Object]: Aspect[Logging, T] =
+    new Aspect[Logging, T] {
       override def apply[R1 <: Logging](
-        f: EventProcessor[R1, StatusT, T]
-      ): EventProcessor[R1, StatusT, T] =
+        f: EventProcessor[R1, T]
+      ): EventProcessor[R1, T] =
         (ctx, event) =>
           log.locally(OperatorLogging(ctx.withSpecificNamespace(event.namespace))) {
             (event match {
@@ -51,13 +51,13 @@ package object aspects {
     *
     * @param operatorMetrics Pre-created shared Prometheus metric objects
     */
-  def metered[StatusT, T <: Object[StatusT]](
+  def metered[T <: Object](
     operatorMetrics: OperatorMetrics
-  ): Aspect[Clock, StatusT, T] =
-    new Aspect[Clock, StatusT, T] {
+  ): Aspect[Clock, T] =
+    new Aspect[Clock, T] {
       override def apply[R1 <: Clock](
-        f: EventProcessor[R1, StatusT, T]
-      ): EventProcessor[R1, StatusT, T] =
+        f: EventProcessor[R1, T]
+      ): EventProcessor[R1, T] =
         (ctx, event) => {
           val labels = OperatorMetrics.labels(
             event,
