@@ -24,7 +24,9 @@ lazy val client = Project("zio-k8s-client", file("zio-k8s-client"))
       "dev.zio"                       %% "zio"                    % "1.0.3",
       "dev.zio"                       %% "zio-streams"            % "1.0.3",
       "dev.zio"                       %% "zio-config"             % "1.0.0-RC30-1",
+      "dev.zio"                       %% "zio-config-magnolia"    % "1.0.0-RC30-1",
       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio" % "3.0.0-RC10",
+      "com.softwaremill.sttp.client3" %% "slf4j-backend"          % "3.0.0-RC10",
       "com.softwaremill.sttp.client3" %% "circe"                  % "3.0.0-RC10",
       "io.circe"                      %% "circe-core"             % "0.13.0",
       "io.circe"                      %% "circe-parser"           % "0.13.0",
@@ -49,8 +51,6 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "dev.zio" %% "zio-config"          % "1.0.0-RC30-1",
       "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC30-1",
       "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC30-1",
-      // STTP
-      "com.softwaremill.sttp.client3" %% "slf4j-backend" % "3.0.0-RC10",
       // Logging
       "dev.zio"  %% "zio-logging" % "0.5.3",
       "org.slf4j" % "slf4j-api"   % "1.7.30",

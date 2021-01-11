@@ -4,7 +4,6 @@ import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
 import zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
 import zio.k8s.client.com.coralogix.rulegroupset.{ v1 => rulegroupset }
 import com.coralogix.operator.config.{ OperatorConfig, OperatorResources }
-import com.coralogix.operator.config.OperatorConfig.k8sCluster
 import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
 import com.coralogix.operator.logic.Registration
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
@@ -14,6 +13,7 @@ import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
+import zio.k8s.client.config.{ k8sCluster, k8sSttpClient }
 import zio.k8s.client.{ NamespacedResource, NamespacedResourceStatus }
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
@@ -27,7 +27,7 @@ object Main extends App {
       (config.narrow(
         _.prometheus
       ) ++ monitoring.live ++ logging.live) >>> monitoring.prometheusExport
-    val sttp = config.narrow(_.k8sClient) >>> k8s.sttpClient
+    val sttp = config.narrow(_.k8sClient) >>> k8sSttpClient
     val cluster = (Blocking.any ++ config.narrow(_.cluster)) >>> k8sCluster
     val operatorEnvironment =
       System.any ++ cluster ++ sttp ++ monitoring.live ++ monitoringExport

@@ -1,20 +1,77 @@
-package com.coralogix.operator
+package zio.k8s.client
 
-import com.coralogix.operator.config.K8sClientConfig
 import sttp.client3.httpclient.zio.HttpClientZioBackend.usingClient
 import sttp.client3.httpclient.zio.SttpClient
 import sttp.client3.logging.slf4j.Slf4jLoggingBackend
-import zio.config.ZConfig
+import zio.config._
+import zio.config.magnolia.DeriveConfigDescriptor.Descriptor
+import zio.config.derivation.name
+import sttp.model.Uri
+import zio.blocking.Blocking
+import zio.k8s.client.model.K8sCluster
+import zio.{ Has, Task, ZIO, ZLayer, ZManaged }
 import zio.nio.core.file.Path
-import zio.{ Task, ZIO, ZLayer, ZManaged }
+import zio.nio.file.Files
 
-import java.io.{ FileInputStream, InputStream }
+import java.io.{ FileInputStream, IOException, InputStream }
 import java.net.http.HttpClient
+import java.nio.charset.StandardCharsets
 import java.security.{ KeyStore, SecureRandom }
 import java.security.cert.{ CertificateFactory, X509Certificate }
 import javax.net.ssl.{ SSLContext, TrustManager, TrustManagerFactory, X509TrustManager }
 
-package object k8s {
+package object config {
+  case class K8sClusterConfig(
+    host: Uri,
+    token: Option[String],
+    @name("token-file") tokenFile: Path
+  )
+
+  case class K8sClientConfig(
+    insecure: Boolean, // for testing with minikube
+    debug: Boolean,
+    cert: Path
+  )
+
+  implicit val uriDescriptor: Descriptor[Uri] =
+    Descriptor[String].xmapEither(
+      s => Uri.parse(s),
+      (uri: Uri) => Right(uri.toString)
+    )
+
+  implicit val pathDescriptor: Descriptor[Path] =
+    Descriptor[String].xmap(
+      s => Path(s),
+      (path: Path) => path.toString()
+    )
+
+  val k8sCluster: ZLayer[Blocking with ZConfig[K8sClusterConfig], IOException, Has[K8sCluster]] =
+    ZLayer.fromEffect {
+      for {
+        config <- getConfig[K8sClusterConfig]
+        result <- config.token match {
+                    case Some(token) =>
+                      // Explicit API token
+                      ZIO.succeed(
+                        K8sCluster(
+                          host = config.host,
+                          token = token
+                        )
+                      )
+                    case None =>
+                      // No explicit token, loading from file
+                      Files
+                        .readAllBytes(config.tokenFile)
+                        .map(bytes => new String(bytes.toArray, StandardCharsets.UTF_8))
+                        .map { token =>
+                          K8sCluster(
+                            host = config.host,
+                            token = token
+                          )
+                        }
+                  }
+      } yield result
+    }
 
   private def insecureSSLContext(): Task[SSLContext] = {
     val trustAllCerts = Array[TrustManager](new X509TrustManager {
@@ -64,7 +121,7 @@ package object k8s {
       sslContext
     }
 
-  val sttpClient: ZLayer[ZConfig[K8sClientConfig], Throwable, SttpClient] =
+  val k8sSttpClient: ZLayer[ZConfig[K8sClientConfig], Throwable, SttpClient] =
     ZLayer.fromServiceManaged { config: K8sClientConfig =>
       for {
         sslContext <- (if (config.insecure)
