@@ -25,7 +25,7 @@ trait Resource[T <: Object] {
     resourceVersion: Option[String]
   ): Stream[K8sFailure, TypedWatchEvent[T]]
 
-  def watchForever[R, E](
+  def watchForever(
     namespace: Option[K8sNamespace]
   ): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     ZStream.succeed(Reseted) ++ watch(namespace, None)
@@ -73,7 +73,7 @@ class NamespacedResource[T <: Object](impl: Resource[T]) {
   ): Stream[K8sFailure, TypedWatchEvent[T]] =
     impl.watch(namespace, resourceVersion)
 
-  def watchForever[R, E](
+  def watchForever(
     namespace: Option[K8sNamespace]
   ): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     impl.watchForever(namespace)
@@ -120,7 +120,7 @@ class ClusterResource[T <: Object](
   def watch(resourceVersion: Option[String]): Stream[K8sFailure, TypedWatchEvent[T]] =
     impl.watch(None, resourceVersion)
 
-  def watchForever[R, E](): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
+  def watchForever(): ZStream[Clock, K8sFailure, TypedWatchEvent[T]] =
     impl.watchForever(None)
 
   def get(name: String): IO[K8sFailure, T] =
@@ -427,7 +427,7 @@ object ResourceClient {
     ): ZStream[Has[NamespacedResource[T]], K8sFailure, TypedWatchEvent[T]] =
       ZStream.accessStream(_.get.watch(namespace, resourceVersion))
 
-    def watchForever[T <: Object: Tag, R, E](
+    def watchForever[T <: Object: Tag](
       namespace: Option[K8sNamespace]
     ): ZStream[Has[NamespacedResource[T]] with Clock, K8sFailure, TypedWatchEvent[
       T
@@ -507,7 +507,7 @@ object ResourceClient {
     ): ZStream[Has[ClusterResource[T]], K8sFailure, TypedWatchEvent[T]] =
       ZStream.accessStream(_.get.watch(resourceVersion))
 
-    def watchForever[T <: Object: Tag, R, E](
+    def watchForever[T <: Object: Tag](
     ): ZStream[Has[ClusterResource[T]] with Clock, K8sFailure, TypedWatchEvent[T]] =
       ZStream.accessStream(_.get.watchForever())
 

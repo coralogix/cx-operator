@@ -238,7 +238,7 @@ trait ClientModuleGenerator {
             ): ZStream[Has[NamespacedResource[$entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
               ResourceClient.namespaced.watch(namespace, resourceVersion)
 
-            def watchForever[T, R, E](
+            def watchForever(
               namespace: Option[K8sNamespace]
             ): ZStream[Has[NamespacedResource[$entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
               ResourceClient.namespaced.watchForever(namespace)
@@ -354,7 +354,7 @@ trait ClientModuleGenerator {
             ): ZStream[Has[ClusterResource[$entityT]], K8sFailure, TypedWatchEvent[$entityT]] =
               ResourceClient.cluster.watch(resourceVersion)
 
-            def watchForever[T, R, E](
+            def watchForever(
             ): ZStream[Has[ClusterResource[$entityT]] with Clock, K8sFailure, TypedWatchEvent[$entityT]] =
               ResourceClient.cluster.watchForever()
 
