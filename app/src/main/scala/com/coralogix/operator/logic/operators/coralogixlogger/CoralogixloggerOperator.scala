@@ -53,9 +53,9 @@ object CoralogixloggerOperator {
       } yield ()
     }
 
-  private def skipIfAlredyRunning(resource: Coralogixlogger)(
-    f: ZIO[Logging with Coralogixloggers, OperatorFailure, Unit]
-  ): ZIO[Logging with Coralogixloggers, OperatorFailure, Unit] =
+  private def skipIfAlredyRunning[R <: Logging](resource: Coralogixlogger)(
+    f: ZIO[R, OperatorFailure, Unit]
+  ): ZIO[R, OperatorFailure, Unit] =
     if (resource.status.flatMap(_.state).contains("RUNNING"))
       log.info(s"CoralogixLogger is already running")
     else
