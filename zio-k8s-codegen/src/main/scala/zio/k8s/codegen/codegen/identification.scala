@@ -94,7 +94,11 @@ case class IdentifiedDefinition(
   version: String,
   schema: Schema[_]
 ) extends IdentifiedSchema {
-  def apiVersion: String = s"$group/$version"
+  def apiVersion: String =
+    if (group.nonEmpty)
+      s"$group/$version"
+    else
+      version
 }
 
 sealed trait IdentifiedPath extends Identified {

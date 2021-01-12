@@ -11,5 +11,8 @@ trait Object {
   def getName: IO[K8sFailure, String] =
     ZIO.fromEither(metadata.flatMap(_.name).toRight(UndefinedField("metadata.name")))
 
+  def getUid: IO[K8sFailure, String] =
+    ZIO.fromEither(metadata.flatMap(_.uid).toRight(UndefinedField("metadata.uid")))
+
   def generation: Long = metadata.flatMap(_.generation).getOrElse(0L)
 }

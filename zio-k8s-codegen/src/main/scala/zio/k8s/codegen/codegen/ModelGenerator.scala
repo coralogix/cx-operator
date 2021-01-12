@@ -1,11 +1,11 @@
 package zio.k8s.codegen.codegen
 
-import io.swagger.v3.oas.models.media.{ArraySchema, ObjectSchema, Schema}
+import io.swagger.v3.oas.models.media.{ ArraySchema, ObjectSchema, Schema }
 import org.scalafmt.interfaces.Scalafmt
 import sbt.util.Logger
 import zio.ZIO
 import zio.blocking.Blocking
-import zio.k8s.codegen.CodegenIO.{format, writeTextFile}
+import zio.k8s.codegen.CodegenIO.{ format, writeTextFile }
 import zio.k8s.codegen.codegen.Conversions.splitName
 import zio.nio.core.file.Path
 import zio.nio.file.Files
@@ -175,12 +175,48 @@ trait ModelGenerator {
                 """
               }
 
-              List(classDef, q"""
+              val transformations =
+                d match {
+                  case Regular(name, schema) =>
+                    List.empty
+                  case IdentifiedDefinition(name, group, kind, version, schema) =>
+                    val metadataT = properties.get("metadata").map(toType("metadata", _))
+                    val metadataIsRequired = requiredProperties.contains("metadata")
+
+                    (metadataT, metadataIsRequired) match {
+                      case (Some(t), false) if t.toString == "pkg.apis.meta.v1.ObjectMeta" =>
+                        List(
+                          q"""implicit val transformations: zio.k8s.client.model.ObjectTransformations[$entityNameT] =
+                              new zio.k8s.client.model.ObjectTransformations[$entityNameT] {
+                                def mapMetadata(f: pkg.apis.meta.v1.ObjectMeta => pkg.apis.meta.v1.ObjectMeta)(r: $entityNameT): $entityNameT =
+                                  r.copy(metadata = r.metadata.map(f))
+                              }
+                        """
+                        )
+                      case (Some(t), true) if t.toString == "pkg.apis.meta.v1.ObjectMeta" =>
+                        List(
+                          q"""implicit val transformations: zio.k8s.client.model.ObjectTransformations[$entityNameT] =
+                              new zio.k8s.client.model.ObjectTransformations[$entityNameT] {
+                                def mapMetadata(f: pkg.apis.meta.v1.ObjectMeta => pkg.apis.meta.v1.ObjectMeta)(r: $entityNameT): $entityNameT =
+                                  r.copy(metadata = f(r.metadata))
+                              }
+                        """
+                        )
+                      case _ =>
+                        List.empty
+                    }
+                }
+
+              List(
+                classDef,
+                q"""
                 object $entityNameN {
                   $encoder
                   $decoder
+                  ..$transformations
                 }
-               """)
+               """
+              )
             case None =>
               q"""
                 case class $entityNameT(value: Json)
