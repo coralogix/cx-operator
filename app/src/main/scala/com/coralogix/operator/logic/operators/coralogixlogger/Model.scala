@@ -18,7 +18,13 @@ import com.coralogix.zio.k8s.model.core.v1.{
 }
 import com.coralogix.zio.k8s.model.pkg.api.resource.Quantity
 import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ LabelSelector, ObjectMeta, OwnerReference }
-import com.coralogix.zio.k8s.model.rbac.v1.{ ClusterRole, ClusterRoleBinding, PolicyRule, RoleRef, Subject }
+import com.coralogix.zio.k8s.model.rbac.v1.{
+  ClusterRole,
+  ClusterRoleBinding,
+  PolicyRule,
+  RoleRef,
+  Subject
+}
 
 object Model {
 

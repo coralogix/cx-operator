@@ -15,7 +15,12 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Ru
   AndSequence,
   Matcher
 }
-import com.coralogix.zio.k8s.client.model.primitives.{ ApplicationName, FieldName, RuleGroupName, RuleName }
+import com.coralogix.zio.k8s.client.model.primitives.{
+  ApplicationName,
+  FieldName,
+  RuleGroupName,
+  RuleName
+}
 import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.ObjectMeta
 
 trait RulegroupsetOperatorTestData {
