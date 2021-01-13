@@ -6,7 +6,6 @@ import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.K8sFailure.syntax._
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.{
   metadata,
-  replaceStatus,
   Coralogixloggers
 }
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{
@@ -28,6 +27,7 @@ import com.coralogix.zio.k8s.client.{
   ClusterResource,
   K8sFailure,
   NamespacedResource,
+  NamespacedResourceStatus,
   ResourceClient
 }
 import com.coralogix.zio.k8s.model.rbac.v1.ClusterRole
@@ -43,7 +43,7 @@ import com.coralogix.zio.k8s.operator.{
 import izumi.reflect.Tag
 import zio.clock.Clock
 import zio.logging.{ log, Logging }
-import zio.{ Cause, Has, ZIO }
+import zio.{ Cause, Has, Ref, ZIO }
 
 object CoralogixloggerOperator {
   private def eventProcessor(): EventProcessor[
@@ -75,28 +75,30 @@ object CoralogixloggerOperator {
     Unit
   ] =
     skipIfAlredyRunning(resource) {
-      for {
-        name <- resource.getName.mapError(KubernetesFailure.apply)
-        uid  <- resource.getUid.mapError(KubernetesFailure.apply)
-        _ <-
-          updateState(
-            resource,
-            "PENDING",
-            "Initializing Provision",
-            s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-          )
-        _ <- setupServiceAccount(ctx, name, uid, resource)
-        _ <- setupClusterRole(ctx, name, uid, resource)
-        _ <- setupClusterRoleBinding(ctx, name, uid, resource)
-        _ <- setupDaemonSet(ctx, name, uid, resource)
-        _ <- updateState(
-               resource,
-               "RUNNING",
-               "Provisioning Succeeded",
-               s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-             )
-        _ <- log.info("Provision succeeded")
-      } yield ()
+      withCurrentResource(resource) { currentResource =>
+        for {
+          name <- resource.getName.mapError(KubernetesFailure.apply)
+          uid  <- resource.getUid.mapError(KubernetesFailure.apply)
+          _ <-
+            updateState(
+              currentResource,
+              "PENDING",
+              "Initializing Provision",
+              s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+            )
+          _ <- setupServiceAccount(ctx, name, uid, currentResource)
+          _ <- setupClusterRole(ctx, name, uid, currentResource)
+          _ <- setupClusterRoleBinding(ctx, name, uid, currentResource)
+          _ <- setupDaemonSet(ctx, name, uid, currentResource)
+          _ <- updateState(
+                 currentResource,
+                 "RUNNING",
+                 "Provisioning Succeeded",
+                 s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+               )
+          _ <- log.info("Provision succeeded")
+        } yield ()
+      }
     }.catchSome {
       case OperatorError(ProvisioningFailed) =>
         log.info(s"Provision failed")
@@ -110,32 +112,55 @@ object CoralogixloggerOperator {
     else
       f
 
+  private def withCurrentResource[R, E, A](
+    resource: Coralogixlogger
+  )(f: Ref[Coralogixlogger] => ZIO[R, E, A]): ZIO[R, E, A] =
+    Ref.make(resource).flatMap(f)
+
   private def updateState(
-    resource: Coralogixlogger,
+    currentResource: Ref[Coralogixlogger],
     newState: String,
     newPhase: String,
     newReason: String
-  ): ZIO[Coralogixloggers, OperatorFailure[CoralogixOperatorFailure], Coralogixlogger] = {
-    val oldStatus = resource.status.getOrElse(Coralogixlogger.Status())
-    val replacedStatus = oldStatus.copy(
-      state = Some(newState),
-      phase = Some(newPhase),
-      reason = Some(newReason)
-    )
-    coralogixloggers
-      .replaceStatus(
-        resource,
-        replacedStatus,
-        resource.metadata
-          .flatMap(_.namespace)
-          .map(K8sNamespace.apply)
-          .getOrElse(K8sNamespace.default)
-      )
-      .mapError(KubernetesFailure.apply)
-  }
+  ): ZIO[Coralogixloggers, OperatorFailure[CoralogixOperatorFailure], Unit] =
+    for {
+      resource <- currentResource.get
+      oldStatus = resource.status.getOrElse(Coralogixlogger.Status())
+      replacedStatus = oldStatus.copy(
+                         state = Some(newState),
+                         phase = Some(newPhase),
+                         reason = Some(newReason)
+                       )
+      updatedResource <- coralogixloggers
+                           .replaceStatus(
+                             resource,
+                             replacedStatus,
+                             resource.metadata
+                               .flatMap(_.namespace)
+                               .map(K8sNamespace.apply)
+                               .getOrElse(K8sNamespace.default)
+                           )
+                           .mapError(KubernetesFailure.apply)
+      _ <- currentResource.set(updatedResource)
+    } yield ()
+
+  private def replaceStatus(
+    of: Ref[Coralogixlogger],
+    updateStatus: Coralogixlogger.Status => Coralogixlogger.Status,
+    namespace: K8sNamespace,
+    dryRun: Boolean = false
+  ): ZIO[Coralogixloggers, KubernetesFailure, Unit] =
+    for {
+      resource <- of.get
+      updatedStatus = updateStatus(resource.status.getOrElse(Coralogixlogger.Status()))
+      updatedResource <- coralogixloggers
+                           .replaceStatus(resource, updatedStatus, namespace, dryRun)
+                           .mapError(KubernetesFailure.apply)
+      _ <- of.set(updatedResource)
+    } yield ()
 
   private def provisioningFailed(
-    resource: Coralogixlogger,
+    currentResource: Ref[Coralogixlogger],
     phase: String,
     reason: String,
     k8sReason: K8sFailure
@@ -144,7 +169,7 @@ object CoralogixloggerOperator {
       reason,
       Cause.fail[OperatorFailure[CoralogixOperatorFailure]](KubernetesFailure(k8sReason))
     ) *>
-      updateState(resource, "FAILED", phase, reason) *>
+      updateState(currentResource, "FAILED", phase, reason) *>
       ZIO.fail(OperatorError(ProvisioningFailed))
 
   private def setupComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
@@ -154,15 +179,14 @@ object CoralogixloggerOperator {
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with Has[NamespacedResource[T]], OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    val component =
-      Model.attachOwner(name, uid, ctx.resourceType, createComponent(name, resource))
-    val componentKind = implicitly[ResourceMetadata[T]].kind
-
+  ], Unit] =
     for {
+      resource <- currentResource.get
+      component     = Model.attachOwner(name, uid, ctx.resourceType, createComponent(name, resource))
+      componentKind = implicitly[ResourceMetadata[T]].kind
       componentName <- component.getName.mapError(KubernetesFailure.apply)
       namespace = resource.metadata
                     .flatMap(_.namespace)
@@ -175,7 +199,7 @@ object CoralogixloggerOperator {
       _ <- queryResult match {
              case Left(failure) =>
                provisioningFailed(
-                 resource,
+                 currentResource,
                  componentKind,
                  reason = s"Provisioning of $componentKind failed.",
                  failure
@@ -183,7 +207,7 @@ object CoralogixloggerOperator {
              case Right(None) =>
                for {
                  _ <- updateState(
-                        resource,
+                        currentResource,
                         "PROVISIONING",
                         componentKind,
                         s"Provisioning of $componentKind..."
@@ -193,39 +217,38 @@ object CoralogixloggerOperator {
                         .create(component, namespace)
                         .catchAll { failure =>
                           provisioningFailed(
-                            resource,
+                            currentResource,
                             phase = componentKind,
                             reason = s"Provisioning of $componentKind failed.",
                             failure
                           )
                         }
                  _ <- replaceStatus(
-                        resource,
-                        store(
-                          resource.status
-                            .getOrElse(Coralogixlogger.Status())
-                            .copy(
-                              reason = Some(s"Provisioning of $componentKind successful.")
-                            ),
-                          componentName
-                        ),
+                        currentResource,
+                        status =>
+                          store(
+                            status
+                              .copy(
+                                reason = Some(s"Provisioning of $componentKind successful.")
+                              ),
+                            componentName
+                          ),
                         namespace
-                      ).mapError(KubernetesFailure.apply)
+                      )
                } yield ()
              case Right(_) =>
                log.info(s"Skip: $componentKind already exists") *>
                  replaceStatus(
-                   resource,
-                   store(
-                     resource.status
-                       .getOrElse(Coralogixlogger.Status()),
-                     componentName
-                   ),
+                   currentResource,
+                   status =>
+                     store(
+                       status,
+                       componentName
+                     ),
                    namespace
-                 ).mapError(KubernetesFailure.apply)
+                 )
            }
     } yield ()
-  }
 
   // TODO: See if a common interface can be used for NS and Cluster resources in such generic use cases
   private def setupClusterComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
@@ -235,15 +258,14 @@ object CoralogixloggerOperator {
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with Has[ClusterResource[T]], OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    val component =
-      Model.attachOwner(name, uid, ctx.resourceType, createComponent(name, resource))
-    val componentKind = implicitly[ResourceMetadata[T]].kind
-
+  ], Unit] =
     for {
+      resource <- currentResource.get
+      component     = Model.attachOwner(name, uid, ctx.resourceType, createComponent(name, resource))
+      componentKind = implicitly[ResourceMetadata[T]].kind
       componentName <- component.getName.mapError(KubernetesFailure.apply)
       namespace = resource.metadata
                     .flatMap(_.namespace)
@@ -256,7 +278,7 @@ object CoralogixloggerOperator {
       _ <- queryResult match {
              case Left(failure) =>
                provisioningFailed(
-                 resource,
+                 currentResource,
                  componentKind,
                  reason = s"Provisioning of $componentKind failed.",
                  failure
@@ -264,7 +286,7 @@ object CoralogixloggerOperator {
              case Right(None) =>
                for {
                  _ <- updateState(
-                        resource,
+                        currentResource,
                         "PROVISIONING",
                         componentKind,
                         s"Provisioning of $componentKind..."
@@ -274,45 +296,44 @@ object CoralogixloggerOperator {
                         .create(component)
                         .catchAll { failure =>
                           provisioningFailed(
-                            resource,
+                            currentResource,
                             phase = componentKind,
                             reason = s"Provisioning of $componentKind failed.",
                             failure
                           )
                         }
                  _ <- replaceStatus(
-                        resource,
-                        store(
-                          resource.status
-                            .getOrElse(Coralogixlogger.Status())
-                            .copy(
-                              reason = Some(s"Provisioning of $componentKind successful.")
-                            ),
-                          componentName
-                        ),
+                        currentResource,
+                        status =>
+                          store(
+                            status
+                              .copy(
+                                reason = Some(s"Provisioning of $componentKind successful.")
+                              ),
+                            componentName
+                          ),
                         namespace
-                      ).mapError(KubernetesFailure.apply)
+                      )
                } yield ()
              case Right(_) =>
                log.info(s"Skip: $componentKind already exists") *>
                  replaceStatus(
-                   resource,
-                   store(
-                     resource.status
-                       .getOrElse(Coralogixlogger.Status()),
-                     componentName
-                   ),
+                   currentResource,
+                   status =>
+                     store(
+                       status,
+                       componentName
+                     ),
                    namespace
-                 ).mapError(KubernetesFailure.apply)
+                 )
            }
     } yield ()
-  }
 
   private def setupServiceAccount(
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with ServiceAccounts, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
@@ -320,14 +341,14 @@ object CoralogixloggerOperator {
     setupComponent(
       Model.serviceAccount,
       (status, serviceAccountName) => status.copy(serviceAccount = Some(serviceAccountName))
-    )(ctx, name, uid, resource)
+    )(ctx, name, uid, currentResource)
   }
 
   private def setupClusterRole(
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with ClusterRoles, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
@@ -335,14 +356,14 @@ object CoralogixloggerOperator {
     setupClusterComponent(
       Model.clusterRole,
       (status, clusterRoleName) => status.copy(clusterRole = Some(clusterRoleName))
-    )(ctx, name, uid, resource)
+    )(ctx, name, uid, currentResource)
   }
 
   private def setupClusterRoleBinding(
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with ClusterRoleBindings, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
@@ -351,14 +372,14 @@ object CoralogixloggerOperator {
       Model.clusterRoleBinding,
       (status, clusterRoleBindingName) =>
         status.copy(clusterRoleBinding = Some(clusterRoleBindingName))
-    )(ctx, name, uid, resource)
+    )(ctx, name, uid, currentResource)
   }
 
   private def setupDaemonSet(
     ctx: OperatorContext,
     name: String,
     uid: String,
-    resource: Coralogixlogger
+    currentResource: Ref[Coralogixlogger]
   ): ZIO[Coralogixloggers with Logging with DaemonSets, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
@@ -366,7 +387,7 @@ object CoralogixloggerOperator {
     setupComponent(
       Model.daemonSet,
       (status, daemonSetName) => status.copy(daemonSet = Some(daemonSetName))
-    )(ctx, name, uid, resource)
+    )(ctx, name, uid, currentResource)
   }
 
   def forNamespace(
