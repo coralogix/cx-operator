@@ -1,10 +1,10 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
 import com.coralogix.rules.grpc.external.v1.JsonExtractParameters.DestinationField
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest.CreateRuleSubgroup

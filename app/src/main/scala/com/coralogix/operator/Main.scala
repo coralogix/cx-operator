@@ -1,27 +1,30 @@
 package com.coralogix.operator
 
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
-import zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
-import zio.k8s.client.com.coralogix.loggers.coralogixloggers.{ v1 => coralogixloggers }
-import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{v1 => crd}
+import com.coralogix.zio.k8s.client.serviceaccounts.{v1 => serviceaccounts }
+import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{v1 => rulegroupsets}
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{v1 => coralogixloggers}
+import com.coralogix.operator.config.{BaseOperatorConfig, OperatorConfig, OperatorResources}
+import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
-import com.coralogix.operator.logic.{ Operator, Registration }
+import com.coralogix.zio.k8s.operator.{Operator, Registration}
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixloggerOperator
-import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
+import com.coralogix.operator.monitoring.{OperatorMetrics, clientMetrics}
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.Coralogixloggers
-import zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
-import zio.k8s.client.config.{ k8sCluster, k8sSttpClient }
-import zio.k8s.client.model.{ K8sNamespace, Object }
-import zio.logging.{ log, LogAnnotation, Logging }
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.Coralogixloggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.config.{k8sCluster, k8sSttpClient}
+import com.coralogix.zio.k8s.client.model.{K8sNamespace, Object}
+import com.coralogix.zio.k8s.client.serviceaccounts.v1.ServiceAccounts
+import zio.logging.{LogAnnotation, Logging, log}
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, Has, URIO, ZIO, ZLayer }
+import zio.{App, ExitCode, Fiber, Has, URIO, ZIO, ZLayer, console}
 
 object Main extends App {
 
@@ -39,6 +42,7 @@ object Main extends App {
     val clients =
       logging.live ++ (operatorEnvironment >>>
         (crd.live ++
+        serviceaccounts.live ++
           rulegroupsets.live ++
           coralogixloggers.live))
 
@@ -94,8 +98,8 @@ object Main extends App {
       metrics: OperatorMetrics,
       resources: OperatorResources,
       resourceSelector: OperatorResources => List[BaseOperatorConfig],
-      constructAll: (Int, OperatorMetrics) => ZIO[R, E, Operator[ROp, T]],
-      constructForNamespace: (K8sNamespace, Int, OperatorMetrics) => ZIO[R, E, Operator[ROp, T]]
+      constructAll: (Int, OperatorMetrics) => ZIO[R, E, Operator[ROp, CoralogixOperatorFailure, T]],
+      constructForNamespace: (K8sNamespace, Int, OperatorMetrics) => ZIO[R, E, Operator[ROp, CoralogixOperatorFailure, T]]
     ): ZIO[ROp with Clock with Logging with R, E, List[Fiber.Runtime[Nothing, Unit]]] =
       if (resourceSelector(resources).isEmpty)
         for {
@@ -139,7 +143,7 @@ object Main extends App {
   private def spawnLoggerOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[Clock with Logging with Coralogixloggers, Nothing, List[
+  ): ZIO[Clock with Logging with Coralogixloggers with ServiceAccounts, Nothing, List[
     Fiber.Runtime[Nothing, Unit]
   ]] =
     SpawnOperators[Coralogixlogger](

@@ -12,32 +12,8 @@ val commonSettings = Seq(
 
 lazy val root = Project("coralogix-kubernetes-operator", file("."))
   .aggregate(
-    client,
     app
   )
-
-lazy val client = Project("zio-k8s-client", file("zio-k8s-client"))
-  .settings(commonSettings)
-  .settings(
-    scalaVersion := ScalaVer,
-    libraryDependencies ++= Seq(
-      "dev.zio"                       %% "zio"                    % "1.0.3",
-      "dev.zio"                       %% "zio-streams"            % "1.0.3",
-      "dev.zio"                       %% "zio-config"             % "1.0.0-RC30-1",
-      "dev.zio"                       %% "zio-config-magnolia"    % "1.0.0-RC30-1",
-      "com.softwaremill.sttp.client3" %% "httpclient-backend-zio" % "3.0.0-RC10",
-      "com.softwaremill.sttp.client3" %% "slf4j-backend"          % "3.0.0-RC10",
-      "com.softwaremill.sttp.client3" %% "circe"                  % "3.0.0-RC10",
-      "io.circe"                      %% "circe-core"             % "0.13.0",
-      "io.circe"                      %% "circe-parser"           % "0.13.0",
-      "io.circe"                      %% "circe-yaml"             % "0.13.0",
-      "dev.zio"                       %% "zio-test"               % "1.0.3" % Test,
-      "dev.zio"                       %% "zio-test-sbt"           % "1.0.3" % Test
-    ),
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    Compile / unmanagedSourceDirectories += baseDirectory.value / "src/generated/scala" // NOTE: temporary
-  )
-  .enablePlugins(K8sResourceCodegenPlugin)
 
 lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)
@@ -45,8 +21,10 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.softwaremill.quicklens" %% "quicklens"  % "1.6.1",
-      "nl.vroste"                  %% "rezilience" % "0.5.1",
+      "com.coralogix"              %% "zio-k8s-client"   % "0.1.2",
+      "com.coralogix"              %% "zio-k8s-operator" % "0.1.2",
+      "com.softwaremill.quicklens" %% "quicklens"        % "1.6.1",
+      "nl.vroste"                  %% "rezilience"       % "0.5.1",
       // Config
       "dev.zio" %% "zio-config"          % "1.0.0-RC30-1",
       "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC30-1",
@@ -80,7 +58,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     // K8s
     externalCustomResourceDefinitions := Seq(
       file("crds/crd-coralogix-rule-group-set.yaml"),
-      file("crds/crd-coralogix-loggers.yaml"),
+      file("crds/crd-coralogix-loggers.yaml")
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
@@ -105,7 +83,6 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "-H:ResourceConfigurationFiles=../../src/graalvm/resource-config.json"
     )
   )
-  .dependsOn(client)
   .dependsOn(LocalProject("grpc-deps"))
   .enablePlugins(
     UniversalPlugin,

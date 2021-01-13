@@ -1,12 +1,14 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
-import zio.k8s.client.model._
-import zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
-import zio.k8s.client.com.coralogix.rulegroupsets.v1.metadata
-import com.coralogix.operator.logic.Operator._
-import com.coralogix.operator.logic._
+import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, UndefinedGrpcField }
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
+import com.coralogix.zio.k8s.client.model._
+import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
+import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.v1.metadata
+import com.coralogix.zio.k8s.operator.Operator._
+import com.coralogix.zio.k8s.operator._
+import com.coralogix.zio.k8s.operator.aspects._
 import com.coralogix.operator.logic.aspects._
 import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.toCreateRuleGroup
 import com.coralogix.operator.logic.operators.rulegroupset.StatusUpdate.runStatusUpdates
@@ -17,7 +19,7 @@ import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
   UpdateRuleGroupRequest
 }
 import zio.clock.Clock
-import zio.k8s.client.{ NamespacedResource, NamespacedResourceStatus }
+import com.coralogix.zio.k8s.client.{ NamespacedResource, NamespacedResourceStatus }
 import zio.logging.{ log, Logging }
 import zio.{ Has, ZIO }
 
@@ -26,6 +28,7 @@ object RulegroupsetOperator {
   /** The central rulegroupset event processor logic */
   private def eventProcessor(): EventProcessor[
     Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    CoralogixOperatorFailure,
     Rulegroupset
   ] =
     (ctx, event) =>
@@ -106,7 +109,9 @@ object RulegroupsetOperator {
 
   private def modifyExistingRuleGroups(
     mappings: Map[RuleGroupName, (RuleGroupId, Rulegroupset.Spec.RuleGroupsSequence)]
-  ): ZIO[RuleGroupsServiceClient with Logging, GrpcFailure, Vector[StatusUpdate]] =
+  ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
+    StatusUpdate
+  ]] =
     ZIO
       .foreachPar_(mappings.toVector) {
         case (ruleGroupName, (id, data)) =>
@@ -126,11 +131,11 @@ object RulegroupsetOperator {
               )
           } yield ()
       }
-      .as(Vector.empty[StatusUpdate])
+      .bimap(OperatorError.apply, _ => Vector.empty[StatusUpdate])
 
   private def createNewRuleGroups(
     ruleGroups: Set[Rulegroupset.Spec.RuleGroupsSequence]
-  ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure, Vector[
+  ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
     StatusUpdate
   ]] =
     ZIO
@@ -154,24 +159,28 @@ object RulegroupsetOperator {
           StatusUpdate.AddRuleGroupMapping(ruleGroup.name, groupId)
         )
       }
-      .map(_.flatten)
+      .bimap(OperatorError.apply, _.flatten)
 
   private def deleteRuleGroups(
     mappings: Map[RuleGroupName, RuleGroupId]
-  ): ZIO[RuleGroupsServiceClient with Logging, GrpcFailure, Vector[StatusUpdate]] =
-    ZIO.foreachPar(mappings.toVector) {
-      case (name, id) =>
-        for {
-          _ <- log.info(s"Deleting rule group '${name.value}' (${id.value})'")
-          response <- RuleGroupsServiceClient
-                        .deleteRuleGroup(DeleteRuleGroupRequest(id.value))
-                        .mapError(GrpcFailure.apply)
-          _ <-
-            log.trace(
-              s"Rules API response for deleting rule group '${name.value}' (${id.value}): $response"
-            )
-        } yield StatusUpdate.DeleteRuleGroupMapping(name)
-    }
+  ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
+    StatusUpdate
+  ]] =
+    ZIO
+      .foreachPar(mappings.toVector) {
+        case (name, id) =>
+          for {
+            _ <- log.info(s"Deleting rule group '${name.value}' (${id.value})'")
+            response <- RuleGroupsServiceClient
+                          .deleteRuleGroup(DeleteRuleGroupRequest(id.value))
+                          .mapError(GrpcFailure.apply)
+            _ <-
+              log.trace(
+                s"Rules API response for deleting rule group '${name.value}' (${id.value}): $response"
+              )
+          } yield StatusUpdate.DeleteRuleGroupMapping(name)
+      }
+      .mapError(OperatorError.apply)
 
   private def applyStatusUpdates(
     ctx: OperatorContext,
@@ -210,6 +219,7 @@ object RulegroupsetOperator {
     metrics: OperatorMetrics
   ): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
     Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    CoralogixOperatorFailure,
     Rulegroupset
   ]] =
     Operator.namespaced(
@@ -221,6 +231,7 @@ object RulegroupsetOperator {
     metrics: OperatorMetrics
   ): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
     Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    CoralogixOperatorFailure,
     Rulegroupset
   ]] =
     Operator.namespaced(
@@ -229,6 +240,7 @@ object RulegroupsetOperator {
 
   def forTest(): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
     Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    CoralogixOperatorFailure,
     Rulegroupset
   ]] =
     Operator.namespaced(eventProcessor())(Some(K8sNamespace("default")), 256)

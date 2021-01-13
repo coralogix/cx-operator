@@ -1,24 +1,26 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
+import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.aspects._
-import com.coralogix.operator.logic.{ KubernetesFailure, Operator, OperatorFailure }
-import com.coralogix.operator.logic.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.operator.monitoring.OperatorMetrics
-import zio.{ Has, ZIO }
+import com.coralogix.zio.k8s.client.K8sFailure.syntax._
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.{Coralogixloggers, metadata}
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{v1 => coralogixloggers}
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.model._
+import com.coralogix.zio.k8s.client.serviceaccounts.v1.ServiceAccounts
+import com.coralogix.zio.k8s.client.serviceaccounts.{v1 => serviceaccounts}
+import com.coralogix.zio.k8s.operator.Operator.{EventProcessor, OperatorContext}
+import com.coralogix.zio.k8s.operator.aspects.logEvents
+import com.coralogix.zio.k8s.operator.{KubernetesFailure, Operator, OperatorFailure}
+import zio.ZIO
 import zio.clock.Clock
-import zio.k8s.client.{ K8sFailure, NamespacedResourceStatus }
-import zio.k8s.client.K8sFailure.syntax._
-import zio.k8s.client.com.coralogix.loggers.coralogixloggers.{ v1 => coralogixloggers }
-import zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.{ metadata, Coralogixloggers }
-import zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
-import zio.k8s.client.serviceaccounts.{ v1 => serviceaccounts }
-import zio.k8s.client.model.{ Added, Deleted, K8sNamespace, Modified, Reseted }
-import zio.k8s.client.serviceaccounts.v1.ServiceAccounts
-import zio.logging.{ log, Logging }
+import zio.logging.{Logging, log}
 
 object CoralogixloggerOperator {
   private def eventProcessor(): EventProcessor[
     Logging with Coralogixloggers with ServiceAccounts,
+    CoralogixOperatorFailure,
     Coralogixlogger
   ] =
     (ctx, event) =>
@@ -37,7 +39,7 @@ object CoralogixloggerOperator {
   private def setupLogger(
     ctx: OperatorContext,
     resource: Coralogixlogger
-  ): ZIO[Logging with Coralogixloggers with ServiceAccounts, OperatorFailure, Unit] =
+  ): ZIO[Logging with Coralogixloggers with ServiceAccounts, OperatorFailure[CoralogixOperatorFailure], Unit] =
     skipIfAlredyRunning(resource) {
       for {
         name <- resource.getName.mapError(KubernetesFailure.apply)
@@ -54,8 +56,8 @@ object CoralogixloggerOperator {
     }
 
   private def skipIfAlredyRunning[R <: Logging](resource: Coralogixlogger)(
-    f: ZIO[R, OperatorFailure, Unit]
-  ): ZIO[R, OperatorFailure, Unit] =
+    f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
+  ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     if (resource.status.flatMap(_.state).contains("RUNNING"))
       log.info(s"CoralogixLogger is already running")
     else
@@ -66,7 +68,7 @@ object CoralogixloggerOperator {
     newState: String,
     newPhase: String,
     newReason: String
-  ): ZIO[Coralogixloggers, OperatorFailure, Coralogixlogger] = {
+  ): ZIO[Coralogixloggers, OperatorFailure[CoralogixOperatorFailure], Coralogixlogger] = {
     val oldStatus = resource.status.getOrElse(Coralogixlogger.Status())
     val replacedStatus = oldStatus.copy(
       state = Some(newState),
@@ -90,7 +92,7 @@ object CoralogixloggerOperator {
     name: String,
     uid: String,
     resource: Coralogixlogger
-  ): ZIO[ServiceAccounts, OperatorFailure, Unit] = {
+  ): ZIO[ServiceAccounts, OperatorFailure[CoralogixOperatorFailure], Unit] = {
     val serviceAccount =
       Model.attachOwner(name, uid, ctx.resourceType, Model.serviceAccount(name, resource))
 
@@ -118,6 +120,7 @@ object CoralogixloggerOperator {
     metrics: OperatorMetrics
   ): ZIO[Coralogixloggers, Nothing, Operator[
     Clock with Logging with Coralogixloggers with ServiceAccounts,
+    CoralogixOperatorFailure,
     Coralogixlogger
   ]] =
     Operator.namespaced(
@@ -129,6 +132,7 @@ object CoralogixloggerOperator {
     metrics: OperatorMetrics
   ): ZIO[Coralogixloggers, Nothing, Operator[
     Clock with Logging with Coralogixloggers with ServiceAccounts,
+    CoralogixOperatorFailure,
     Coralogixlogger
   ]] =
     Operator.namespaced(

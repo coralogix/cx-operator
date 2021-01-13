@@ -1,10 +1,10 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
-import zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
-import zio.k8s.client.model.{ K8sResourceType, Object, ObjectTransformations }
-import zio.k8s.client.model.syntax._
-import zio.k8s.model.apps.v1.{ DaemonSet, DaemonSetSpec }
-import zio.k8s.model.core.v1.{
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.model.{ K8sResourceType, Object, ObjectTransformations }
+import com.coralogix.zio.k8s.client.model.syntax._
+import com.coralogix.zio.k8s.model.apps.v1.{ DaemonSet, DaemonSetSpec }
+import com.coralogix.zio.k8s.model.core.v1.{
   Container,
   EnvVar,
   HostPathVolumeSource,
@@ -16,9 +16,9 @@ import zio.k8s.model.core.v1.{
   Volume,
   VolumeMount
 }
-import zio.k8s.model.pkg.api.resource.Quantity
-import zio.k8s.model.pkg.apis.meta.v1.{ LabelSelector, ObjectMeta, OwnerReference }
-import zio.k8s.model.rbac.v1.{ ClusterRole, ClusterRoleBinding, PolicyRule, RoleRef, Subject }
+import com.coralogix.zio.k8s.model.pkg.api.resource.Quantity
+import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ LabelSelector, ObjectMeta, OwnerReference }
+import com.coralogix.zio.k8s.model.rbac.v1.{ ClusterRole, ClusterRoleBinding, PolicyRule, RoleRef, Subject }
 
 object Model {
 
