@@ -3,7 +3,7 @@ package com.coralogix.operator.logic.operators.coralogixlogger
 import com.coralogix.operator.logic.{ CoralogixOperatorFailure, ProvisioningFailed }
 import com.coralogix.operator.logic.aspects._
 import com.coralogix.operator.monitoring.OperatorMetrics
-import com.coralogix.zio.k8s.client.{ K8sFailure, NamespacedResource }
+import com.coralogix.zio.k8s.client.{ K8sFailure, NamespacedResource, ResourceClient }
 import com.coralogix.zio.k8s.client.K8sFailure.syntax._
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.{
   metadata,
@@ -28,6 +28,7 @@ import com.coralogix.zio.k8s.operator.{
   OperatorFailure,
   OperatorLogging
 }
+import izumi.reflect.Tag
 import zio.{ Cause, Has, ZIO }
 import zio.clock.Clock
 import zio.logging.{ log, Logging }
@@ -120,33 +121,37 @@ object CoralogixloggerOperator {
       updateState(resource, "FAILED", phase, reason) *>
       ZIO.fail(OperatorError(ProvisioningFailed))
 
-  private def setupServiceAccount(
+  private def setupComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
+    createComponent: (String, Coralogixlogger) => T,
+    store: (Coralogixlogger.Status, String) => Coralogixlogger.Status
+  )(
     ctx: OperatorContext,
     name: String,
     uid: String,
     resource: Coralogixlogger
-  ): ZIO[Coralogixloggers with Logging with Has[
-    NamespacedResource[ServiceAccount]
-  ], OperatorFailure[CoralogixOperatorFailure], Unit] = {
-    val serviceAccount =
-      Model.attachOwner(name, uid, ctx.resourceType, Model.serviceAccount(name, resource))
+  ): ZIO[Coralogixloggers with Logging with Has[NamespacedResource[T]], OperatorFailure[
+    CoralogixOperatorFailure
+  ], Unit] = {
+    val component =
+      Model.attachOwner(name, uid, ctx.resourceType, createComponent(name, resource))
+    val componentKind = implicitly[ResourceMetadata[T]].kind
 
     for {
-      serviceAccountName <- serviceAccount.getName.mapError(KubernetesFailure.apply)
+      componentName <- component.getName.mapError(KubernetesFailure.apply)
       namespace = resource.metadata
                     .flatMap(_.namespace)
                     .map(K8sNamespace.apply)
                     .getOrElse(K8sNamespace.default)
-      queryResult <- serviceaccounts
-                       .get(serviceAccountName, namespace)
+      queryResult <- ResourceClient.namespaced
+                       .get[T](componentName, namespace)
                        .ifFound
                        .either
       _ <- queryResult match {
              case Left(failure) =>
                provisioningFailed(
                  resource,
-                 phase = "ServiceAccount",
-                 reason = "Provisioning of ServiceAccount failed.",
+                 componentKind,
+                 reason = s"Provisioning of $componentKind failed.",
                  failure
                )
              case Right(None) =>
@@ -154,42 +159,61 @@ object CoralogixloggerOperator {
                  _ <- updateState(
                         resource,
                         "PROVISIONING",
-                        "ServiceAccount",
-                        "Provisioning of ServiceAccount..."
+                        componentKind,
+                        s"Provisioning of $componentKind..."
                       )
-                 _ <- log.info(s"Creating a new ServiceAccount with name $serviceAccountName")
-                 _ <- serviceaccounts
-                        .create(serviceAccount, namespace)
+                 _ <- log.info(s"Creating a new $componentKind with name $componentName")
+                 _ <- ResourceClient.namespaced
+                        .create(component, namespace)
                         .catchAll { failure =>
                           provisioningFailed(
                             resource,
-                            phase = "ServiceAccount",
-                            reason = "Provisioning of ServiceAccount failed.",
+                            phase = componentKind,
+                            reason = s"Provisioning of $componentKind failed.",
                             failure
                           )
                         }
                  _ <- replaceStatus(
                         resource,
-                        resource.status
-                          .getOrElse(Coralogixlogger.Status())
-                          .copy(
-                            serviceAccount = Some(serviceAccountName),
-                            reason = Some("Provisioning of ServiceAccount successful.")
-                          ),
+                        store(
+                          resource.status
+                            .getOrElse(Coralogixlogger.Status())
+                            .copy(
+                              reason = Some(s"Provisioning of $componentKind successful.")
+                            ),
+                          componentName
+                        ),
                         namespace
                       ).mapError(KubernetesFailure.apply)
                } yield ()
              case Right(_) =>
-               log.info(s"Skip: ServiceAccount already exists") *>
+               log.info(s"Skip: $componentKind already exists") *>
                  replaceStatus(
                    resource,
-                   resource.status
-                     .getOrElse(Coralogixlogger.Status())
-                     .copy(serviceAccount = Some(serviceAccountName)),
+                   store(
+                     resource.status
+                       .getOrElse(Coralogixlogger.Status()),
+                     componentName
+                   ),
                    namespace
                  ).mapError(KubernetesFailure.apply)
            }
     } yield ()
+  }
+
+  private def setupServiceAccount(
+    ctx: OperatorContext,
+    name: String,
+    uid: String,
+    resource: Coralogixlogger
+  ): ZIO[Coralogixloggers with Logging with ServiceAccounts, OperatorFailure[
+    CoralogixOperatorFailure
+  ], Unit] = {
+    import serviceaccounts.metadata
+    setupComponent(
+      Model.serviceAccount,
+      (status, serviceAccountName) => status.copy(serviceAccount = Some(serviceAccountName))
+    )(ctx, name, uid, resource)
   }
 
   def forNamespace(
