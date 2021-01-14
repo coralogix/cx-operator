@@ -1,6 +1,7 @@
 package com.coralogix.operator.logging
 
-import zio.k8s.client.model.K8sNamespace
+import com.coralogix.zio.k8s.client.model.K8sNamespace
+import com.coralogix.zio.k8s.operator.OperatorLogging.{ logNamespace, logResourceType }
 import zio.Cause
 import zio.logging.{ LogAnnotation, LogContext, LogFormat }
 

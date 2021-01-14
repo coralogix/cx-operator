@@ -1,6 +1,6 @@
 package com.coralogix.operator
 
-import zio.k8s.client.model.K8sNamespace
+import com.coralogix.zio.k8s.client.model.K8sNamespace
 import org.slf4j.impl.ZioLoggerFactory
 import zio.Cause._
 import zio.clock.Clock
@@ -24,15 +24,6 @@ package object logging {
       "io.netty"                                       -> LogLevel.Info,
       "io.grpc.netty"                                  -> LogLevel.Info
     )
-
-  val logResourceType: LogAnnotation[Option[String]] =
-    LogAnnotation[Option[String]]("resource-type", None, (_, t) => t, _.getOrElse(""))
-  val logNamespace: LogAnnotation[Option[K8sNamespace]] = LogAnnotation[Option[K8sNamespace]](
-    "namespace",
-    None,
-    (_, t) => t,
-    _.map(_.value).getOrElse("")
-  )
 
   // TODO: from zio-logging-slf4j, should not be private there >>>
   private val tracing =
@@ -85,43 +76,6 @@ package object logging {
 
     (Clock.any ++ logging) >>> modifyLoggerM(addTimestamp[String]) >>> bindSlf4jBridge
   }
-
-  // For now the simplest way to properly log errors is to make use of the built in Throwable logging
-  // so this type class helps us doing that and makes it easier to transform to other kind of error logging later
-  // TODO: logging errors should be simpler in zio/zio-logging
-
-  trait ConvertableToThrowable[E] {
-    def toThrowable(value: E): Throwable
-  }
-  object ConvertableToThrowable {
-    implicit val throwable: ConvertableToThrowable[Throwable] = identity[Throwable]
-    implicit val nothing: ConvertableToThrowable[Nothing] = _ => new RuntimeException("Nothing")
-  }
-
-  def logFailure[E: ConvertableToThrowable](
-    message: String,
-    cause: Cause[E]
-  ): ZIO[Logging, Nothing, Unit] =
-    cause match {
-      case Empty() =>
-        log.error(message)
-      case Fail(value) =>
-        log.throwable(message, implicitly[ConvertableToThrowable[E]].toThrowable(value))
-      case Die(value) =>
-        log.throwable(message, value)
-      case Interrupt(fiberId) =>
-        log.throwable(message, new InterruptedException(fiberId.toString))
-      case Traced(cause, trace) =>
-        logFailure(message, cause)
-      case Then(left, right) =>
-        logFailure(message + s" #1 ++", left) *>
-          logFailure(message + s" ++ #2", right)
-      case Both(left, right) =>
-        logFailure(message + s" #1 &&", left) *>
-          logFailure(message + s" && #2", right)
-      case _ =>
-        log.error(message, cause)
-    }
 
   // TODO: to zio-logging >>>
 

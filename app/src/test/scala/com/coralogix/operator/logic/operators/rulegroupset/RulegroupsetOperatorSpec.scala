@@ -1,10 +1,10 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Status.GroupIds
-import zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
-import zio.k8s.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
-import zio.k8s.client.{
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Status.GroupIds
+import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
+import com.coralogix.zio.k8s.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
+import com.coralogix.zio.k8s.client.{
   K8sFailure,
   NamespacedResource,
   NamespacedResourceStatus,
@@ -21,7 +21,7 @@ import com.coralogix.rules.grpc.external.v1.RuleMatcher
 import zio._
 import zio.clock.Clock
 import zio.console.Console
-import zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
+import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
 import zio.logging.{ LogLevel, Logging }
 import zio.stm.TMap
 import zio.stream.Stream

@@ -8,8 +8,8 @@ import zio.config.derivation.name
 import zio.config.magnolia.DeriveConfigDescriptor.{ descriptor, Descriptor }
 import zio.config.typesafe.TypesafeConfigSource
 import zio.duration.Duration
-import zio.k8s.client.config._
-import zio.k8s.client.model.K8sNamespace
+import com.coralogix.zio.k8s.client.config._
+import com.coralogix.zio.k8s.client.model.K8sNamespace
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.nio.core.file.Path
 
@@ -28,11 +28,19 @@ case class GrpcClientConfig(
   queueSize: Int
 )
 
-case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int])
+trait BaseOperatorConfig {
+  val namespace: K8sNamespace
+  val buffer: Option[Int]
+}
+
+case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int]) extends BaseOperatorConfig
+case class CoralogixLoggerConfig(namespace: K8sNamespace, buffer: Option[Int])
+    extends BaseOperatorConfig
 
 case class OperatorResources(
   defaultBuffer: Int,
-  rulegroups: List[RulegroupConfig]
+  rulegroups: List[RulegroupConfig],
+  coralogixLoggers: List[CoralogixLoggerConfig]
 )
 
 case class GrpcClientsConfig(rulegroups: GrpcClientConfig)

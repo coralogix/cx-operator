@@ -3,8 +3,8 @@ package zio.k8s.client.model
 import java.time.OffsetDateTime
 
 import cats.data.{ NonEmptyList, Validated }
-import zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import zio.k8s.client.internal.CircePrettyFailure
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.internal.CircePrettyFailure
 import io.circe._
 import io.circe.parser._
 import io.circe.syntax._
