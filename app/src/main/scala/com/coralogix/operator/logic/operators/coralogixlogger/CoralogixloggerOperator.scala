@@ -74,30 +74,32 @@ object CoralogixloggerOperator {
     ],
     Unit
   ] =
-    skipIfAlredyRunning(resource) {
-      withCurrentResource(resource) { currentResource =>
-        for {
-          name <- resource.getName.mapError(KubernetesFailure.apply)
-          uid  <- resource.getUid.mapError(KubernetesFailure.apply)
-          _ <-
-            updateState(
-              currentResource,
-              "PENDING",
-              "Initializing Provision",
-              s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-            )
-          _ <- setupServiceAccount(ctx, name, uid, currentResource)
-          _ <- setupClusterRole(ctx, name, uid, currentResource)
-          _ <- setupClusterRoleBinding(ctx, name, uid, currentResource)
-          _ <- setupDaemonSet(ctx, name, uid, currentResource)
-          _ <- updateState(
-                 currentResource,
-                 "RUNNING",
-                 "Provisioning Succeeded",
-                 s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-               )
-          _ <- log.info("Provision succeeded")
-        } yield ()
+    skipIfAlreadyOutdated(resource) {
+      skipIfAlredyRunning(resource) {
+        withCurrentResource(resource) { currentResource =>
+          for {
+            name <- resource.getName.mapError(KubernetesFailure.apply)
+            uid  <- resource.getUid.mapError(KubernetesFailure.apply)
+            _ <-
+              updateState(
+                currentResource,
+                "PENDING",
+                "Initializing Provision",
+                s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+              )
+            _ <- setupServiceAccount(ctx, name, uid, currentResource)
+            _ <- setupClusterRole(ctx, name, uid, currentResource)
+            _ <- setupClusterRoleBinding(ctx, name, uid, currentResource)
+            _ <- setupDaemonSet(ctx, name, uid, currentResource)
+            _ <- updateState(
+                   currentResource,
+                   "RUNNING",
+                   "Provisioning Succeeded",
+                   s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+                 )
+            _ <- log.info("Provision succeeded")
+          } yield ()
+        }
       }
     }.catchSome {
       case OperatorError(ProvisioningFailed) =>
@@ -108,9 +110,28 @@ object CoralogixloggerOperator {
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     if (resource.status.flatMap(_.state).contains("RUNNING"))
-      log.info(s"CoralogixLogger is already running")
+      log.info(s"CoralogixLogger is already running, skipping")
     else
       f
+
+  private def skipIfAlreadyOutdated[R <: Logging with Coralogixloggers](resource: Coralogixlogger)(
+    f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
+  ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
+    for {
+      name <- resource.getName.mapError(KubernetesFailure.apply)
+      namespace = resource.metadata
+                    .flatMap(_.namespace)
+                    .map(K8sNamespace.apply)
+                    .getOrElse(K8sNamespace.default)
+      latest <- coralogixloggers.get(name, namespace).mapError(KubernetesFailure.apply)
+      _ <-
+        if (
+          latest.metadata.flatMap(_.resourceVersion) == resource.metadata.flatMap(_.resourceVersion)
+        )
+          f
+        else
+          log.info(s"Event refers to an outdated resource, skipping")
+    } yield ()
 
   private def withCurrentResource[R, E, A](
     resource: Coralogixlogger

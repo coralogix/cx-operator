@@ -21,8 +21,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.coralogix"              %% "zio-k8s-client"   % "0.1.2",
-      "com.coralogix"              %% "zio-k8s-operator" % "0.1.2",
+      "com.coralogix"              %% "zio-k8s-client"   % "0.1.3",
+      "com.coralogix"              %% "zio-k8s-operator" % "0.1.3",
       "com.softwaremill.quicklens" %% "quicklens"        % "1.6.1",
       "nl.vroste"                  %% "rezilience"       % "0.5.1",
       // Config

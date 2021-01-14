@@ -20,7 +20,7 @@ package object logging {
   val filter =
     filterBy(
       LogLevel.Debug,
-      "sttp.client3.logging.slf4j.Slf4jLoggingBackend" -> LogLevel.Debug,
+      "sttp.client3.logging.slf4j.Slf4jLoggingBackend" -> LogLevel.Info,
       "io.netty"                                       -> LogLevel.Info,
       "io.grpc.netty"                                  -> LogLevel.Info
     )
