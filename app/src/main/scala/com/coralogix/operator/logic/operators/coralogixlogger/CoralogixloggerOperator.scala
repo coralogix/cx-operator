@@ -43,10 +43,11 @@ import com.coralogix.zio.k8s.operator.{
 import izumi.reflect.Tag
 import zio.clock.Clock
 import zio.logging.{ log, Logging }
+import zio.stm.{ TMap, TSet }
 import zio.{ Cause, Has, Ref, ZIO }
 
 object CoralogixloggerOperator {
-  private def eventProcessor(): EventProcessor[
+  private def eventProcessor(failedProvisions: FailedProvisions): EventProcessor[
     Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     CoralogixOperatorFailure,
     Coralogixlogger
@@ -56,9 +57,9 @@ object CoralogixloggerOperator {
         case Reseted =>
           ZIO.unit
         case Added(item) =>
-          setupLogger(ctx, item)
+          setupLogger(ctx, failedProvisions, item)
         case Modified(item) =>
-          setupLogger(ctx, item)
+          setupLogger(ctx, failedProvisions, item)
         case Deleted(item) =>
           // The generated items are owned by the logger and get automatically garbage collected
           ZIO.unit
@@ -66,6 +67,7 @@ object CoralogixloggerOperator {
 
   private def setupLogger(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     resource: Coralogixlogger
   ): ZIO[
     Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
@@ -76,29 +78,31 @@ object CoralogixloggerOperator {
   ] =
     skipIfAlreadyOutdated(resource) {
       skipIfAlredyRunning(resource) {
-        withCurrentResource(resource) { currentResource =>
-          for {
-            name <- resource.getName.mapError(KubernetesFailure.apply)
-            uid  <- resource.getUid.mapError(KubernetesFailure.apply)
-            _ <-
-              updateState(
-                currentResource,
-                "PENDING",
-                "Initializing Provision",
-                s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-              )
-            _ <- setupServiceAccount(ctx, name, uid, currentResource)
-            _ <- setupClusterRole(ctx, name, uid, currentResource)
-            _ <- setupClusterRoleBinding(ctx, name, uid, currentResource)
-            _ <- setupDaemonSet(ctx, name, uid, currentResource)
-            _ <- updateState(
-                   currentResource,
-                   "RUNNING",
-                   "Provisioning Succeeded",
-                   s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
-                 )
-            _ <- log.info("Provision succeeded")
-          } yield ()
+        skipIfFailedPreviously(failedProvisions, resource) {
+          withCurrentResource(resource) { currentResource =>
+            for {
+              name <- resource.getName.mapError(KubernetesFailure.apply)
+              uid  <- resource.getUid.mapError(KubernetesFailure.apply)
+              _ <-
+                updateState(
+                  currentResource,
+                  "PENDING",
+                  "Initializing Provision",
+                  s"Provisioning of '$name' in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+                )
+              _ <- setupServiceAccount(ctx, failedProvisions, name, uid, currentResource)
+              _ <- setupClusterRole(ctx, failedProvisions, name, uid, currentResource)
+              _ <- setupClusterRoleBinding(ctx, failedProvisions, name, uid, currentResource)
+              _ <- setupDaemonSet(ctx, failedProvisions, name, uid, currentResource)
+              _ <- updateState(
+                     currentResource,
+                     "RUNNING",
+                     "Provisioning Succeeded",
+                     s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
+                   )
+              _ <- log.info("Provision succeeded")
+            } yield ()
+          }
         }
       }
     }.catchSome {
@@ -113,6 +117,17 @@ object CoralogixloggerOperator {
       log.info(s"CoralogixLogger is already running, skipping")
     else
       f
+
+  private def skipIfFailedPreviously[R <: Logging](
+    failedProvisions: FailedProvisions,
+    resource: Coralogixlogger
+  )(
+    f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
+  ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
+    ZIO.ifM(failedProvisions.isRecordedFailure(resource))(
+      onTrue = log.info(s"CoralogixLogger failed before, skipping"),
+      onFalse = f
+    )
 
   private def skipIfAlreadyOutdated[R <: Logging with Coralogixloggers](resource: Coralogixlogger)(
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
@@ -188,23 +203,28 @@ object CoralogixloggerOperator {
     } yield ()
 
   private def provisioningFailed(
+    failedProvisions: FailedProvisions,
     currentResource: Ref[Coralogixlogger],
     phase: String,
     reason: String,
     k8sReason: K8sFailure
   ): ZIO[Coralogixloggers with Logging, OperatorFailure[CoralogixOperatorFailure], Nothing] =
-    logFailure(
-      reason,
-      Cause.fail[OperatorFailure[CoralogixOperatorFailure]](KubernetesFailure(k8sReason))
-    ) *>
-      updateState(currentResource, "FAILED", phase, reason) *>
-      ZIO.fail(OperatorError(ProvisioningFailed))
+    (for {
+      _ <- logFailure(
+             reason,
+             Cause.fail[OperatorFailure[CoralogixOperatorFailure]](KubernetesFailure(k8sReason))
+           )
+      _              <- updateState(currentResource, "FAILED", phase, reason)
+      failedResource <- currentResource.get
+      _              <- failedProvisions.recordFailure(failedResource)
+    } yield ()) *> ZIO.fail(OperatorError(ProvisioningFailed))
 
   private def setupComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
     createComponent: (String, Coralogixlogger) => T,
     store: (Coralogixlogger.Status, String) => Coralogixlogger.Status
   )(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -227,6 +247,7 @@ object CoralogixloggerOperator {
       _ <- queryResult match {
              case Left(failure) =>
                provisioningFailed(
+                 failedProvisions,
                  currentResource,
                  componentKind,
                  reason = s"Provisioning of $componentKind failed.",
@@ -245,6 +266,7 @@ object CoralogixloggerOperator {
                         .create(component, namespace)
                         .catchAll { failure =>
                           provisioningFailed(
+                            failedProvisions,
                             currentResource,
                             phase = componentKind,
                             reason = s"Provisioning of $componentKind failed.",
@@ -284,6 +306,7 @@ object CoralogixloggerOperator {
     store: (Coralogixlogger.Status, String) => Coralogixlogger.Status
   )(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -306,6 +329,7 @@ object CoralogixloggerOperator {
       _ <- queryResult match {
              case Left(failure) =>
                provisioningFailed(
+                 failedProvisions,
                  currentResource,
                  componentKind,
                  reason = s"Provisioning of $componentKind failed.",
@@ -324,6 +348,7 @@ object CoralogixloggerOperator {
                         .create(component)
                         .catchAll { failure =>
                           provisioningFailed(
+                            failedProvisions,
                             currentResource,
                             phase = componentKind,
                             reason = s"Provisioning of $componentKind failed.",
@@ -359,6 +384,7 @@ object CoralogixloggerOperator {
 
   private def setupServiceAccount(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -369,11 +395,12 @@ object CoralogixloggerOperator {
     setupComponent(
       Model.serviceAccount,
       (status, serviceAccountName) => status.copy(serviceAccount = Some(serviceAccountName))
-    )(ctx, name, uid, currentResource)
+    )(ctx, failedProvisions, name, uid, currentResource)
   }
 
   private def setupClusterRole(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -384,11 +411,12 @@ object CoralogixloggerOperator {
     setupClusterComponent(
       Model.clusterRole,
       (status, clusterRoleName) => status.copy(clusterRole = Some(clusterRoleName))
-    )(ctx, name, uid, currentResource)
+    )(ctx, failedProvisions, name, uid, currentResource)
   }
 
   private def setupClusterRoleBinding(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -400,11 +428,12 @@ object CoralogixloggerOperator {
       Model.clusterRoleBinding,
       (status, clusterRoleBindingName) =>
         status.copy(clusterRoleBinding = Some(clusterRoleBindingName))
-    )(ctx, name, uid, currentResource)
+    )(ctx, failedProvisions, name, uid, currentResource)
   }
 
   private def setupDaemonSet(
     ctx: OperatorContext,
+    failedProvisions: FailedProvisions,
     name: String,
     uid: String,
     currentResource: Ref[Coralogixlogger]
@@ -415,7 +444,7 @@ object CoralogixloggerOperator {
     setupComponent(
       Model.daemonSet,
       (status, daemonSetName) => status.copy(daemonSet = Some(daemonSetName))
-    )(ctx, name, uid, currentResource)
+    )(ctx, failedProvisions, name, uid, currentResource)
   }
 
   def forNamespace(
@@ -427,9 +456,11 @@ object CoralogixloggerOperator {
     CoralogixOperatorFailure,
     Coralogixlogger
   ]] =
-    Operator.namespaced(
-      eventProcessor() @@ logEvents @@ metered(metrics)
-    )(Some(namespace), buffer)
+    FailedProvisions.make.flatMap { failedProvisions =>
+      Operator.namespaced(
+        eventProcessor(failedProvisions) @@ logEvents @@ metered(metrics)
+      )(Some(namespace), buffer)
+    }
 
   def forAllNamespaces(
     buffer: Int,
@@ -439,7 +470,10 @@ object CoralogixloggerOperator {
     CoralogixOperatorFailure,
     Coralogixlogger
   ]] =
-    Operator.namespaced(
-      eventProcessor() @@ logEvents @@ metered(metrics)
-    )(None, buffer)
+    FailedProvisions.make.flatMap { failedProvisions =>
+      Operator.namespaced(
+        eventProcessor(failedProvisions) @@ logEvents @@ metered(metrics)
+      )(None, buffer)
+    }
+
 }
