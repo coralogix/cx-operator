@@ -147,22 +147,29 @@ object CoralogixloggerOperator {
     for {
       resource <- currentResource.get
       oldStatus = resource.status.getOrElse(Coralogixlogger.Status())
-      replacedStatus = oldStatus.copy(
-                         state = Some(newState),
-                         phase = Some(newPhase),
-                         reason = Some(newReason)
-                       )
-      updatedResource <- coralogixloggers
-                           .replaceStatus(
-                             resource,
-                             replacedStatus,
-                             resource.metadata
-                               .flatMap(_.namespace)
-                               .map(K8sNamespace.apply)
-                               .getOrElse(K8sNamespace.default)
-                           )
-                           .mapError(KubernetesFailure.apply)
-      _ <- currentResource.set(updatedResource)
+      skip = oldStatus.state.contains(newState) &&
+               oldStatus.phase.contains(newPhase) &&
+               oldStatus.reason.contains(newReason)
+      _ <- ZIO.unless(skip) {
+             val replacedStatus = oldStatus.copy(
+               state = Some(newState),
+               phase = Some(newPhase),
+               reason = Some(newReason)
+             )
+             for {
+               updatedResource <- coralogixloggers
+                                    .replaceStatus(
+                                      resource,
+                                      replacedStatus,
+                                      resource.metadata
+                                        .flatMap(_.namespace)
+                                        .map(K8sNamespace.apply)
+                                        .getOrElse(K8sNamespace.default)
+                                    )
+                                    .mapError(KubernetesFailure.apply)
+               _ <- currentResource.set(updatedResource)
+             } yield ()
+           }
     } yield ()
 
   private def replaceStatus(
