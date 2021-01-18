@@ -1,13 +1,13 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
 import com.coralogix.operator.logic.CoralogixOperatorFailure
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, OperatorFailure }
 import zio.{ IO, UIO, ZIO }
 import zio.stm.TMap
 
 class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {
-  def recordFailure(of: Coralogixlogger): IO[OperatorFailure[CoralogixOperatorFailure], Unit] =
+  def recordFailure(of: CoralogixLogger): IO[OperatorFailure[CoralogixOperatorFailure], Unit] =
     for {
       name <- of.getName.mapError(KubernetesFailure)
       resourceVersion = of.metadata.flatMap(_.resourceVersion)
@@ -15,7 +15,7 @@ class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {
     } yield ()
 
   def isRecordedFailure(
-    resource: Coralogixlogger
+    resource: CoralogixLogger
   ): IO[OperatorFailure[CoralogixOperatorFailure], Boolean] =
     for {
       name <- resource.getName.mapError(KubernetesFailure)

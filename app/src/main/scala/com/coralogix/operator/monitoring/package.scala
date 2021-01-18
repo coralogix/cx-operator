@@ -24,7 +24,7 @@ import zio.{ Has, Task, ULayer, ZIO, ZLayer, ZManaged }
 package object monitoring {
   case class PrometheusExport(server: HTTPServer)
 
-  val prometheusExport: ZLayer[Logging with Registry with Exporters with ZConfig[
+  val prometheusExport: ZLayer[Logging with Registry with Exporters with Has[
     PrometheusConfig
   ], Throwable, Has[PrometheusExport]] =
     ZLayer.fromManaged(

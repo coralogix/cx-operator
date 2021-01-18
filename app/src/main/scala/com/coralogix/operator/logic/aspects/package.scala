@@ -1,11 +1,8 @@
 package com.coralogix.operator.logic
 
-import com.coralogix.zio.k8s.client.model.{ Added, Deleted, Modified, Object, Reseted }
-import com.coralogix.zio.k8s.operator.Operator._
 import com.coralogix.operator.monitoring.OperatorMetrics
-import zio.Cause
+import com.coralogix.zio.k8s.operator.Operator._
 import zio.clock.Clock
-import zio.logging.{ log, Logging }
 
 package object aspects {
 

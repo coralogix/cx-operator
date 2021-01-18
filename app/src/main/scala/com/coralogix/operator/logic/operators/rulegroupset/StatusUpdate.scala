@@ -1,6 +1,6 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.softwaremill.quicklens._
 
@@ -12,14 +12,14 @@ object StatusUpdate {
   final case class UpdateLastUploadedGeneration(generation: Long) extends StatusUpdate
 
   private def runStatusUpdate(
-    status: Rulegroupset.Status,
+    status: RuleGroupSet.Status,
     update: StatusUpdate
-  ): Rulegroupset.Status =
+  ): RuleGroupSet.Status =
     update match {
       case StatusUpdate.AddRuleGroupMapping(name, id) =>
         modify(runStatusUpdate(status, DeleteRuleGroupMapping(name)))(
           _.groupIds.atOrElse(Vector.empty)
-        )(_ :+ Rulegroupset.Status.GroupIds(name, id))
+        )(_ :+ RuleGroupSet.Status.GroupIds(name, id))
       case StatusUpdate.DeleteRuleGroupMapping(name) =>
         modify(status)(_.groupIds.each)(_.filterNot(_.name == name))
       case StatusUpdate.UpdateLastUploadedGeneration(generation) =>
@@ -27,9 +27,9 @@ object StatusUpdate {
     }
 
   def runStatusUpdates(
-    status: Rulegroupset.Status,
+    status: RuleGroupSet.Status,
     updates: Vector[StatusUpdate]
-  ): Rulegroupset.Status =
+  ): RuleGroupSet.Status =
     updates.foldLeft(status)(runStatusUpdate)
 
 }

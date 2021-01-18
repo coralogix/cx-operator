@@ -3,7 +3,7 @@ package zio.k8s.client.model
 import java.time.OffsetDateTime
 
 import cats.data.{ NonEmptyList, Validated }
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.internal.CircePrettyFailure
 import io.circe._
 import io.circe.parser._
@@ -29,14 +29,14 @@ object RulegroupsetJsonSpec extends DefaultRunnableSpec {
   implicit val deriveOffsetDateTime: DeriveGen.Typeclass[OffsetDateTime] =
     DeriveGen.instance[OffsetDateTime](Gen.const(OffsetDateTime.now()))
 
-  val anyRulegroupset: Gen[Random with Sized, Rulegroupset] = DeriveGen.gen[Rulegroupset].derive
+  val anyRuleGroupSet: Gen[Random with Sized, RuleGroupSet] = DeriveGen.gen[RuleGroupSet].derive
 
   override def spec =
-    suite("Rulegroupset JSON serialization")(
+    suite("RuleGroupSet JSON serialization")(
       testM("Random encode/decode")(
-        check(anyRulegroupset) { ruleGroup =>
+        check(anyRuleGroupSet) { ruleGroup =>
           val json = ruleGroup.asJson.toString()
-          val reparsed = decodeAccumulating[Rulegroupset](json)
+          val reparsed = decodeAccumulating[RuleGroupSet](json)
             .leftMap(_.map(CircePrettyFailure.prettyPrint))
 
           assert(reparsed)(isValid(equalTo(ruleGroup)))

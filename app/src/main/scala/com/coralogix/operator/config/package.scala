@@ -1,15 +1,14 @@
 package com.coralogix.operator.config
 
+import com.coralogix.zio.k8s.client.config._
+import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.typesafe.config.ConfigFactory
-import sttp.model.Uri
 import zio._
 import zio.config._
 import zio.config.derivation.name
 import zio.config.magnolia.DeriveConfigDescriptor.{ descriptor, Descriptor }
 import zio.config.typesafe.TypesafeConfigSource
 import zio.duration.Duration
-import com.coralogix.zio.k8s.client.config._
-import com.coralogix.zio.k8s.client.model.K8sNamespace
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.nio.core.file.Path
 
@@ -57,7 +56,7 @@ case class OperatorConfig(
 
 object OperatorConfig {
   private implicit val k8sNamespaceDescriptor: Descriptor[K8sNamespace] =
-    Descriptor[String].xmap(
+    Descriptor[String].transform(
       (s: String) => K8sNamespace(s),
       (ns: K8sNamespace) => ns.value
     )
@@ -78,12 +77,12 @@ object OperatorConfig {
 
   def fromLocation(
     configLocation: Path
-  ): Layer[ReadError[String], _root_.zio.config.ZConfig[OperatorConfig]] =
+  ): Layer[ReadError[String], Has[OperatorConfig]] =
     fromLocationM(ZIO.succeed(configLocation))
 
   def fromLocationM[R, E >: ReadError[String]](
     configLocation: ZIO[R, E, Path]
-  ): ZLayer[R, E, ZConfig[OperatorConfig]] =
+  ): ZLayer[R, E, Has[OperatorConfig]] =
     // TODO: this should not be this complicated, improve it in zio-config
     (for {
       path <- configLocation
@@ -96,7 +95,7 @@ object OperatorConfig {
       result <- ZIO.fromEither(read(descriptor))
     } yield result).toLayer
 
-  val live: ZLayer[system.System with Logging, Exception, ZConfig[OperatorConfig]] = fromLocationM(
+  val live: ZLayer[system.System with Logging, Exception, Has[OperatorConfig]] = fromLocationM(
     configLocation.tap(path =>
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: "config" :: Nil)) {
         log.info(s"Loading configuration $path")

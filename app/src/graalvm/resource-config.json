@@ -129,7 +129,8 @@
     {"pattern":"\\Qzio/system/package$.class\\E"}, 
     {"pattern":"\\Qzio/system/package$System$Service$$anon$1.class\\E"},
     {"pattern":"\\Qcrds/crd-coralogix-rule-group-set.yaml\\E"},
-    {"pattern":"\\Qcrds/crd-coralogix-loggers.yaml\\E"}
+    {"pattern":"\\Qcrds/crd-coralogix-loggers.yaml\\E"},
+    {"pattern":"\\Qcrds/crd-coralogix-alert-set.yaml\\E"}
   ]},
   "bundles":[]
 }
