@@ -1,18 +1,18 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import zio.test.environment.TestEnvironment
 import zio.test._
 import zio.test.Assertion._
 
 object StatusUpdateSpec extends DefaultRunnableSpec {
-  private val emptyStatus = Rulegroupset.Status()
-  private val statusG1G2 = Rulegroupset.Status(
+  private val emptyStatus = RuleGroupSet.Status()
+  private val statusG1G2 = RuleGroupSet.Status(
     groupIds = Some(
       Vector(
-        Rulegroupset.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1")),
-        Rulegroupset.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2"))
+        RuleGroupSet.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1")),
+        RuleGroupSet.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2"))
       )
     )
   )
@@ -40,12 +40,12 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           )
         )(
           equalTo(
-            Rulegroupset.Status(
+            RuleGroupSet.Status(
               groupIds = Some(
                 Vector(
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1")),
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2")),
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g3"), RuleGroupId("id3"))
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1")),
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2")),
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g3"), RuleGroupId("id3"))
                 )
               )
             )
@@ -62,11 +62,11 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           )
         )(
           equalTo(
-            Rulegroupset.Status(
+            RuleGroupSet.Status(
               groupIds = Some(
                 Vector(
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2")),
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id3"))
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g2"), RuleGroupId("id2")),
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id3"))
                 )
               )
             )
@@ -83,10 +83,10 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           )
         )(
           equalTo(
-            Rulegroupset.Status(
+            RuleGroupSet.Status(
               groupIds = Some(
                 Vector(
-                  Rulegroupset.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1"))
+                  RuleGroupSet.Status.GroupIds(RuleGroupName("g1"), RuleGroupId("id1"))
                 )
               )
             )

@@ -101,41 +101,43 @@ spec:
                                 - ERROR
                                 - CRITICAL
                           metadata:
-                            categories:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: CategoryName
-                            applications:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: ApplicationName
-                            subsystems:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: SubsystemName
-                            computers:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: ComputerName
-                            classes:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: ClassName
-                            methods:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: MethodName
-                            ipAddresses:
-                              type: array
-                              items:
-                                type: string
-                                x-scala-type: IPAddress
+                            type: object
+                            properties:
+                              categories:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: CategoryName
+                              applications:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ApplicationName
+                              subsystems:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: SubsystemName
+                              computers:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ComputerName
+                              classes:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ClassName
+                              methods:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: MethodName
+                              ipAddresses:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: IPAddress
 
                             alias:
                               type: string

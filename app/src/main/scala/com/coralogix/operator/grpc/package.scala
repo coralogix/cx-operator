@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 
 package object grpc {
-  val live: ZLayer[Logging with ZConfig[GrpcConfig], Throwable, Server] =
+  val live: ZLayer[Logging with Has[GrpcConfig], Throwable, Server] =
     ZLayer.fromServiceManaged[GrpcConfig, Logging, Throwable, Server.Service] { config =>
       for {
         server <- ManagedServer
@@ -173,7 +173,7 @@ package object grpc {
         UIO[CallOptions],
         zio.UIO[SafeMetadata]
       ) => Managed[Throwable, Client]
-    ): ZLayer[ZConfig[GrpcClientConfig] with Has[ClientMetrics] with Clock, Throwable, Has[
+    ): ZLayer[Has[GrpcClientConfig] with Has[ClientMetrics] with Clock, Throwable, Has[
       Client
     ]] =
       ZLayer.fromServicesManaged[
@@ -212,7 +212,7 @@ package object grpc {
       }
 
     object rulegroups {
-      val live: ZLayer[ZConfig[GrpcClientConfig] with Has[
+      val live: ZLayer[Has[GrpcClientConfig] with Has[
         ClientMetrics
       ] with Clock, Throwable, RuleGroupsServiceClient] =
         grpcClientLayer("com.coralogix.rules.v1.RuleGroupsService", RuleGroupsServiceClient.managed)

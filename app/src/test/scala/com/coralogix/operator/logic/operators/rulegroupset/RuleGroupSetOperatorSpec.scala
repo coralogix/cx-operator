@@ -1,13 +1,14 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Status.GroupIds
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Status.GroupIds
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.coralogix.zio.k8s.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
 import com.coralogix.zio.k8s.client.{
   K8sFailure,
   NamespacedResource,
   NamespacedResourceStatus,
+  NotFound,
   Resource,
   ResourceStatus
 }
@@ -30,14 +31,14 @@ import zio.test._
 import zio.test.environment.TestEnvironment
 import zio.test.mock.Expectation
 
-object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOperatorTestData {
+object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOperatorTestData {
 
   override def spec: ZSpec[TestEnvironment, Any] =
-    suite("Rulegroupset Operator")(
+    suite("RuleGroupSet Operator")(
       testM("adding a set with a single unassigned rule group") {
         testOperator(
           Seq(
-            Added[Rulegroupset](testSet1)
+            Added[RuleGroupSet](testSet1)
           ),
           RuleGroupsServiceClientMock.CreateRuleGroup(
             hasField[CreateRuleGroupRequest, Option[String]](
@@ -58,7 +59,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
             assertM(statusMap.get("set1").commit)(
               isSome(
                 equalTo(
-                  Rulegroupset.Status(
+                  RuleGroupSet.Status(
                     Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
                     lastUploadedGeneration = Some(0L)
                   )
@@ -70,7 +71,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("modifying a set with with unchanged generation does not do anything") {
         testOperator(
           Seq(
-            Modified[Rulegroupset](testSet1)
+            Modified[RuleGroupSet](testSet1)
           ),
           RuleGroupsServiceClientMock.failing
         ) {
@@ -81,11 +82,11 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("modifying a set with a single already assigned rule group") {
         testOperator(
           Seq(
-            Modified[Rulegroupset](
+            Modified[RuleGroupSet](
               testSet1.copy(
                 metadata = Some(testSet1.metadata.get.copy(generation = Some(1L))),
                 status = Some(
-                  Rulegroupset.Status(
+                  RuleGroupSet.Status(
                     Some(
                       Vector(
                         GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id"))
@@ -114,7 +115,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
             assertM(statusMap.get("set1").commit)(
               isSome(
                 equalTo(
-                  Rulegroupset.Status(
+                  RuleGroupSet.Status(
                     Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
                     lastUploadedGeneration = Some(1L)
                   )
@@ -126,11 +127,11 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       testM("adding a group to a set with an already assigned one") {
         testOperator(
           Seq(
-            Modified[Rulegroupset](
+            Modified[RuleGroupSet](
               testSet2.copy(
                 metadata = Some(testSet2.metadata.get.copy(generation = Some(1L))),
                 status = Some(
-                  Rulegroupset.Status(
+                  RuleGroupSet.Status(
                     Some(
                       Vector(
                         GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id"))
@@ -173,7 +174,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
             assertM(statusMap.get("set2").commit)(
               isSome(
                 equalTo(
-                  Rulegroupset.Status(
+                  RuleGroupSet.Status(
                     Some(
                       Vector(
                         GroupIds(
@@ -193,44 +194,44 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
     )
 
   private def testOperator(
-    events: Seq[TypedWatchEvent[Rulegroupset]],
+    events: Seq[TypedWatchEvent[RuleGroupSet]],
     grpc: ULayer[RuleGroupsServiceClient]
   )(
-    f: (Cause[Nothing], TMap[String, Rulegroupset.Status]) => UIO[TestResult]
+    f: (Cause[Nothing], TMap[String, RuleGroupSet.Status]) => UIO[TestResult]
   ): ZIO[Console with Clock, Nothing, TestResult] =
-    TMap.make[String, Rulegroupset.Status]().commit.flatMap { statusMap =>
+    TMap.make[String, RuleGroupSet.Status]().commit.flatMap { statusMap =>
       val logging = Logging.console(LogLevel.Debug)
       val client = ZLayer.succeed(
         new NamespacedResource(
-          new Resource[Rulegroupset] {
+          new Resource[RuleGroupSet] {
             override def watch(
               namespace: Option[K8sNamespace],
               resourceVersion: Option[String]
-            ): Stream[K8sFailure, TypedWatchEvent[Rulegroupset]] =
+            ): Stream[K8sFailure, TypedWatchEvent[RuleGroupSet]] =
               Stream.fromIterable(events)
 
             override def getAll(
               namespace: Option[K8sNamespace],
               chunkSize: Int
-            ): Stream[K8sFailure, Rulegroupset] = ???
+            ): Stream[K8sFailure, RuleGroupSet] = ???
 
             override def get(
               name: String,
               namespace: Option[K8sNamespace]
-            ): IO[K8sFailure, Rulegroupset] = ???
+            ): IO[K8sFailure, RuleGroupSet] = ???
 
             override def create(
-              newResource: Rulegroupset,
+              newResource: RuleGroupSet,
               namespace: Option[K8sNamespace],
               dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] = ???
+            ): IO[K8sFailure, RuleGroupSet] = ???
 
             override def replace(
               name: String,
-              updatedResource: Rulegroupset,
+              updatedResource: RuleGroupSet,
               namespace: Option[K8sNamespace],
               dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] = ???
+            ): IO[K8sFailure, RuleGroupSet] = ???
 
             override def delete(
               name: String,
@@ -244,13 +245,18 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
 
       val statusClient = ZLayer.succeed(
         new NamespacedResourceStatus(
-          new ResourceStatus[Rulegroupset.Status, Rulegroupset] {
+          new ResourceStatus[RuleGroupSet.Status, RuleGroupSet] {
+
+            override def getStatus(name: String, namespace: Option[K8sNamespace])
+              : IO[K8sFailure, RuleGroupSet] =
+              ???
+
             override def replaceStatus(
-              of: Rulegroupset,
-              updatedStatus: Rulegroupset.Status,
+              of: RuleGroupSet,
+              updatedStatus: RuleGroupSet.Status,
               namespace: Option[K8sNamespace],
               dryRun: Boolean
-            ): IO[K8sFailure, Rulegroupset] =
+            ): IO[K8sFailure, RuleGroupSet] =
               for {
                 name <- of.getName
                 _    <- statusMap.put(name, updatedStatus).commit
@@ -261,7 +267,7 @@ object RulegroupsetOperatorSpec extends DefaultRunnableSpec with RulegroupsetOpe
       )
 
       val test = for {
-        op         <- RulegroupsetOperator.forTest().provideLayer(logging ++ client ++ statusClient)
+        op         <- RuleGroupSetOperator.forTest().provideLayer(logging ++ client ++ statusClient)
         fiber      <- op.start()
         result     <- fiber.join.cause
         testResult <- f(result, statusMap)

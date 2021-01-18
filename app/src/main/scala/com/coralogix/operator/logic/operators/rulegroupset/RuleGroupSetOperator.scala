@@ -1,7 +1,7 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
 import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, UndefinedGrpcField }
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
@@ -23,13 +23,13 @@ import com.coralogix.zio.k8s.client.{ NamespacedResource, NamespacedResourceStat
 import zio.logging.{ log, Logging }
 import zio.{ Has, ZIO }
 
-object RulegroupsetOperator {
+object RuleGroupSetOperator {
 
   /** The central rulegroupset event processor logic */
   private def eventProcessor(): EventProcessor[
-    Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    Logging with rulegroupsets.RuleGroupSets with RuleGroupsServiceClient,
     CoralogixOperatorFailure,
-    Rulegroupset
+    RuleGroupSet
   ] =
     (ctx, event) =>
       event match {
@@ -96,8 +96,8 @@ object RulegroupsetOperator {
       }
 
   private def withExpectedStatus[R <: Logging, E](
-    ruleGroupSet: Rulegroupset
-  )(f: Rulegroupset.Status => ZIO[R, E, Unit]): ZIO[R, E, Unit] =
+    ruleGroupSet: RuleGroupSet
+  )(f: RuleGroupSet.Status => ZIO[R, E, Unit]): ZIO[R, E, Unit] =
     ruleGroupSet.status match {
       case Some(status) =>
         f(status)
@@ -108,7 +108,7 @@ object RulegroupsetOperator {
     }
 
   private def modifyExistingRuleGroups(
-    mappings: Map[RuleGroupName, (RuleGroupId, Rulegroupset.Spec.RuleGroupsSequence)]
+    mappings: Map[RuleGroupName, (RuleGroupId, RuleGroupSet.Spec.RuleGroupsSequence)]
   ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
     StatusUpdate
   ]] =
@@ -134,7 +134,7 @@ object RulegroupsetOperator {
       .bimap(OperatorError.apply, _ => Vector.empty[StatusUpdate])
 
   private def createNewRuleGroups(
-    ruleGroups: Set[Rulegroupset.Spec.RuleGroupsSequence]
+    ruleGroups: Set[RuleGroupSet.Spec.RuleGroupsSequence]
   ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
     StatusUpdate
   ]] =
@@ -184,13 +184,13 @@ object RulegroupsetOperator {
 
   private def applyStatusUpdates(
     ctx: OperatorContext,
-    resource: Rulegroupset,
+    resource: RuleGroupSet,
     updates: Vector[StatusUpdate]
   ): ZIO[Logging with Has[
-    NamespacedResourceStatus[Rulegroupset.Status, Rulegroupset]
+    NamespacedResourceStatus[RuleGroupSet.Status, RuleGroupSet]
   ], KubernetesFailure, Unit] = {
     val initialStatus =
-      resource.status.getOrElse(Rulegroupset.Status(groupIds = Some(Vector.empty)))
+      resource.status.getOrElse(RuleGroupSet.Status(groupIds = Some(Vector.empty)))
     val updatedStatus = runStatusUpdates(initialStatus, updates)
 
     rulegroupsets
@@ -207,7 +207,7 @@ object RulegroupsetOperator {
   }.when(updates.nonEmpty)
 
   private def mappingToMap(
-    mappings: Vector[Rulegroupset.Status.GroupIds]
+    mappings: Vector[RuleGroupSet.Status.GroupIds]
   ): Map[RuleGroupName, RuleGroupId] =
     mappings.map { mapping =>
       mapping.name -> mapping.id
@@ -217,10 +217,10 @@ object RulegroupsetOperator {
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
-    Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+  ): ZIO[rulegroupsets.RuleGroupSets, Nothing, Operator[
+    Clock with Logging with rulegroupsets.RuleGroupSets with RuleGroupsServiceClient,
     CoralogixOperatorFailure,
-    Rulegroupset
+    RuleGroupSet
   ]] =
     Operator.namespaced(
       eventProcessor() @@ logEvents @@ metered(metrics)
@@ -229,19 +229,19 @@ object RulegroupsetOperator {
   def forAllNamespaces(
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
-    Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+  ): ZIO[rulegroupsets.RuleGroupSets, Nothing, Operator[
+    Clock with Logging with rulegroupsets.RuleGroupSets with RuleGroupsServiceClient,
     CoralogixOperatorFailure,
-    Rulegroupset
+    RuleGroupSet
   ]] =
     Operator.namespaced(
       eventProcessor() @@ logEvents @@ metered(metrics)
     )(None, buffer)
 
-  def forTest(): ZIO[rulegroupsets.Rulegroupsets, Nothing, Operator[
-    Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+  def forTest(): ZIO[rulegroupsets.RuleGroupSets, Nothing, Operator[
+    Logging with rulegroupsets.RuleGroupSets with RuleGroupsServiceClient,
     CoralogixOperatorFailure,
-    Rulegroupset
+    RuleGroupSet
   ]] =
     Operator.namespaced(eventProcessor())(Some(K8sNamespace("default")), 256)
 }

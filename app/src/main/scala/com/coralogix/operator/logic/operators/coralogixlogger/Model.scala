@@ -1,8 +1,8 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
-import com.coralogix.zio.k8s.client.model.{ K8sResourceType, Object, ObjectTransformations }
-import com.coralogix.zio.k8s.client.model.syntax._
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
+import com.coralogix.zio.k8s.client.model.{ K8sObject, K8sResourceType }
+import com.coralogix.zio.k8s.client.model.K8sObject._
 import com.coralogix.zio.k8s.model.apps.v1.{ DaemonSet, DaemonSetSpec }
 import com.coralogix.zio.k8s.model.core.v1.{
   Container,
@@ -35,7 +35,8 @@ object Model {
       )
     )
 
-  def attachOwner[T <: Object: ObjectTransformations](
+  // TODO: move to zio-k8s
+  def attachOwner[T: K8sObject](
     ownerName: String,
     ownerUid: String,
     ownerType: K8sResourceType,
@@ -57,7 +58,7 @@ object Model {
       )
     )
 
-  def serviceAccount(name: String, resource: Coralogixlogger): ServiceAccount =
+  def serviceAccount(name: String, resource: CoralogixLogger): ServiceAccount =
     ServiceAccount(
       metadata = Some(
         ObjectMeta(
@@ -68,7 +69,7 @@ object Model {
       )
     )
 
-  def clusterRole(name: String, resource: Coralogixlogger): ClusterRole =
+  def clusterRole(name: String, resource: CoralogixLogger): ClusterRole =
     ClusterRole(
       metadata = Some(
         ObjectMeta(
@@ -97,7 +98,7 @@ object Model {
       )
     )
 
-  def clusterRoleBinding(name: String, resource: Coralogixlogger): ClusterRoleBinding =
+  def clusterRoleBinding(name: String, resource: CoralogixLogger): ClusterRoleBinding =
     ClusterRoleBinding(
       metadata = Some(
         ObjectMeta(
@@ -122,7 +123,7 @@ object Model {
       )
     )
 
-  def daemonSet(name: String, resource: Coralogixlogger): DaemonSet =
+  def daemonSet(name: String, resource: CoralogixLogger): DaemonSet =
     DaemonSet(
       metadata = Some(
         ObjectMeta(

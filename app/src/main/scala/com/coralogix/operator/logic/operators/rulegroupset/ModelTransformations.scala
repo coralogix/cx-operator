@@ -1,10 +1,10 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
 import com.coralogix.rules.grpc.external.v1.JsonExtractParameters.DestinationField
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest.CreateRuleSubgroup
@@ -29,7 +29,7 @@ object ModelTransformations {
   private val Creator = "coralogix-kubernetes-operator"
 
   private def toSeverityConstraintValue(
-    severity: Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
+    severity: RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
   ): SeverityConstraint.Value.Recognized =
     severity match {
       case Severities.members.Debug    => SeverityConstraint.Value.DEBUG
@@ -41,7 +41,7 @@ object ModelTransformations {
     }
 
   private def toGrpcRuleMatchers(
-    matcher: Rulegroupset.Spec.RuleGroupsSequence.Matcher
+    matcher: RuleGroupSet.Spec.RuleGroupsSequence.Matcher
   ): Seq[RuleMatcher] =
     (matcher.applications
       .map(
@@ -89,7 +89,7 @@ object ModelTransformations {
         rule.replace.map(p =>
           RuleParameters.RuleParameters.ReplaceParameters(
             ReplaceParameters(
-              destinationField = Some(p.destField.name),
+              destinationField = Some(p.destField.value),
               replaceNewVal = Some(p.newValue),
               rule = Some(p.rule)
             )
@@ -97,7 +97,7 @@ object ModelTransformations {
         ) orElse
         rule.parse.map(p =>
           RuleParameters.RuleParameters.ParseParameters(
-            ParseParameters(destinationField = Some(p.destField.name), rule = Some(p.rule))
+            ParseParameters(destinationField = Some(p.destField.value), rule = Some(p.rule))
           )
         ) orElse
         rule.allow.map(p =>
@@ -116,20 +116,20 @@ object ModelTransformations {
     )
 
   private def toCreateRule(
-    rule: Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup,
+    rule: RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup,
     index: Int
   ): CreateRule =
     CreateRule(
       name = Some(rule.name.value),
       description = rule.description,
-      sourceField = Some(rule.sourceField.name),
+      sourceField = Some(rule.sourceField.value),
       parameters = Some(toParameters(rule)),
       enabled = Some(rule.enabled),
       order = Some(index)
     )
 
   private def toCreateRuleSubgroups(
-    subGroup: Rulegroupset.Spec.RuleGroupsSequence.AndSequence,
+    subGroup: RuleGroupSet.Spec.RuleGroupsSequence.AndSequence,
     index: Int
   ): CreateRuleSubgroup =
     CreateRuleSubgroup(

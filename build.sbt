@@ -21,16 +21,16 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.coralogix"              %% "zio-k8s-client"   % "0.1.3",
-      "com.coralogix"              %% "zio-k8s-operator" % "0.1.3",
+      "com.coralogix"              %% "zio-k8s-client"   % "0.1.4",
+      "com.coralogix"              %% "zio-k8s-operator" % "0.1.4",
       "com.softwaremill.quicklens" %% "quicklens"        % "1.6.1",
       "nl.vroste"                  %% "rezilience"       % "0.5.1",
       // Config
-      "dev.zio" %% "zio-config"          % "1.0.0-RC30-1",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC30-1",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC30-1",
+      "dev.zio" %% "zio-config"          % "1.0.0-RC31-1",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC31-1",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC31-1",
       // Logging
-      "dev.zio"  %% "zio-logging" % "0.5.3",
+      "dev.zio"  %% "zio-logging" % "0.5.4",
       "org.slf4j" % "slf4j-api"   % "1.7.30",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
@@ -58,7 +58,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     // K8s
     externalCustomResourceDefinitions := Seq(
       file("crds/crd-coralogix-rule-group-set.yaml"),
-      file("crds/crd-coralogix-loggers.yaml")
+      file("crds/crd-coralogix-loggers.yaml"),
+      file("crds/crd-coralogix-alert-set.yaml")
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),

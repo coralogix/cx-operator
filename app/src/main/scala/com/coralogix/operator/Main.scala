@@ -1,6 +1,6 @@
 package com.coralogix.operator
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
 import com.coralogix.zio.k8s.client.serviceaccounts.{ v1 => serviceaccounts }
 import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
@@ -9,9 +9,9 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{
 }
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
-import com.coralogix.operator.logic.operators.rulegroupset.RulegroupsetOperator
+import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.zio.k8s.operator.{ Operator, Registration }
-import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixloggerOperator
+import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.apps.daemonsets.{ v1 => daemonsets }
@@ -21,8 +21,9 @@ import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.Coralogixloggers
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.CoralogixLoggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
+import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.v1.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.{ k8sCluster, k8sSttpClient }
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.{
   v1 => clusterrolebindings
@@ -30,7 +31,7 @@ import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebinding
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.v1.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.{ v1 => clusterroles }
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.v1.ClusterRoles
-import com.coralogix.zio.k8s.client.model.{ K8sNamespace, Object }
+import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.serviceaccounts.v1.ServiceAccounts
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
@@ -145,35 +146,35 @@ object Main extends App {
     metrics: OperatorMetrics,
     resources: OperatorResources
   ): ZIO[
-    Clock with Logging with rulegroupsets.Rulegroupsets with RuleGroupsServiceClient,
+    Clock with Logging with RuleGroupSets with RuleGroupsServiceClient,
     Nothing,
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
-    SpawnOperators[Rulegroupset](
+    SpawnOperators[RuleGroupSet](
       "rule group operator",
       metrics,
       resources,
       _.rulegroups,
-      RulegroupsetOperator.forAllNamespaces,
-      RulegroupsetOperator.forNamespace
+      RuleGroupSetOperator.forAllNamespaces,
+      RuleGroupSetOperator.forNamespace
     )
 
   private def spawnLoggerOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
   ): ZIO[
-    Clock with Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
+    Clock with Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     Nothing,
     List[
       Fiber.Runtime[Nothing, Unit]
     ]
   ] =
-    SpawnOperators[Coralogixlogger](
+    SpawnOperators[CoralogixLogger](
       "coralogix logger operator",
       metrics,
       resources,
       _.coralogixLoggers,
-      CoralogixloggerOperator.forAllNamespaces,
-      CoralogixloggerOperator.forNamespace
+      CoralogixLoggerOperator.forAllNamespaces,
+      CoralogixLoggerOperator.forNamespace
     )
 }

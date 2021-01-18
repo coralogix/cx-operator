@@ -6,14 +6,15 @@ import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.K8sFailure.syntax._
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.{
   metadata,
-  Coralogixloggers
+  CoralogixLoggers
 }
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{
   v1 => coralogixloggers
 }
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.Coralogixlogger
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.v1.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.model._
+import com.coralogix.zio.k8s.client.model.K8sObject._
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.{ v1 => clusterroles }
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.{
   v1 => clusterrolebindings
@@ -46,11 +47,11 @@ import zio.logging.{ log, Logging }
 import zio.stm.{ TMap, TSet }
 import zio.{ Cause, Has, Ref, ZIO }
 
-object CoralogixloggerOperator {
+object CoralogixLoggerOperator {
   private def eventProcessor(failedProvisions: FailedProvisions): EventProcessor[
-    Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
+    Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     CoralogixOperatorFailure,
-    Coralogixlogger
+    CoralogixLogger
   ] =
     (ctx, event) =>
       event match {
@@ -68,9 +69,9 @@ object CoralogixloggerOperator {
   private def setupLogger(
     ctx: OperatorContext,
     failedProvisions: FailedProvisions,
-    resource: Coralogixlogger
+    resource: CoralogixLogger
   ): ZIO[
-    Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
+    Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     OperatorFailure[
       CoralogixOperatorFailure
     ],
@@ -110,7 +111,7 @@ object CoralogixloggerOperator {
         log.info(s"Provision failed")
     }
 
-  private def skipIfAlredyRunning[R <: Logging](resource: Coralogixlogger)(
+  private def skipIfAlredyRunning[R <: Logging](resource: CoralogixLogger)(
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     if (resource.status.flatMap(_.state).contains("RUNNING"))
@@ -120,7 +121,7 @@ object CoralogixloggerOperator {
 
   private def skipIfFailedPreviously[R <: Logging](
     failedProvisions: FailedProvisions,
-    resource: Coralogixlogger
+    resource: CoralogixLogger
   )(
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
@@ -129,7 +130,7 @@ object CoralogixloggerOperator {
       onFalse = f
     )
 
-  private def skipIfAlreadyOutdated[R <: Logging with Coralogixloggers](resource: Coralogixlogger)(
+  private def skipIfAlreadyOutdated[R <: Logging with CoralogixLoggers](resource: CoralogixLogger)(
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     for {
@@ -149,19 +150,19 @@ object CoralogixloggerOperator {
     } yield ()
 
   private def withCurrentResource[R, E, A](
-    resource: Coralogixlogger
-  )(f: Ref[Coralogixlogger] => ZIO[R, E, A]): ZIO[R, E, A] =
+    resource: CoralogixLogger
+  )(f: Ref[CoralogixLogger] => ZIO[R, E, A]): ZIO[R, E, A] =
     Ref.make(resource).flatMap(f)
 
   private def updateState(
-    currentResource: Ref[Coralogixlogger],
+    currentResource: Ref[CoralogixLogger],
     newState: String,
     newPhase: String,
     newReason: String
-  ): ZIO[Coralogixloggers, OperatorFailure[CoralogixOperatorFailure], Unit] =
+  ): ZIO[CoralogixLoggers, OperatorFailure[CoralogixOperatorFailure], Unit] =
     for {
       resource <- currentResource.get
-      oldStatus = resource.status.getOrElse(Coralogixlogger.Status())
+      oldStatus = resource.status.getOrElse(CoralogixLogger.Status())
       skip = oldStatus.state.contains(newState) &&
                oldStatus.phase.contains(newPhase) &&
                oldStatus.reason.contains(newReason)
@@ -188,14 +189,14 @@ object CoralogixloggerOperator {
     } yield ()
 
   private def replaceStatus(
-    of: Ref[Coralogixlogger],
-    updateStatus: Coralogixlogger.Status => Coralogixlogger.Status,
+    of: Ref[CoralogixLogger],
+    updateStatus: CoralogixLogger.Status => CoralogixLogger.Status,
     namespace: K8sNamespace,
     dryRun: Boolean = false
-  ): ZIO[Coralogixloggers, KubernetesFailure, Unit] =
+  ): ZIO[CoralogixLoggers, KubernetesFailure, Unit] =
     for {
       resource <- of.get
-      updatedStatus = updateStatus(resource.status.getOrElse(Coralogixlogger.Status()))
+      updatedStatus = updateStatus(resource.status.getOrElse(CoralogixLogger.Status()))
       updatedResource <- coralogixloggers
                            .replaceStatus(resource, updatedStatus, namespace, dryRun)
                            .mapError(KubernetesFailure.apply)
@@ -204,11 +205,11 @@ object CoralogixloggerOperator {
 
   private def provisioningFailed(
     failedProvisions: FailedProvisions,
-    currentResource: Ref[Coralogixlogger],
+    currentResource: Ref[CoralogixLogger],
     phase: String,
     reason: String,
     k8sReason: K8sFailure
-  ): ZIO[Coralogixloggers with Logging, OperatorFailure[CoralogixOperatorFailure], Nothing] =
+  ): ZIO[CoralogixLoggers with Logging, OperatorFailure[CoralogixOperatorFailure], Nothing] =
     (for {
       _ <- logFailure(
              reason,
@@ -219,16 +220,16 @@ object CoralogixloggerOperator {
       _              <- failedProvisions.recordFailure(failedResource)
     } yield ()) *> ZIO.fail(OperatorError(ProvisioningFailed))
 
-  private def setupComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
-    createComponent: (String, Coralogixlogger) => T,
-    store: (Coralogixlogger.Status, String) => Coralogixlogger.Status
+  private def setupComponent[T: K8sObject: ResourceMetadata: Tag](
+    createComponent: (String, CoralogixLogger) => T,
+    store: (CoralogixLogger.Status, String) => CoralogixLogger.Status
   )(
     ctx: OperatorContext,
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with Has[NamespacedResource[T]], OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with Has[NamespacedResource[T]], OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] =
     for {
@@ -301,16 +302,16 @@ object CoralogixloggerOperator {
     } yield ()
 
   // TODO: See if a common interface can be used for NS and Cluster resources in such generic use cases
-  private def setupClusterComponent[T <: Object: ObjectTransformations: ResourceMetadata: Tag](
-    createComponent: (String, Coralogixlogger) => T,
-    store: (Coralogixlogger.Status, String) => Coralogixlogger.Status
+  private def setupClusterComponent[T: K8sObject: ResourceMetadata: Tag](
+    createComponent: (String, CoralogixLogger) => T,
+    store: (CoralogixLogger.Status, String) => CoralogixLogger.Status
   )(
     ctx: OperatorContext,
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with Has[ClusterResource[T]], OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with Has[ClusterResource[T]], OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] =
     for {
@@ -387,8 +388,8 @@ object CoralogixloggerOperator {
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with ServiceAccounts, OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with ServiceAccounts, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
     import serviceaccounts.metadata
@@ -403,8 +404,8 @@ object CoralogixloggerOperator {
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with ClusterRoles, OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with ClusterRoles, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
     import clusterroles.metadata
@@ -419,8 +420,8 @@ object CoralogixloggerOperator {
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with ClusterRoleBindings, OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with ClusterRoleBindings, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
     import clusterrolebindings.metadata
@@ -436,8 +437,8 @@ object CoralogixloggerOperator {
     failedProvisions: FailedProvisions,
     name: String,
     uid: String,
-    currentResource: Ref[Coralogixlogger]
-  ): ZIO[Coralogixloggers with Logging with DaemonSets, OperatorFailure[
+    currentResource: Ref[CoralogixLogger]
+  ): ZIO[CoralogixLoggers with Logging with DaemonSets, OperatorFailure[
     CoralogixOperatorFailure
   ], Unit] = {
     import daemonsets.metadata
@@ -451,10 +452,10 @@ object CoralogixloggerOperator {
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[Coralogixloggers, Nothing, Operator[
-    Clock with Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
+  ): ZIO[CoralogixLoggers, Nothing, Operator[
+    Clock with Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     CoralogixOperatorFailure,
-    Coralogixlogger
+    CoralogixLogger
   ]] =
     FailedProvisions.make.flatMap { failedProvisions =>
       Operator.namespaced(
@@ -465,10 +466,10 @@ object CoralogixloggerOperator {
   def forAllNamespaces(
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[Coralogixloggers, Nothing, Operator[
-    Clock with Logging with Coralogixloggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
+  ): ZIO[CoralogixLoggers, Nothing, Operator[
+    Clock with Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
     CoralogixOperatorFailure,
-    Coralogixlogger
+    CoralogixLogger
   ]] =
     FailedProvisions.make.flatMap { failedProvisions =>
       Operator.namespaced(

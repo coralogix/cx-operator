@@ -6,12 +6,12 @@ import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
 }
 import com.coralogix.rules.grpc.external.v1.RuleMatcher.Constraint
 import com.coralogix.rules.grpc.external.v1._
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.AndSequence.OrGroup.Allow
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.Matcher.Severities
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.Rulegroupset.Spec.RuleGroupsSequence.{
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.Allow
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.{
   AndSequence,
   Matcher
 }
@@ -23,7 +23,7 @@ import com.coralogix.zio.k8s.client.model.primitives.{
 }
 import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.ObjectMeta
 
-trait RulegroupsetOperatorTestData {
+trait RuleGroupSetOperatorTestData {
 
   val ruleGroup1 = RuleGroupsSequence(
     name = RuleGroupName("group1"),
@@ -83,9 +83,9 @@ trait RulegroupsetOperatorTestData {
     )
   )
 
-  val testSet1 = Rulegroupset(
+  val testSet1 = RuleGroupSet(
     metadata = Some(ObjectMeta(name = Some("set1"))),
-    spec = Rulegroupset.Spec(
+    spec = RuleGroupSet.Spec(
       Vector(
         ruleGroup1
       )
@@ -157,9 +157,9 @@ trait RulegroupsetOperatorTestData {
     )
   )
 
-  val testSet2 = Rulegroupset(
+  val testSet2 = RuleGroupSet(
     metadata = Some(ObjectMeta(name = Some("set2"))),
-    spec = Rulegroupset.Spec(
+    spec = RuleGroupSet.Spec(
       Vector(
         ruleGroup1,
         ruleGroup2
