@@ -195,11 +195,15 @@ spec:
                                 daysOfWeek:
                                   type: array
                                   items:
-                                    type: integer
-                                    format: int32
-                                    minimum: 0
-                                    maximum: 6
-                                    x-scala-type: DayOfWeek
+                                    type: string
+                                    enum:
+                                      - MONDAY
+                                      - TUESDAY
+                                      - WEDNESDAY
+                                      - THURSDAY
+                                      - FRIDAY
+                                      - SATURDAY
+                                      - SUNDAY
                                 range:
                                   type: object
                                   required:
