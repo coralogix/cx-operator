@@ -57,6 +57,11 @@ rules:
       - namespaces
       - pods
     verbs: ["get", "list", "watch"]
+  - apiGroups:
+      - ""
+      resources:
+        - configmaps
+      verbs: [ "get", "list", "create", "update" ]
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1

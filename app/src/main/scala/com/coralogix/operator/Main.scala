@@ -13,10 +13,12 @@ import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, Opera
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
-import com.coralogix.zio.k8s.operator.{ Operator, Registration }
+import com.coralogix.zio.k8s.operator.{ Leader, Operator, Registration }
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.zio.k8s.client.configmaps.{ v1 => configmaps }
+import com.coralogix.zio.k8s.client.pods.{ v1 => pods }
 import com.coralogix.zio.k8s.client.apps.daemonsets.{ v1 => daemonsets }
 import com.coralogix.zio.k8s.client.apps.daemonsets.v1.DaemonSets
 import com.coralogix.zio.k8s.client.com.coralogix.alertsets.v1.AlertSets
@@ -62,6 +64,8 @@ object Main extends App {
           clusterroles.live ++
           clusterrolebindings.live ++
           daemonsets.live ++
+          configmaps.live ++
+          pods.live ++
 
           rulegroupsets.live ++
           coralogixloggers.live ++
@@ -81,29 +85,31 @@ object Main extends App {
 
     val service =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
-        for {
-          _       <- log.info(s"Operator started")
-          config  <- getConfig[OperatorConfig]
-          metrics <- OperatorMetrics.make
+        Leader.leaderForLife("cx-operator-lock", None) {
+          for {
+            _       <- log.info(s"Operator started")
+            config  <- getConfig[OperatorConfig]
+            metrics <- OperatorMetrics.make
 
-          _ <- Registration.registerIfMissing(
-                 rulegroupsets.metadata,
-                 rulegroupsets.customResourceDefinition
-               ) <&>
-                 Registration.registerIfMissing(
-                   coralogixloggers.metadata,
-                   coralogixloggers.customResourceDefinition
+            _ <- Registration.registerIfMissing(
+                   rulegroupsets.metadata,
+                   rulegroupsets.customResourceDefinition
                  ) <&>
-                 Registration.registerIfMissing(
-                   alertsets.metadata,
-                   alertsets.customResourceDefinition
-                 )
-          rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
-          loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-          alertFibers     <- spawnAlertOperators(metrics, config.resources)
-          allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers
-          _ <- ZIO.never.raceAll(allFibers.map(_.await))
-        } yield ()
+                   Registration.registerIfMissing(
+                     coralogixloggers.metadata,
+                     coralogixloggers.customResourceDefinition
+                   ) <&>
+                   Registration.registerIfMissing(
+                     alertsets.metadata,
+                     alertsets.customResourceDefinition
+                   )
+            rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
+            loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
+            alertFibers     <- spawnAlertOperators(metrics, config.resources)
+            allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers
+            _ <- ZIO.never.raceAll(allFibers.map(_.await))
+          } yield ()
+        }
       }
 
     service
