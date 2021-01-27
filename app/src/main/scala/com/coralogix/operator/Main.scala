@@ -1,5 +1,6 @@
 package com.coralogix.operator
 
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
