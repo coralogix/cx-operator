@@ -1,5 +1,6 @@
 package com.coralogix.operator
 
+import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ GrpcClientConfig, GrpcConfig }
 import com.coralogix.operator.monitoring.ClientMetrics
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
@@ -216,6 +217,13 @@ package object grpc {
         ClientMetrics
       ] with Clock, Throwable, RuleGroupsServiceClient] =
         grpcClientLayer("com.coralogix.rules.v1.RuleGroupsService", RuleGroupsServiceClient.managed)
+    }
+
+    object alerts {
+      val live: ZLayer[Has[GrpcClientConfig] with Has[
+        ClientMetrics
+      ] with Clock, Throwable, AlertServiceClient] =
+        grpcClientLayer("com.coralogix.alerts.v1.AlertService", AlertServiceClient.managed)
     }
   }
 }

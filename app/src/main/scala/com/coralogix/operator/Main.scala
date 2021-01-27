@@ -1,14 +1,17 @@
 package com.coralogix.operator
 
+import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
 import com.coralogix.zio.k8s.client.serviceaccounts.{ v1 => serviceaccounts }
+import com.coralogix.zio.k8s.client.com.coralogix.alertsets.{ v1 => alertsets }
 import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{
   v1 => coralogixloggers
 }
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
+import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.zio.k8s.operator.{ Operator, Registration }
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
@@ -16,6 +19,8 @@ import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.apps.daemonsets.{ v1 => daemonsets }
 import com.coralogix.zio.k8s.client.apps.daemonsets.v1.DaemonSets
+import com.coralogix.zio.k8s.client.com.coralogix.alertsets.v1.AlertSets
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
@@ -59,7 +64,8 @@ object Main extends App {
           daemonsets.live ++
 
           rulegroupsets.live ++
-          coralogixloggers.live))
+          coralogixloggers.live ++
+          alertsets.live))
 
     val grpcServer = (logging.live ++ config.narrow(_.grpc)) >>> grpc.live
 
@@ -67,6 +73,11 @@ object Main extends App {
       (config.narrow(
         _.grpc.clients.rulegroups
       ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.rulegroups.live
+
+    val alertsClient =
+      (config.narrow(
+        _.grpc.clients.alerts
+      ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.alerts.live
 
     val service =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
@@ -82,17 +93,22 @@ object Main extends App {
                  Registration.registerIfMissing(
                    coralogixloggers.metadata,
                    coralogixloggers.customResourceDefinition
+                 ) <&>
+                 Registration.registerIfMissing(
+                   alertsets.metadata,
+                   alertsets.customResourceDefinition
                  )
           rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
           loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-          allFibers = rulegroupFibers ::: loggerFibers
+          alertFibers     <- spawnAlertOperators(metrics, config.resources)
+          allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers
           _ <- ZIO.never.raceAll(allFibers.map(_.await))
         } yield ()
       }
 
     service
       .provideSomeLayer[Blocking with System with Clock with Console](
-        config ++ monitoring.live ++ clients ++ grpcServer ++ ruleGroupsClient
+        config ++ monitoring.live ++ clients ++ grpcServer ++ ruleGroupsClient ++ alertsClient
       )
       .tapCause { cause =>
         console.putStrLnErr(s"Critical failure\n${cause.squash}")
@@ -177,4 +193,22 @@ object Main extends App {
       CoralogixLoggerOperator.forAllNamespaces,
       CoralogixLoggerOperator.forNamespace
     )
+
+  private def spawnAlertOperators(
+    metrics: OperatorMetrics,
+    resources: OperatorResources
+  ): ZIO[
+    Clock with Logging with AlertSets with AlertServiceClient,
+    Nothing,
+    List[Fiber.Runtime[Nothing, Unit]]
+  ] =
+    SpawnOperators[AlertSet](
+      "alert operator",
+      metrics,
+      resources,
+      _.alerts,
+      AlertSetOperator.forAllNamespaces,
+      AlertSetOperator.forNamespace
+    )
+
 }

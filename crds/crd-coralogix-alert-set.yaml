@@ -60,6 +60,8 @@ spec:
                           parameters:
                             description: Condition parameters, required for all types except IMMEDIATE
                             type: object
+                            required:
+                              - timeframe
                             properties:
                               threshold:
                                 type: number
@@ -71,6 +73,7 @@ spec:
                                 enum: ["5Min", "10Min", "20Min", "30Min", "1H", "2H", "3H", "4H", "6H", "12H", "24H", "48H", "72H", "1W", "1M", "2M", "3M"]
                               groupBy:
                                 description: Required for NEW_VALUE conditions
+                                type: string
 
                       notifications:
                         type: object
@@ -88,7 +91,15 @@ spec:
 
                       filters:
                         type: object
+                        required:
+                          - filterType
                         properties:
+                          filterType:
+                            type: string
+                            enum:
+                              - TEXT
+                              - TEMPLATE
+                              - RATIO
                           severities:
                             type: array
                             items:
@@ -139,44 +150,44 @@ spec:
                                   type: string
                                   x-scala-type: IPAddress
 
-                            alias:
-                              type: string
-                              x-scala-type: QueryAlias
-                            text:
-                              type: string
-                              x-scala-type: QueryAlias
-                            ratioAlerts:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  alias:
+                          alias:
+                            type: string
+                            x-scala-type: QueryAlias
+                          text:
+                            type: string
+                            x-scala-type: Query
+                          ratioAlerts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                alias:
+                                  type: string
+                                  x-scala-type: QueryAlias
+                                text:
+                                  type: string
+                                  x-scala-type: Query
+                                severities:
+                                  type: array
+                                  items:
                                     type: string
-                                    x-scala-type: QueryAlias
-                                  text:
+                                    enum:
+                                      - DEBUG
+                                      - VERBOSE
+                                      - INFO
+                                      - WARNING
+                                      - ERROR
+                                      - CRITICAL
+                                applications:
+                                  type: array
+                                  items:
                                     type: string
-                                    x-scala-type: Query
-                                  severities:
-                                    type: array
-                                    items:
-                                      type: string
-                                      enum:
-                                        - DEBUG
-                                        - VERBOSE
-                                        - INFO
-                                        - WARNING
-                                        - ERROR
-                                        - CRITICAL
-                                  applications:
-                                    type: array
-                                    items:
-                                      type: string
-                                      x-scala-type: ApplicationName
-                                  subsystems:
-                                    type: array
-                                    items:
-                                      type: string
-                                      x-scala-type: SubsystemName
+                                    x-scala-type: ApplicationName
+                                subsystems:
+                                  type: array
+                                  items:
+                                    type: string
+                                    x-scala-type: SubsystemName
 
                       notifyEvery:
                         description: The suppress time for an alert in seconds
