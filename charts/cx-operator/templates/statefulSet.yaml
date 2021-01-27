@@ -42,6 +42,10 @@ spec:
           image: {{ .Values.image.repository }}/cx-operator:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: CORALOGIX_CONFIG
               valueFrom:
                 configMapKeyRef:

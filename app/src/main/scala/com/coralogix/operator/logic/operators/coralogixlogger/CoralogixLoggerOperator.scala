@@ -391,13 +391,11 @@ object CoralogixLoggerOperator {
     currentResource: Ref[CoralogixLogger]
   ): ZIO[CoralogixLoggers with Logging with ServiceAccounts, OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    import serviceaccounts.metadata
+  ], Unit] =
     setupComponent(
       Model.serviceAccount,
       (status, serviceAccountName) => status.copy(serviceAccount = Some(serviceAccountName))
     )(ctx, failedProvisions, name, uid, currentResource)
-  }
 
   private def setupClusterRole(
     ctx: OperatorContext,
@@ -407,13 +405,11 @@ object CoralogixLoggerOperator {
     currentResource: Ref[CoralogixLogger]
   ): ZIO[CoralogixLoggers with Logging with ClusterRoles, OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    import clusterroles.metadata
+  ], Unit] =
     setupClusterComponent(
       Model.clusterRole,
       (status, clusterRoleName) => status.copy(clusterRole = Some(clusterRoleName))
     )(ctx, failedProvisions, name, uid, currentResource)
-  }
 
   private def setupClusterRoleBinding(
     ctx: OperatorContext,
@@ -423,14 +419,12 @@ object CoralogixLoggerOperator {
     currentResource: Ref[CoralogixLogger]
   ): ZIO[CoralogixLoggers with Logging with ClusterRoleBindings, OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    import clusterrolebindings.metadata
+  ], Unit] =
     setupClusterComponent(
       Model.clusterRoleBinding,
       (status, clusterRoleBindingName) =>
         status.copy(clusterRoleBinding = Some(clusterRoleBindingName))
     )(ctx, failedProvisions, name, uid, currentResource)
-  }
 
   private def setupDaemonSet(
     ctx: OperatorContext,
@@ -440,13 +434,11 @@ object CoralogixLoggerOperator {
     currentResource: Ref[CoralogixLogger]
   ): ZIO[CoralogixLoggers with Logging with DaemonSets, OperatorFailure[
     CoralogixOperatorFailure
-  ], Unit] = {
-    import daemonsets.metadata
+  ], Unit] =
     setupComponent(
       Model.daemonSet,
       (status, daemonSetName) => status.copy(daemonSet = Some(daemonSetName))
     )(ctx, failedProvisions, name, uid, currentResource)
-  }
 
   def forNamespace(
     namespace: K8sNamespace,

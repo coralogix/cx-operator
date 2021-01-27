@@ -102,4 +102,14 @@ package object primitives {
     override lazy val typeClasses = ValueTypeClasses(EmailAddress.apply, _.value)
   }
 
+  final case class QueryAlias(value: String) extends AnyVal
+  object QueryAlias extends ValueTypeImplicits[QueryAlias, String] {
+    override lazy val typeClasses = ValueTypeClasses(QueryAlias.apply, _.value)
+  }
+
+  final case class Query(value: String) extends AnyVal
+  object Query extends ValueTypeImplicits[Query, String] {
+    override lazy val typeClasses = ValueTypeClasses(Query.apply, _.value)
+  }
+
 }
