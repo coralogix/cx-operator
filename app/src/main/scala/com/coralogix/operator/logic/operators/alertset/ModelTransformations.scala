@@ -208,11 +208,7 @@ object ModelTransformations {
     }
 
   private def toActiveWhen(activeWhen: Alerts.ActiveWhen): Either[String, AlertActiveWhen] =
-    activeWhen.timeframes match {
-      case Some(timeframes) =>
-        Traverse[Vector].sequence(timeframes.map(toActiveTimeframe)).map(AlertActiveWhen(_))
-      case None => Right(AlertActiveWhen(Seq.empty))
-    }
+    Traverse[Vector].sequence(activeWhen.timeframes.map(toActiveTimeframe)).map(AlertActiveWhen(_))
 
   private def toActiveTimeframe(
     timeframe: Alerts.ActiveWhen.Timeframes
