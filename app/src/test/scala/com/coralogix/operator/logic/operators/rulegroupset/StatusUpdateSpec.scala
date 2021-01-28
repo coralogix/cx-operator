@@ -18,7 +18,7 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
   )
 
   override def spec: ZSpec[TestEnvironment, Any] =
-    suite("StatusUpdate")(
+    suite("RuleGroupSet StatusUpdate")(
       test("can add new name<->id mappings to empty")(
         assert(
           StatusUpdate.runStatusUpdates(
@@ -101,6 +101,29 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           )
         )(
           equalTo(statusG1G2.copy(lastUploadedGeneration = Some(10L)))
+        )
+      ),
+      test("can add failures")(
+        assert(
+          StatusUpdate.runStatusUpdates(
+            statusG1G2,
+            Vector(
+              StatusUpdate.ClearFailures,
+              StatusUpdate.RecordFailure(RuleGroupName("g1"), "failure 1"),
+              StatusUpdate.RecordFailure(RuleGroupName("g3"), "failure 3")
+            )
+          )
+        )(
+          equalTo(
+            statusG1G2.copy(
+              failures = Some(
+                Vector(
+                  RuleGroupSet.Status.Failures(RuleGroupName("g1"), "failure 1"),
+                  RuleGroupSet.Status.Failures(RuleGroupName("g3"), "failure 3")
+                )
+              )
+            )
+          )
         )
       )
     )
