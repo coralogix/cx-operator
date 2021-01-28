@@ -258,7 +258,19 @@ spec:
                 last-uploaded-generation:
                   type: integer
                   format: int64
-
+                failures:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - failure
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: AlertName
+                      failure:
+                        type: string
       subresources:
         status: {}
   scope: Namespaced

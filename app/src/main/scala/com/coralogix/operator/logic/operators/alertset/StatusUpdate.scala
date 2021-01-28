@@ -9,6 +9,8 @@ object StatusUpdate {
   final case class AddRuleGroupMapping(name: AlertName, id: AlertId) extends StatusUpdate
   final case class DeleteRuleGroupMapping(name: AlertName) extends StatusUpdate
   final case class UpdateLastUploadedGeneration(generation: Long) extends StatusUpdate
+  final case class RecordFailure(name: AlertName, failure: String) extends StatusUpdate
+  final case object ClearFailures extends StatusUpdate
 
   private def runStatusUpdate(
     status: AlertSet.Status,
@@ -23,6 +25,12 @@ object StatusUpdate {
         modify(status)(_.alertIds.each)(_.filterNot(_.name == name))
       case StatusUpdate.UpdateLastUploadedGeneration(generation) =>
         modify(status)(_.lastUploadedGeneration).setTo(Some(generation))
+      case StatusUpdate.RecordFailure(name, failure) =>
+        modify(status)(_.failures.atOrElse(Vector.empty))(
+          _ :+ AlertSet.Status.Failures(name, failure)
+        )
+      case StatusUpdate.ClearFailures =>
+        modify(status)(_.failures).setTo(None)
     }
 
   def runStatusUpdates(

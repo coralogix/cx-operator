@@ -9,6 +9,14 @@ case class CustomResourceError(details: String) extends CoralogixOperatorFailure
 case object ProvisioningFailed extends CoralogixOperatorFailure
 
 object CoralogixOperatorFailure {
+  def toFailureString(failure: CoralogixOperatorFailure): String =
+    failure match {
+      case GrpcFailure(status)          => s"Backend failure: ${status.asException().getMessage}"
+      case UndefinedGrpcField(name)     => s"Undefined field: $name"
+      case CustomResourceError(details) => s"Error in the definition: $details"
+      case ProvisioningFailed           => s"Provisioning failed"
+    }
+
   implicit val toThrowable: ConvertableToThrowable[CoralogixOperatorFailure] = {
     case GrpcFailure(status) =>
       status.asException()
