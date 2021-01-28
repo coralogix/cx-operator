@@ -18,6 +18,16 @@ data:
             X-Coralogix-API: rules
           }
         }
+
+        alerts {
+          name = {{ .Values.config.coralogixApi.host }}
+          port = {{ .Values.config.coralogixApi.port }}
+          tls = {{ .Values.config.coralogixApi.tls }}
+          token = ${RULES_API_TOKEN}
+          headers {
+            X-Coralogix-API: alerts
+          }
+        }
       }
     }
 
@@ -25,6 +35,24 @@ data:
       defaultBuffer = {{ .Values.config.resources.defaultBuffer }}
       rulegroups = [
         {{- range .Values.config.resources.rulegroups }}
+        {
+          namespace = {{ .namespace }}
+          {{ if .buffer }}buffer = {{ .buffer }}{{ end }}
+        },
+        {{- end }}
+      ]
+
+      coralogixLoggers = [
+        {{- range .Values.config.resources.coralogixLoggers }}
+        {
+          namespace = {{ .namespace }}
+          {{ if .buffer }}buffer = {{ .buffer }}{{ end }}
+        },
+        {{- end }}
+      ]
+
+      alerts = [
+        {{- range .Values.config.resources.alerts }}
         {
           namespace = {{ .namespace }}
           {{ if .buffer }}buffer = {{ .buffer }}{{ end }}
