@@ -10,6 +10,8 @@ object StatusUpdate {
   final case class AddRuleGroupMapping(name: RuleGroupName, id: RuleGroupId) extends StatusUpdate
   final case class DeleteRuleGroupMapping(name: RuleGroupName) extends StatusUpdate
   final case class UpdateLastUploadedGeneration(generation: Long) extends StatusUpdate
+  final case class RecordFailure(name: RuleGroupName, failure: String) extends StatusUpdate
+  final case object ClearFailures extends StatusUpdate
 
   private def runStatusUpdate(
     status: RuleGroupSet.Status,
@@ -24,6 +26,12 @@ object StatusUpdate {
         modify(status)(_.groupIds.each)(_.filterNot(_.name == name))
       case StatusUpdate.UpdateLastUploadedGeneration(generation) =>
         modify(status)(_.lastUploadedGeneration).setTo(Some(generation))
+      case StatusUpdate.RecordFailure(name, failure) =>
+        modify(status)(_.failures.atOrElse(Vector.empty))(
+          _ :+ RuleGroupSet.Status.Failures(name, failure)
+        )
+      case StatusUpdate.ClearFailures =>
+        modify(status)(_.failures).setTo(None)
     }
 
   def runStatusUpdates(
