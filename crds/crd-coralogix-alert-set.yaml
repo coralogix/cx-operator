@@ -197,9 +197,9 @@ spec:
 
                       activeWhen:
                         type: object
+                        required:
+                          - timeframes
                         properties:
-                          required:
-                            - timeframes
                           timeframes:
                             type: array
                             items:

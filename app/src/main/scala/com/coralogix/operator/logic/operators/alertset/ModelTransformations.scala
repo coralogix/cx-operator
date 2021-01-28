@@ -1,8 +1,6 @@
 package com.coralogix.operator.logic.operators.alertset
 
-import cats.Traverse
-import cats.instances.either._
-import cats.instances.vector._
+import cats.implicits._
 import com.coralogix.alerts.grpc.external.v1.{
   Alert,
   AlertActiveTimeframe,
@@ -208,11 +206,7 @@ object ModelTransformations {
     }
 
   private def toActiveWhen(activeWhen: Alerts.ActiveWhen): Either[String, AlertActiveWhen] =
-    activeWhen.timeframes match {
-      case Some(timeframes) =>
-        Traverse[Vector].sequence(timeframes.map(toActiveTimeframe)).map(AlertActiveWhen(_))
-      case None => Right(AlertActiveWhen(Seq.empty))
-    }
+    activeWhen.timeframes.map(toActiveTimeframe).sequence.map(AlertActiveWhen(_))
 
   private def toActiveTimeframe(
     timeframe: Alerts.ActiveWhen.Timeframes
