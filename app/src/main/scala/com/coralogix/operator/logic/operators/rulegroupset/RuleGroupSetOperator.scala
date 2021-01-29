@@ -17,11 +17,12 @@ import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegrou
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.coralogix.zio.k8s.operator.Operator._
+import com.coralogix.zio.k8s.operator.OperatorLogging.logFailure
 import com.coralogix.zio.k8s.operator._
 import com.coralogix.zio.k8s.operator.aspects._
 import zio.clock.Clock
 import zio.logging.{ log, Logging }
-import zio.{ Has, ZIO }
+import zio.{ Cause, Has, ZIO }
 
 object RuleGroupSetOperator {
 
@@ -135,7 +136,10 @@ object RuleGroupSetOperator {
                        )
           } yield StatusUpdate.AddRuleGroupMapping(ruleGroupName, groupId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              ZIO.succeed(
+              logFailure(
+                s"Failed to modify rule group '${ruleGroupName.value}'",
+                Cause.fail(failure)
+              ).as(
                 StatusUpdate
                   .RecordFailure(ruleGroupName, CoralogixOperatorFailure.toFailureString(failure))
               )
@@ -166,7 +170,10 @@ object RuleGroupSetOperator {
                      )
         } yield StatusUpdate.AddRuleGroupMapping(ruleGroup.name, groupId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
-            ZIO.succeed(
+            logFailure(
+              s"Failed to create rule group '${ruleGroup.name.value}'",
+              Cause.fail(failure)
+            ).as(
               StatusUpdate.RecordFailure(
                 ruleGroup.name,
                 CoralogixOperatorFailure.toFailureString(failure)
@@ -194,7 +201,7 @@ object RuleGroupSetOperator {
               )
           } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              ZIO.succeed(
+              logFailure(s"Failed to delete rule group '${name.value}'", Cause.fail(failure)).as(
                 StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
               )
           }

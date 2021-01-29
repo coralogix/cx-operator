@@ -14,11 +14,12 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertS
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
+import com.coralogix.zio.k8s.operator.OperatorLogging.logFailure
 import com.coralogix.zio.k8s.operator.aspects.logEvents
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
 import zio.clock.Clock
 import zio.logging.{ log, Logging }
-import zio.{ Has, ZIO }
+import zio.{ Cause, Has, ZIO }
 
 object AlertSetOperator {
   private def eventProcessor(): EventProcessor[
@@ -109,7 +110,7 @@ object AlertSetOperator {
                      )
         } yield StatusUpdate.AddRuleGroupMapping(alert.name, alertId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
-            ZIO.succeed(
+            logFailure(s"Failed to create alert '${alert.name.value}'", Cause.fail(failure)).as(
               StatusUpdate.RecordFailure(
                 alert.name,
                 CoralogixOperatorFailure.toFailureString(failure)
@@ -146,7 +147,7 @@ object AlertSetOperator {
                        )
           } yield StatusUpdate.AddRuleGroupMapping(alertName, alertId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              ZIO.succeed(
+              logFailure(s"Failed to modify alert '${alertName.value}'", Cause.fail(failure)).as(
                 StatusUpdate.RecordFailure(
                   alertName,
                   CoralogixOperatorFailure.toFailureString(failure)
@@ -172,7 +173,7 @@ object AlertSetOperator {
               )
           } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              ZIO.succeed(
+              logFailure(s"Failed to delete alert '${name.value}'", Cause.fail(failure)).as(
                 StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
               )
           }
