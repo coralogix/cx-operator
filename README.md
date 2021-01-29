@@ -4,6 +4,8 @@
 A Kubernetes _operator_ managing the following custom resource types:
 
 - `rulegroupsets.coralogix.com`
+- `alertsets.coralogix.com`
+- `coralogixloggers.loggers.coralogix.com`
 
 #### Rule group sets
 The `RuleGroupSet` custom resource describes one or more Coralogix [_rule groups_](https://coralogix.com/tutorials/log-parsing-rules/).
@@ -60,6 +62,70 @@ spec:
                 keep-blocked-logs: false
 ```
 
+#### Alert sets
+The `AlertSet` custom resource describes one or more Coralogix [_alerts_](https://coralogix.com/tutorials/coralogix-user-defined-alerts/).
+The operator adds/updates/removes Coralogix alerts by reacting to
+CRD events using the Coralogix gRPC API.
+
+Example alert set:
+
+```yaml
+apiVersion: "coralogix.com/v1"
+kind: AlertSet
+metadata:
+  name: test-alertset-1
+spec:
+  alerts:
+    - name: test-alert-2
+      description: "Testing the alerts operator"
+      isActive: false
+      severity: WARNING
+      filters:
+        filterType: TEXT
+        severities:
+          - ERROR
+          - CRITICAL
+        metadata:
+          applications:
+            - production
+          subsystems:
+            - my-app
+            - my-service
+        text: "authentication failed"
+      condition:
+        type: MORE_THAN
+        parameters:
+          threshold: 120
+          timeframe: 10Min
+          groupBy: host
+      notifications:
+        emails:
+          - security@mycompany.com
+          - mgmt@mycompany.com
+        integrations: []
+```
+
+#### Logger
+The `CoralogixLogger` custom resource provisions a _FluentD daemonset_ with Coralogix support. The provisioned resources
+are the following:
+
+- Service account
+- Cluster role
+- Cluster role bindings
+- Daemon set
+
+Example resource:
+
+```yaml
+apiVersion: "loggers.coralogix.com/v1"
+kind: CoralogixLogger
+metadata:
+  name: test-logger
+spec:
+  cluster_name: TestCluster
+  private_key: "01234567-0123-0123-0123-012345678901"
+```
+
 ### Communication
 
 - Communicates with the Kubernetes cluster on the _Kubernetes REST API_
@@ -80,7 +146,7 @@ Check if it can find the `cx-operator` chart:
 ```shell
 $ helm search repo cx-operator
 NAME                   	CHART VERSION	APP VERSION	DESCRIPTION
-cx-operator/cx-operator	0.1.0        	0.1.0      	Coralogix Kubernetes Operator
+cx-operator/cx-operator	0.3.5+ddf73a7	0.3.5      	Coralogix Kubernetes Operator
 ```
 
 The Coralogix gRPC API requires an _API TOKEN_ which must be stored under the `coralogix-operator-secrets` K8s secret's `RULES_API_TOKEN` key.
@@ -110,4 +176,6 @@ To also install a _Prometheus_ `ServiceMonitor` object, add: `--set serviceMonit
 
 ### Links
 - [Rule group set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-rule-group-set.yaml)
+- [Alert set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-alert-set.yaml)
+- [Coralogix Logger CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-loggers.yaml)
 
