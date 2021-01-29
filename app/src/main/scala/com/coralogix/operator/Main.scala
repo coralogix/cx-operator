@@ -39,7 +39,7 @@ import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebinding
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.v1.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.{ v1 => clusterroles }
 import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.v1.ClusterRoles
-import com.coralogix.zio.k8s.client.model.K8sNamespace
+import com.coralogix.zio.k8s.client.model.{ K8sNamespace, ResourceMetadata }
 import com.coralogix.zio.k8s.client.serviceaccounts.v1.ServiceAccounts
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
@@ -93,15 +93,15 @@ object Main extends App {
             metrics <- OperatorMetrics.make
 
             _ <- Registration.registerIfMissing(
-                   rulegroupsets.metadata,
+                   implicitly[ResourceMetadata[RuleGroupSet]],
                    rulegroupsets.customResourceDefinition
                  ) <&>
                    Registration.registerIfMissing(
-                     coralogixloggers.metadata,
+                     implicitly[ResourceMetadata[CoralogixLogger]],
                      coralogixloggers.customResourceDefinition
                    ) <&>
                    Registration.registerIfMissing(
-                     alertsets.metadata,
+                     implicitly[ResourceMetadata[AlertSet]],
                      alertsets.customResourceDefinition
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)

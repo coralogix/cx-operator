@@ -21,17 +21,18 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.coralogix"              %% "zio-k8s-client"   % "0.1.5",
-      "com.coralogix"              %% "zio-k8s-operator" % "0.1.5",
-      "com.softwaremill.quicklens" %% "quicklens"        % "1.6.1",
-      "nl.vroste"                  %% "rezilience"       % "0.5.1",
+      "com.coralogix"              %% "zio-k8s-client"           % "0.2.0",
+      "com.coralogix"              %% "zio-k8s-operator"         % "0.2.0",
+      "com.coralogix"              %% "zio-k8s-client-quicklens" % "0.2.0",
+      "com.softwaremill.quicklens" %% "quicklens"                % "1.6.1",
+      "nl.vroste"                  %% "rezilience"               % "0.5.1",
       // Config
       "dev.zio" %% "zio-config"          % "1.0.0-RC31-1",
       "dev.zio" %% "zio-config-magnolia" % "1.0.0-RC31-1",
       "dev.zio" %% "zio-config-typesafe" % "1.0.0-RC31-1",
       // Logging
-      "dev.zio"  %% "zio-logging"              % "0.5.6",
-      "dev.zio"  %% "zio-logging-slf4j-bridge" % "0.5.6",
+      "dev.zio" %% "zio-logging"              % "0.5.6",
+      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.6",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
       "io.grpc"                             % "grpc-netty"                              % "1.31.1",

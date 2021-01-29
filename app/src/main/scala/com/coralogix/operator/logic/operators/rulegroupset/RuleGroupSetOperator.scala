@@ -12,7 +12,6 @@ import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
 }
 import com.coralogix.zio.k8s.client.NamespacedResourceStatus
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.v1.metadata
 import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
@@ -100,9 +99,9 @@ object RuleGroupSetOperator {
     ruleGroupSet: RuleGroupSet
   )(f: RuleGroupSet.Status => ZIO[R, E, Unit]): ZIO[R, E, Unit] =
     ruleGroupSet.status match {
-      case Some(status) =>
+      case Optional.Present(status) =>
         f(status)
-      case None =>
+      case Optional.Absent =>
         log.warn(
           s"Rule group set '${ruleGroupSet.metadata.flatMap(_.name).getOrElse("")}' has no status information"
         )

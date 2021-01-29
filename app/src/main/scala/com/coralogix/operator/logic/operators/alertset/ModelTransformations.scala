@@ -33,12 +33,14 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertS
   Severities => RatioAlertSeverities
 }
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Severity
-import com.coralogix.zio.k8s.client.model.primitives
+import com.coralogix.zio.k8s.client.model.{ primitives, Optional }
 import com.coralogix.zio.k8s.client.model.primitives.AlertId
 
 import java.time.LocalDate
+import scala.language.implicitConversions
 
 object ModelTransformations {
+  private implicit def toOption[T](opt: Optional[T]): Option[T] = opt.toOption
 
   def toCreateAlert(alert: AlertSet.Spec.Alerts): Either[String, CreateAlertRequest] =
     alert.activeWhen.map(a => toActiveWhen(a).map(Some.apply)).getOrElse(Right(None)).map {

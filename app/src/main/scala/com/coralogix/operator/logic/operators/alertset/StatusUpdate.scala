@@ -2,6 +2,7 @@ package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
+import com.coralogix.zio.k8s.quicklens._
 import com.softwaremill.quicklens._
 
 sealed trait StatusUpdate

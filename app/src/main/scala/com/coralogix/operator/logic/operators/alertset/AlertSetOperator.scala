@@ -8,7 +8,6 @@ import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpd
 import com.coralogix.operator.logic._
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.NamespacedResourceStatus
-import com.coralogix.zio.k8s.client.com.coralogix.alertsets.v1.metadata
 import com.coralogix.zio.k8s.client.com.coralogix.alertsets.{ v1 => alertsets }
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
@@ -183,9 +182,9 @@ object AlertSetOperator {
     alertSet: AlertSet
   )(f: AlertSet.Status => ZIO[R, E, Unit]): ZIO[R, E, Unit] =
     alertSet.status match {
-      case Some(status) =>
+      case Optional.Present(status) =>
         f(status)
-      case None =>
+      case Optional.Absent =>
         log.warn(
           s"Rule group set '${alertSet.metadata.flatMap(_.name).getOrElse("")}' has no status information"
         )
@@ -206,7 +205,7 @@ object AlertSetOperator {
     NamespacedResourceStatus[AlertSet.Status, AlertSet]
   ], KubernetesFailure, Unit] = {
     val initialStatus =
-      resource.status.getOrElse(AlertSet.Status(alertIds = Some(Vector.empty)))
+      resource.status.getOrElse(AlertSet.Status(alertIds = Vector.empty[AlertSet.Status.AlertIds]))
     val updatedStatus = runStatusUpdates(initialStatus, updates)
 
     alertsets

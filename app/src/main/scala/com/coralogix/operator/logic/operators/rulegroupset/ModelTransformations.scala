@@ -23,9 +23,14 @@ import com.coralogix.rules.grpc.external.v1.{
   SeverityConstraint,
   SubsystemNameConstraint
 }
+import com.coralogix.zio.k8s.client.model.Optional
+
+import scala.language.implicitConversions
 
 /** Transformation between the gRPC rules API and the k8s CRD's models */
 object ModelTransformations {
+  private implicit def toOption[T](opt: Optional[T]): Option[T] = opt.toOption
+
   private val Creator = "coralogix-kubernetes-operator"
 
   private def toSeverityConstraintValue(
@@ -49,6 +54,7 @@ object ModelTransformations {
           RuleMatcher(Constraint.ApplicationName(ApplicationNameConstraint(Some(name.value))))
         )
       )
+      .toOption
       .toVector ++
       matcher.severities
         .map(
@@ -58,6 +64,7 @@ object ModelTransformations {
             )
           )
         )
+        .toOption
         .toVector ++
       matcher.subsystems
         .map(
@@ -65,6 +72,7 @@ object ModelTransformations {
             RuleMatcher(Constraint.SubsystemName(SubsystemNameConstraint(Some(name.value))))
           )
         )
+        .toOption
         .toVector).flatten
 
   private def toDestinationField(field: DestField): DestinationField =

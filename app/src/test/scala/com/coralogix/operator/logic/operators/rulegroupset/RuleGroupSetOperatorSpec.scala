@@ -84,7 +84,7 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
           Seq(
             Modified[RuleGroupSet](
               testSet1.copy(
-                metadata = Some(testSet1.metadata.get.copy(generation = Some(1L))),
+                metadata = testSet1.metadata.map(_.copy(generation = Some(1L))),
                 status = Some(
                   RuleGroupSet.Status(
                     Some(
@@ -129,7 +129,7 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
           Seq(
             Modified[RuleGroupSet](
               testSet2.copy(
-                metadata = Some(testSet2.metadata.get.copy(generation = Some(1L))),
+                metadata = testSet2.metadata.map(_.copy(generation = Some(1L))),
                 status = Some(
                   RuleGroupSet.Status(
                     Some(
