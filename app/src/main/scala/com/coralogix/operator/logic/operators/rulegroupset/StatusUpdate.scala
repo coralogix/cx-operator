@@ -2,6 +2,7 @@ package com.coralogix.operator.logic.operators.rulegroupset
 
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
+import com.coralogix.zio.k8s.quicklens._
 import com.softwaremill.quicklens._
 
 /** Update actions for the Rulegroupset.Status subresource */

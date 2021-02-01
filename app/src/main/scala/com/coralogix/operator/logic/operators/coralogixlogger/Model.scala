@@ -1,98 +1,46 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
-import com.coralogix.zio.k8s.client.model.{ K8sObject, K8sResourceType }
-import com.coralogix.zio.k8s.client.model.K8sObject._
 import com.coralogix.zio.k8s.model.apps.v1.{ DaemonSet, DaemonSetSpec }
-import com.coralogix.zio.k8s.model.core.v1.{
-  Container,
-  EnvVar,
-  HostPathVolumeSource,
-  PodSpec,
-  PodTemplateSpec,
-  ResourceRequirements,
-  SecurityContext,
-  ServiceAccount,
-  Volume,
-  VolumeMount
-}
+import com.coralogix.zio.k8s.model.core.v1._
 import com.coralogix.zio.k8s.model.pkg.api.resource.Quantity
-import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ LabelSelector, ObjectMeta, OwnerReference }
-import com.coralogix.zio.k8s.model.rbac.v1.{
-  ClusterRole,
-  ClusterRoleBinding,
-  PolicyRule,
-  RoleRef,
-  Subject
-}
+import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ LabelSelector, ObjectMeta }
+import com.coralogix.zio.k8s.model.rbac.v1._
 
 object Model {
 
-  private def labelsFor(name: String): Option[Map[String, String]] =
-    Some(
-      Map(
-        "k8s-app" -> s"fluentd-coralogix-$name"
-      )
-    )
-
-  // TODO: move to zio-k8s
-  def attachOwner[T: K8sObject](
-    ownerName: String,
-    ownerUid: String,
-    ownerType: K8sResourceType,
-    target: T
-  ): T =
-    target.mapMetadata(metadata =>
-      metadata.copy(ownerReferences =
-        Some(
-          metadata.ownerReferences.getOrElse(Vector.empty) :+
-            OwnerReference(
-              apiVersion = s"${ownerType.group}/${ownerType.version}".stripPrefix("/"),
-              kind = ownerType.resourceType,
-              name = ownerName,
-              uid = ownerUid,
-              controller = Some(true),
-              blockOwnerDeletion = Some(true)
-            )
-        )
-      )
+  private def labelsFor(name: String): Map[String, String] =
+    Map(
+      "k8s-app" -> s"fluentd-coralogix-$name"
     )
 
   def serviceAccount(name: String, resource: CoralogixLogger): ServiceAccount =
     ServiceAccount(
-      metadata = Some(
-        ObjectMeta(
-          name = Some("fluentd-coralogix-service-account"),
-          namespace = resource.metadata.flatMap(_.namespace),
-          labels = labelsFor(name)
-        )
+      metadata = ObjectMeta(
+        name = "fluentd-coralogix-service-account",
+        namespace = resource.metadata.flatMap(_.namespace),
+        labels = labelsFor(name)
       )
     )
 
   def clusterRole(name: String, resource: CoralogixLogger): ClusterRole =
     ClusterRole(
-      metadata = Some(
-        ObjectMeta(
-          name = Some("fluentd-coralogix-role"),
-          namespace = resource.metadata.flatMap(_.namespace),
-          labels = labelsFor(name)
-        )
+      metadata = ObjectMeta(
+        name = "fluentd-coralogix-role",
+        namespace = resource.metadata.flatMap(_.namespace),
+        labels = labelsFor(name)
       ),
-      rules = Some(
-        Vector(
-          PolicyRule(
-            apiGroups = Some(Vector("")),
-            resources = Some(
-              Vector(
-                "namespaces",
-                "pods"
-              )
-            ),
-            verbs = Vector(
-              "get",
-              "list",
-              "watch"
-            )
+      rules = Vector(
+        PolicyRule(
+          apiGroups = Vector(""),
+          resources = Vector(
+            "namespaces",
+            "pods"
+          ),
+          verbs = Vector(
+            "get",
+            "list",
+            "watch"
           )
         )
       )
@@ -100,126 +48,96 @@ object Model {
 
   def clusterRoleBinding(name: String, resource: CoralogixLogger): ClusterRoleBinding =
     ClusterRoleBinding(
-      metadata = Some(
-        ObjectMeta(
-          name = Some("fluentd-coralogix-role-binding"),
-          namespace = resource.metadata.flatMap(_.namespace),
-          labels = labelsFor(name)
-        )
+      metadata = ObjectMeta(
+        name = "fluentd-coralogix-role-binding",
+        namespace = resource.metadata.flatMap(_.namespace),
+        labels = labelsFor(name)
       ),
       roleRef = RoleRef(
         apiGroup = "rbac.authorization.k8s.io",
         kind = "ClusterRole",
         name = "fluentd-coralogix-role"
       ),
-      subjects = Some(
-        Vector(
-          Subject(
-            kind = "ServiceAccount",
-            name = "fluentd-coralogix-service-account",
-            namespace = resource.metadata.flatMap(_.namespace)
-          )
+      subjects = Vector(
+        Subject(
+          kind = "ServiceAccount",
+          name = "fluentd-coralogix-service-account",
+          namespace = resource.metadata.flatMap(_.namespace)
         )
       )
     )
 
   def daemonSet(name: String, resource: CoralogixLogger): DaemonSet =
     DaemonSet(
-      metadata = Some(
-        ObjectMeta(
-          name = Some(s"fluentd-coralogix-$name"),
-          namespace = resource.metadata.flatMap(_.namespace),
-          labels = labelsFor(name).map(_ + ("kubernetes.io/cluster-service" -> "true"))
-        )
+      metadata = ObjectMeta(
+        name = s"fluentd-coralogix-$name",
+        namespace = resource.metadata.flatMap(_.namespace),
+        labels = labelsFor(name) + ("kubernetes.io/cluster-service" -> "true")
       ),
-      spec = Some(
-        DaemonSetSpec(
-          selector = LabelSelector(
-            matchLabels = Some(
-              Map(
-                "k8s-app" -> s"fluentd-coralogix-$name"
-              )
-            )
+      spec = DaemonSetSpec(
+        selector = LabelSelector(
+          matchLabels = Map(
+            "k8s-app" -> s"fluentd-coralogix-$name"
+          )
+        ),
+        template = PodTemplateSpec(
+          metadata = ObjectMeta(
+            labels = labelsFor(name) + ("kubernetes.io/cluster-service" -> "true")
           ),
-          template = PodTemplateSpec(
-            metadata = Some(
-              ObjectMeta(
-                labels = labelsFor(name).map(_ + ("kubernetes.io/cluster-service" -> "true"))
+          spec = PodSpec(
+            containers = Vector(
+              Container(
+                name = "fluentd",
+                image = "registry.connect.redhat.com/coralogix/coralogix-fluentd:1.0.0",
+                imagePullPolicy = "Always",
+                securityContext = SecurityContext(
+                  runAsUser = 0L,
+                  privileged = true
+                ),
+                env = Vector(
+                  EnvVar(
+                    name = "CORALOGIX_PRIVATE_KEY",
+                    value = resource.spec.map(_.privateKey)
+                  ),
+                  EnvVar(
+                    name = "CLUSTER_NAME",
+                    value = resource.spec.map(_.clusterName)
+                  )
+                ),
+                resources = ResourceRequirements(
+                  requests = Map(
+                    "cpu"    -> Quantity("100m"),
+                    "memory" -> Quantity("400Mi")
+                  )
+                ),
+                volumeMounts = Vector(
+                  VolumeMount(
+                    name = "varlog",
+                    mountPath = "/var/log"
+                  ),
+                  VolumeMount(
+                    name = "varlibdockercontainers",
+                    mountPath = "/var/lib/docker/containers",
+                    readOnly = true
+                  )
+                )
               )
             ),
-            spec = Some(
-              PodSpec(
-                containers = Vector(
-                  Container(
-                    name = "fluentd",
-                    image = Some("registry.connect.redhat.com/coralogix/coralogix-fluentd:1.0.0"),
-                    imagePullPolicy = Some("Always"),
-                    securityContext = Some(
-                      SecurityContext(
-                        runAsUser = Some(0L),
-                        privileged = Some(true)
-                      )
-                    ),
-                    env = Some(
-                      Vector(
-                        EnvVar(
-                          name = "CORALOGIX_PRIVATE_KEY",
-                          value = resource.spec.map(_.privateKey)
-                        ),
-                        EnvVar(
-                          name = "CLUSTER_NAME",
-                          value = resource.spec.map(_.clusterName)
-                        )
-                      )
-                    ),
-                    resources = Some(
-                      ResourceRequirements(
-                        requests = Some(
-                          Map(
-                            "cpu"    -> Quantity("100m"),
-                            "memory" -> Quantity("400Mi")
-                          )
-                        )
-                      )
-                    ),
-                    volumeMounts = Some(
-                      Vector(
-                        VolumeMount(
-                          name = "varlog",
-                          mountPath = "/var/log"
-                        ),
-                        VolumeMount(
-                          name = "varlibdockercontainers",
-                          mountPath = "/var/lib/docker/containers",
-                          readOnly = Some(true)
-                        )
-                      )
-                    )
-                  )
-                ),
-                volumes = Some(
-                  Vector(
-                    Volume(
-                      name = "varlog",
-                      hostPath = Some(
-                        HostPathVolumeSource(
-                          path = "/var/log"
-                        )
-                      )
-                    ),
-                    Volume(
-                      name = "varlibdockercontainers",
-                      hostPath = Some(
-                        HostPathVolumeSource(
-                          path = "/var/lib/docker/containers"
-                        )
-                      )
-                    )
-                  )
-                ),
-                serviceAccountName = Some("fluentd-coralogix-service-account")
+            volumes = Vector(
+              Volume(
+                name = "varlog",
+                hostPath = HostPathVolumeSource(
+                  path = "/var/log"
+                )
+              ),
+              Volume(
+                name = "varlibdockercontainers",
+                hostPath = HostPathVolumeSource(
+                  path = "/var/lib/docker/containers"
+                )
               )
-            )
+            ),
+            serviceAccountName = "fluentd-coralogix-service-account"
           )
         )
       )

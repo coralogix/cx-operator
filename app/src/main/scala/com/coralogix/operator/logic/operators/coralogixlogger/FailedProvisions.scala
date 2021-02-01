@@ -11,7 +11,7 @@ class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {
     for {
       name <- of.getName.mapError(KubernetesFailure)
       resourceVersion = of.metadata.flatMap(_.resourceVersion)
-      _ <- failedProvisions.put(name, resourceVersion).commit
+      _ <- failedProvisions.put(name, resourceVersion.toOption).commit
     } yield ()
 
   def isRecordedFailure(
@@ -23,9 +23,11 @@ class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {
                    entry <- failedProvisions.get(name)
                    result = entry match {
                               case Some(failedResourceVersion) =>
-                                resource.metadata.flatMap(
-                                  _.resourceVersion
-                                ) == failedResourceVersion
+                                resource.metadata
+                                  .flatMap(
+                                    _.resourceVersion
+                                  )
+                                  .toOption == failedResourceVersion
                               case None =>
                                 false
                             }
