@@ -155,7 +155,8 @@ object ModelTransformations {
       creator = Some(Creator),
       ruleMatchers = toGrpcRuleMatchers(ruleGroup.matcher),
       ruleSubgroups = ruleGroup.andSequence.zipWithIndex
-        .map((toCreateRuleSubgroups _).tupled)
+        .map((toCreateRuleSubgroups _).tupled),
+      order = ruleGroup.order.toOption
     )
 
 }

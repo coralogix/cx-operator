@@ -37,6 +37,9 @@ spec:
                         type: boolean
                       hidden:
                         type: boolean
+                      order:
+                        type: integer
+                        format: int32
                       matcher:
                         type: object
                         properties:
