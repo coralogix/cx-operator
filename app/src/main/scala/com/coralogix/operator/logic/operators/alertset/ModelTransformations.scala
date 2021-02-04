@@ -35,6 +35,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertS
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Severity
 import com.coralogix.zio.k8s.client.model.{ primitives, Optional }
 import com.coralogix.zio.k8s.client.model.primitives.AlertId
+import com.coralogix.zio.k8s.operator.Operator.OperatorContext
 
 import java.time.LocalDate
 import scala.language.implicitConversions
@@ -42,12 +43,16 @@ import scala.language.implicitConversions
 object ModelTransformations {
   private implicit def toOption[T](opt: Optional[T]): Option[T] = opt.toOption
 
-  def toCreateAlert(alert: AlertSet.Spec.Alerts): Either[String, CreateAlertRequest] =
+  def toCreateAlert(
+    alert: AlertSet.Spec.Alerts,
+    ctx: OperatorContext,
+    setName: String
+  ): Either[String, CreateAlertRequest] =
     alert.activeWhen.map(a => toActiveWhen(a).map(Some.apply)).getOrElse(Right(None)).map {
       activeWhen =>
         CreateAlertRequest(
           name = Some(alert.name.value),
-          description = alert.description,
+          description = alert.description.orElse(defaultDescription(ctx, setName)),
           isActive = Some(alert.isActive),
           severity = toAlertSeverity(alert.severity),
           expiration = alert.expiration.map(toDate),
@@ -61,13 +66,18 @@ object ModelTransformations {
         )
     }
 
-  def toAlert(alert: AlertSet.Spec.Alerts, id: AlertId): Either[String, Alert] =
+  def toAlert(
+    alert: AlertSet.Spec.Alerts,
+    id: AlertId,
+    ctx: OperatorContext,
+    setName: String
+  ): Either[String, Alert] =
     alert.activeWhen.map(a => toActiveWhen(a).map(Some.apply)).getOrElse(Right(None)).map {
       activeWhen =>
         Alert(
           id = Some(id.value),
           name = Some(alert.name.value),
-          description = alert.description,
+          description = alert.description.orElse(defaultDescription(ctx, setName)),
           isActive = Some(alert.isActive),
           severity = toAlertSeverity(alert.severity),
           expiration = alert.expiration.map(toDate),
@@ -249,4 +259,9 @@ object ModelTransformations {
       case _                                            => Left(s"Invalid time value: ${time.value}; must be HH:MM:SS")
     }
   }
+
+  private def defaultDescription(ctx: OperatorContext, setName: String): Optional[String] =
+    Optional.Present(
+      s"Managed by Coralogix Operator (${ctx.namespace.map(ns => s"$ns namespace").getOrElse("cluster")}, $setName alert set)"
+    )
 }

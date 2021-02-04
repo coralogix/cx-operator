@@ -24,6 +24,7 @@ import com.coralogix.rules.grpc.external.v1.{
   SubsystemNameConstraint
 }
 import com.coralogix.zio.k8s.client.model.Optional
+import com.coralogix.zio.k8s.operator.Operator.OperatorContext
 
 import scala.language.implicitConversions
 
@@ -148,10 +149,15 @@ object ModelTransformations {
       order = Some(index)
     )
 
-  def toCreateRuleGroup(item: RuleGroupWithIndex, startOrder: Option[Int]): CreateRuleGroupRequest =
+  def toCreateRuleGroup(
+    item: RuleGroupWithIndex,
+    startOrder: Option[Int],
+    ctx: OperatorContext,
+    setName: String
+  ): CreateRuleGroupRequest =
     CreateRuleGroupRequest(
       name = Some(item.ruleGroup.name.value),
-      description = item.ruleGroup.description,
+      description = item.ruleGroup.description.orElse(defaultDescription(ctx, setName)),
       enabled = item.ruleGroup.enabled,
       hidden = item.ruleGroup.hidden,
       creator = Some(Creator),
@@ -161,4 +167,8 @@ object ModelTransformations {
       order = item.ruleGroup.order.orElse(startOrder.map(_ + item.index))
     )
 
+  private def defaultDescription(ctx: OperatorContext, setName: String): Optional[String] =
+    Optional.Present(
+      s"Managed by Coralogix Operator (${ctx.namespace.map(ns => s"$ns namespace").getOrElse("cluster")}, $setName rule group set)"
+    )
 }
