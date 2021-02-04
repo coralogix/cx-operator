@@ -37,7 +37,8 @@ object AlertSetOperator {
               .flatMap(_.lastUploadedGeneration)
               .contains(item.generation) // already synchronized
           ) for {
-            updates <- createNewAlerts(item.spec.alerts.toSet)
+            name    <- item.getName.mapError(KubernetesFailure.apply)
+            updates <- createNewAlerts(ctx, name, item.spec.alerts.toSet)
             _ <- applyStatusUpdates(
                    ctx,
                    item,
@@ -64,9 +65,10 @@ object AlertSetOperator {
               }
 
               for {
-                up0 <- modifyExistingAlerts(toUpdate)
-                up1 <- createNewAlerts(toAdd.map(byName.apply))
-                up2 <- deleteAlerts(toRemove)
+                name <- item.getName.mapError(KubernetesFailure.apply)
+                up0  <- modifyExistingAlerts(ctx, name, toUpdate)
+                up1  <- createNewAlerts(ctx, name, toAdd.map(byName.apply))
+                up2  <- deleteAlerts(toRemove)
                 _ <- applyStatusUpdates(
                        ctx,
                        item,
@@ -88,13 +90,16 @@ object AlertSetOperator {
       }
 
   private def createNewAlerts(
+    ctx: OperatorContext,
+    name: String,
     alerts: Set[AlertSet.Spec.Alerts]
   ): ZIO[Logging with AlertServiceClient, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(alerts.toVector) { alert =>
         (for {
-          _           <- log.info(s"Creating alert '${alert.name.value}'")
-          createAlert <- ZIO.fromEither(toCreateAlert(alert)).mapError(CustomResourceError.apply)
+          _ <- log.info(s"Creating alert '${alert.name.value}'")
+          createAlert <-
+            ZIO.fromEither(toCreateAlert(alert, ctx, name)).mapError(CustomResourceError.apply)
           response <- AlertServiceClient
                         .createAlert(createAlert)
                         .mapError(GrpcFailure.apply)
@@ -119,14 +124,17 @@ object AlertSetOperator {
       }
 
   private def modifyExistingAlerts(
+    ctx: OperatorContext,
+    name: String,
     mappings: Map[AlertName, (AlertId, AlertSet.Spec.Alerts)]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(mappings.toVector) {
         case (alertName, (id, data)) =>
           (for {
-            _     <- log.info(s"Modifying alert '${alertName.value}' (${id.value})")
-            alert <- ZIO.fromEither(toAlert(data, id)).mapError(CustomResourceError.apply)
+            _ <- log.info(s"Modifying alert '${alertName.value}' (${id.value})")
+            alert <-
+              ZIO.fromEither(toAlert(data, id, ctx, name)).mapError(CustomResourceError.apply)
             response <- AlertServiceClient
                           .updateAlert(
                             UpdateAlertRequest(

@@ -46,7 +46,10 @@ object RuleGroupSetOperator {
               .contains(item.generation) // already synchronized
           )
             for {
+              name <- item.getName.mapError(KubernetesFailure.apply)
               updates <- createNewRuleGroups(
+                           ctx,
+                           name,
                            item.spec.ruleGroupsSequence.zipWithIndex
                              .map { case (ruleGroup, idx) => RuleGroupWithIndex(ruleGroup, idx) },
                            item.spec.startOrder.toOption
@@ -81,8 +84,11 @@ object RuleGroupSetOperator {
                 }
 
               for {
-                up0 <- modifyExistingRuleGroups(toUpdate, item.spec.startOrder.toOption)
+                name <- item.getName.mapError(KubernetesFailure.apply)
+                up0  <- modifyExistingRuleGroups(ctx, name, toUpdate, item.spec.startOrder.toOption)
                 up1 <- createNewRuleGroups(
+                         ctx,
+                         name,
                          toAdd.map(byName.apply).toVector,
                          item.spec.startOrder.toOption
                        )
@@ -120,6 +126,8 @@ object RuleGroupSetOperator {
     }
 
   private def modifyExistingRuleGroups(
+    ctx: OperatorContext,
+    setName: String,
     mappings: Map[RuleGroupName, (RuleGroupId, RuleGroupWithIndex)],
     startOrder: Option[Int]
   ): ZIO[RuleGroupsServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
@@ -132,7 +140,7 @@ object RuleGroupSetOperator {
                           .updateRuleGroup(
                             UpdateRuleGroupRequest(
                               groupId = Some(id.value),
-                              ruleGroup = Some(toCreateRuleGroup(data, startOrder))
+                              ruleGroup = Some(toCreateRuleGroup(data, startOrder, ctx, setName))
                             )
                           )
                           .mapError(GrpcFailure.apply)
@@ -159,6 +167,8 @@ object RuleGroupSetOperator {
       }
 
   private def createNewRuleGroups(
+    ctx: OperatorContext,
+    setName: String,
     ruleGroups: Vector[RuleGroupWithIndex],
     startOrder: Option[Int]
   ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
@@ -169,7 +179,7 @@ object RuleGroupSetOperator {
         (for {
           _ <- log.info(s"Creating rule group '${item.ruleGroup.name.value}'")
           groupResponse <- RuleGroupsServiceClient
-                             .createRuleGroup(toCreateRuleGroup(item, startOrder))
+                             .createRuleGroup(toCreateRuleGroup(item, startOrder, ctx, setName))
                              .mapError(GrpcFailure.apply)
           _ <-
             log.trace(
