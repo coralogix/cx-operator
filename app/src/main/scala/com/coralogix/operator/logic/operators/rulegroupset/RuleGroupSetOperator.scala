@@ -1,7 +1,10 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
 import com.coralogix.operator.logic.aspects._
-import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.toCreateRuleGroup
+import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.{
+  toCreateRuleGroup,
+  RuleGroupWithIndex
+}
 import com.coralogix.operator.logic.operators.rulegroupset.StatusUpdate.runStatusUpdates
 import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, UndefinedGrpcField }
 import com.coralogix.operator.monitoring.OperatorMetrics
@@ -43,7 +46,11 @@ object RuleGroupSetOperator {
               .contains(item.generation) // already synchronized
           )
             for {
-              updates <- createNewRuleGroups(item.spec.ruleGroupsSequence.toSet)
+              updates <- createNewRuleGroups(
+                           item.spec.ruleGroupsSequence.zipWithIndex
+                             .map { case (ruleGroup, idx) => RuleGroupWithIndex(ruleGroup, idx) },
+                           item.spec.startOrder.toOption
+                         )
               _ <- applyStatusUpdates(
                      ctx,
                      item,
@@ -61,7 +68,9 @@ object RuleGroupSetOperator {
             if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
               val mappings = status.groupIds.getOrElse(Vector.empty)
               val byName =
-                item.spec.ruleGroupsSequence.map(ruleGroup => ruleGroup.name -> ruleGroup).toMap
+                item.spec.ruleGroupsSequence.zipWithIndex.map {
+                  case (ruleGroup, idx) => ruleGroup.name -> RuleGroupWithIndex(ruleGroup, idx)
+                }.toMap
               val alreadyAssigned = mappingToMap(mappings)
               val toAdd = byName.keySet.diff(alreadyAssigned.keySet)
               val toRemove = alreadyAssigned -- byName.keysIterator
@@ -72,8 +81,11 @@ object RuleGroupSetOperator {
                 }
 
               for {
-                up0 <- modifyExistingRuleGroups(toUpdate)
-                up1 <- createNewRuleGroups(toAdd.map(byName.apply))
+                up0 <- modifyExistingRuleGroups(toUpdate, item.spec.startOrder.toOption)
+                up1 <- createNewRuleGroups(
+                         toAdd.map(byName.apply).toVector,
+                         item.spec.startOrder.toOption
+                       )
                 up2 <- deleteRuleGroups(toRemove)
                 _ <- applyStatusUpdates(
                        ctx,
@@ -108,7 +120,8 @@ object RuleGroupSetOperator {
     }
 
   private def modifyExistingRuleGroups(
-    mappings: Map[RuleGroupName, (RuleGroupId, RuleGroupSet.Spec.RuleGroupsSequence)]
+    mappings: Map[RuleGroupName, (RuleGroupId, RuleGroupWithIndex)],
+    startOrder: Option[Int]
   ): ZIO[RuleGroupsServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(mappings.toVector) {
@@ -119,7 +132,7 @@ object RuleGroupSetOperator {
                           .updateRuleGroup(
                             UpdateRuleGroupRequest(
                               groupId = Some(id.value),
-                              ruleGroup = Some(toCreateRuleGroup(data))
+                              ruleGroup = Some(toCreateRuleGroup(data, startOrder))
                             )
                           )
                           .mapError(GrpcFailure.apply)
@@ -146,20 +159,21 @@ object RuleGroupSetOperator {
       }
 
   private def createNewRuleGroups(
-    ruleGroups: Set[RuleGroupSet.Spec.RuleGroupsSequence]
+    ruleGroups: Vector[RuleGroupWithIndex],
+    startOrder: Option[Int]
   ): ZIO[RuleGroupsServiceClient with Logging, OperatorFailure[CoralogixOperatorFailure], Vector[
     StatusUpdate
   ]] =
     ZIO
-      .foreachPar(ruleGroups.toVector) { ruleGroup =>
+      .foreachPar(ruleGroups) { item =>
         (for {
-          _ <- log.info(s"Creating rule group '${ruleGroup.name.value}'")
+          _ <- log.info(s"Creating rule group '${item.ruleGroup.name.value}'")
           groupResponse <- RuleGroupsServiceClient
-                             .createRuleGroup(toCreateRuleGroup(ruleGroup))
+                             .createRuleGroup(toCreateRuleGroup(item, startOrder))
                              .mapError(GrpcFailure.apply)
           _ <-
             log.trace(
-              s"Rules API response for creating rules group '${ruleGroup.name.value}': $groupResponse"
+              s"Rules API response for creating rules group '${item.ruleGroup.name.value}': $groupResponse"
             )
           groupId <- ZIO.fromEither(
                        groupResponse.ruleGroup
@@ -167,14 +181,14 @@ object RuleGroupSetOperator {
                          .map(RuleGroupId.apply)
                          .toRight(UndefinedGrpcField("CreateRuleGroupResponse.ruleGroup.id"))
                      )
-        } yield StatusUpdate.AddRuleGroupMapping(ruleGroup.name, groupId)).catchAll {
+        } yield StatusUpdate.AddRuleGroupMapping(item.ruleGroup.name, groupId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
             logFailure(
-              s"Failed to create rule group '${ruleGroup.name.value}'",
+              s"Failed to create rule group '${item.ruleGroup.name.value}'",
               Cause.fail(failure)
             ).as(
               StatusUpdate.RecordFailure(
-                ruleGroup.name,
+                item.ruleGroup.name,
                 CoralogixOperatorFailure.toFailureString(failure)
               )
             )

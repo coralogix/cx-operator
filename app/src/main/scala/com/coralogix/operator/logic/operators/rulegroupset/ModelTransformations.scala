@@ -33,6 +33,8 @@ object ModelTransformations {
 
   private val Creator = "coralogix-kubernetes-operator"
 
+  case class RuleGroupWithIndex(ruleGroup: RuleGroupSet.Spec.RuleGroupsSequence, index: Int)
+
   private def toSeverityConstraintValue(
     severity: RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
   ): SeverityConstraint.Value.Recognized =
@@ -146,16 +148,17 @@ object ModelTransformations {
       order = Some(index)
     )
 
-  def toCreateRuleGroup(ruleGroup: Spec.RuleGroupsSequence): CreateRuleGroupRequest =
+  def toCreateRuleGroup(item: RuleGroupWithIndex, startOrder: Option[Int]): CreateRuleGroupRequest =
     CreateRuleGroupRequest(
-      name = Some(ruleGroup.name.value),
-      description = ruleGroup.description,
-      enabled = ruleGroup.enabled,
-      hidden = ruleGroup.hidden,
+      name = Some(item.ruleGroup.name.value),
+      description = item.ruleGroup.description,
+      enabled = item.ruleGroup.enabled,
+      hidden = item.ruleGroup.hidden,
       creator = Some(Creator),
-      ruleMatchers = toGrpcRuleMatchers(ruleGroup.matcher),
-      ruleSubgroups = ruleGroup.andSequence.zipWithIndex
-        .map((toCreateRuleSubgroups _).tupled)
+      ruleMatchers = toGrpcRuleMatchers(item.ruleGroup.matcher),
+      ruleSubgroups = item.ruleGroup.andSequence.zipWithIndex
+        .map((toCreateRuleSubgroups _).tupled),
+      order = item.ruleGroup.order.orElse(startOrder.map(_ + item.index))
     )
 
 }

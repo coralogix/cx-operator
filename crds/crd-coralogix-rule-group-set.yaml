@@ -19,6 +19,10 @@ spec:
               required:
                 - rule-groups-sequence
               properties:
+                start-order:
+                  description: Rule groups without an explicit 'order' will get an order based on this value and their index within the list.
+                  type: integer
+                  format: int32
                 rule-groups-sequence:
                   type: array
                   items:
@@ -37,6 +41,9 @@ spec:
                         type: boolean
                       hidden:
                         type: boolean
+                      order:
+                        type: integer
+                        format: int32
                       matcher:
                         type: object
                         properties:
