@@ -169,6 +169,6 @@ object ModelTransformations {
 
   private def defaultDescription(ctx: OperatorContext, setName: String): Optional[String] =
     Optional.Present(
-      s"Managed by Coralogix Operator (${ctx.namespace.map(ns => s"$ns namespace").getOrElse("cluster")}, $setName rule group set"
+      s"Managed by Coralogix Operator (${ctx.namespace.map(ns => s"$ns namespace").getOrElse("cluster")}, $setName rule group set)"
     )
 }
