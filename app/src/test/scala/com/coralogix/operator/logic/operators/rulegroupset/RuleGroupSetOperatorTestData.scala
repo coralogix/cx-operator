@@ -86,6 +86,7 @@ trait RuleGroupSetOperatorTestData {
   val testSet1 = RuleGroupSet(
     metadata = Some(ObjectMeta(name = Some("set1"))),
     spec = RuleGroupSet.Spec(
+      startOrder = None,
       Vector(
         ruleGroup1
       )
@@ -160,6 +161,7 @@ trait RuleGroupSetOperatorTestData {
   val testSet2 = RuleGroupSet(
     metadata = Some(ObjectMeta(name = Some("set2"))),
     spec = RuleGroupSet.Spec(
+      startOrder = None,
       Vector(
         ruleGroup1,
         ruleGroup2
