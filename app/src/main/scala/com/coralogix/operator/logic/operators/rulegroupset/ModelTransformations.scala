@@ -1,7 +1,7 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
+import com.coralogix.rules.grpc.external.v1.ExtractTimestampParameters.FormatStandard
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
@@ -15,14 +15,18 @@ import com.coralogix.rules.grpc.external.v1.{
   ApplicationNameConstraint,
   BlockParameters,
   ExtractParameters,
+  ExtractTimestampParameters,
   JsonExtractParameters,
   ParseParameters,
+  RemoveFieldsParameters,
   ReplaceParameters,
   RuleMatcher,
   RuleParameters,
   SeverityConstraint,
   SubsystemNameConstraint
 }
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard.members
 import com.coralogix.zio.k8s.client.model.Optional
 import com.coralogix.zio.k8s.operator.Operator.OperatorContext
 
@@ -87,6 +91,17 @@ object ModelTransformations {
       case DestField.members.Severity   => DestinationField.SEVERITY
     }
 
+  private def toFormatStandard(standard: Standard): FormatStandard =
+    standard match {
+      case members.Strftime  => FormatStandard.STRFTIME
+      case members.Javasdf   => FormatStandard.JAVASDF
+      case members.Golang    => FormatStandard.GOLANG
+      case members.Secondsts => FormatStandard.SECONDSTS
+      case members.Millits   => FormatStandard.MILLITS
+      case members.Microts   => FormatStandard.MICROTS
+      case members.Nanots    => FormatStandard.NANOTS
+    }
+
   private def toParameters(rule: OrGroup): RuleParameters =
     RuleParameters(
       rule.extract.map(p =>
@@ -123,7 +138,23 @@ object ModelTransformations {
           RuleParameters.RuleParameters.BlockParameters(
             BlockParameters(keepBlockedLogs = Some(p.keepBlockedLogs), rule = Some(p.rule))
           )
-        ) getOrElse RuleParameters.RuleParameters.Empty
+        ) orElse
+        rule.extractTimestamp.map(p =>
+          RuleParameters.RuleParameters.ExtractTimestampParameters(
+            ExtractTimestampParameters(
+              standard = toFormatStandard(p.standard),
+              format = Some(p.format)
+            )
+          )
+        ) orElse
+        rule.removeFields.map(p =>
+          RuleParameters.RuleParameters.RemoveFieldsParameters(
+            RemoveFieldsParameters(
+              fields = p.fields
+            )
+          )
+        )
+        getOrElse RuleParameters.RuleParameters.Empty
     )
 
   private def toCreateRule(
