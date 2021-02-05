@@ -163,6 +163,37 @@ spec:
                                        rule:
                                          type: string
 
+                                   extract-timestamp:
+                                     type: object
+                                     required:
+                                       - standard
+                                       - format
+                                     properties:
+                                       standard:
+                                         type: string
+                                         enum:
+                                           - STRFTIME
+                                           - JAVASDF
+                                           - GOLANG
+                                           - SECONDSTS
+                                           - MILLITS
+                                           - MICROTS
+                                           - NANOTS
+                                       format:
+                                         type: string
+
+                                   remove-fields:
+                                     type: object
+                                     required:
+                                       - fields
+                                     properties:
+                                       fields:
+                                         type: array
+                                         items:
+                                           type: string
+
+
+
             status:
               type: object
               properties:
