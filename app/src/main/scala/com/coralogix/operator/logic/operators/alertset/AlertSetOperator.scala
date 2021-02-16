@@ -8,8 +8,9 @@ import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpd
 import com.coralogix.operator.logic._
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.NamespacedResourceStatus
-import com.coralogix.zio.k8s.client.com.coralogix.alertsets.{ v1 => alertsets }
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
@@ -22,7 +23,7 @@ import zio.{ Cause, Has, ZIO }
 
 object AlertSetOperator {
   private def eventProcessor(): EventProcessor[
-    Logging with alertsets.AlertSets with AlertServiceClient,
+    Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
     AlertSet
   ] =
@@ -209,9 +210,7 @@ object AlertSetOperator {
     ctx: OperatorContext,
     resource: AlertSet,
     updates: Vector[StatusUpdate]
-  ): ZIO[Logging with Has[
-    NamespacedResourceStatus[AlertSet.Status, AlertSet]
-  ], KubernetesFailure, Unit] = {
+  ): ZIO[Logging with AlertSets, KubernetesFailure, Unit] = {
     val initialStatus =
       resource.status.getOrElse(AlertSet.Status(alertIds = Vector.empty[AlertSet.Status.AlertIds]))
     val updatedStatus = runStatusUpdates(initialStatus, updates)
@@ -233,31 +232,43 @@ object AlertSetOperator {
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[alertsets.AlertSets, Nothing, Operator[
-    Clock with Logging with alertsets.AlertSets with AlertServiceClient,
+  ): ZIO[AlertSets, Nothing, Operator[
+    Clock with Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
     AlertSet
   ]] =
-    Operator.namespaced(
-      eventProcessor() @@ logEvents @@ metered(metrics)
-    )(Some(namespace), buffer)
+    ZIO.service[AlertSets.Service].flatMap { alertSets =>
+      Operator
+        .namespaced(
+          eventProcessor() @@ logEvents @@ metered(metrics)
+        )(Some(namespace), buffer)
+        .provide(alertSets.asGeneric)
+    }
 
   def forAllNamespaces(
     buffer: Int,
     metrics: OperatorMetrics
-  ): ZIO[alertsets.AlertSets, Nothing, Operator[
-    Clock with Logging with alertsets.AlertSets with AlertServiceClient,
+  ): ZIO[AlertSets, Nothing, Operator[
+    Clock with Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
     AlertSet
   ]] =
-    Operator.namespaced(
-      eventProcessor() @@ logEvents @@ metered(metrics)
-    )(None, buffer)
+    ZIO.service[AlertSets.Service].flatMap { alertSets =>
+      Operator
+        .namespaced(
+          eventProcessor() @@ logEvents @@ metered(metrics)
+        )(None, buffer)
+        .provide(alertSets.asGeneric)
+    }
 
-  def forTest(): ZIO[alertsets.AlertSets, Nothing, Operator[
-    Logging with alertsets.AlertSets with AlertServiceClient,
+  def forTest(): ZIO[AlertSets, Nothing, Operator[
+    Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
     AlertSet
   ]] =
-    Operator.namespaced(eventProcessor())(Some(K8sNamespace("default")), 256)
+    ZIO.service[AlertSets.Service].flatMap { alertSets =>
+      Operator
+        .namespaced(eventProcessor())(Some(K8sNamespace("default")), 256)
+        .provide(alertSets.asGeneric)
+    }
 }

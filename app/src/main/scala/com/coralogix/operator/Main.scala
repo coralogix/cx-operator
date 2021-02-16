@@ -3,13 +3,14 @@ package com.coralogix.operator
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.zio.k8s.client.io.k8s.apiextensions.customresourcedefinitions.{ v1 => crd }
-import com.coralogix.zio.k8s.client.serviceaccounts.{ v1 => serviceaccounts }
-import com.coralogix.zio.k8s.client.com.coralogix.alertsets.{ v1 => alertsets }
-import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.{ v1 => rulegroupsets }
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.{
-  v1 => coralogixloggers
-}
+import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
+import com.coralogix.zio.k8s.client.v1.serviceaccounts
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
@@ -18,29 +19,25 @@ import com.coralogix.zio.k8s.operator.{ Leader, Operator, Registration }
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
-import com.coralogix.zio.k8s.client.configmaps.{ v1 => configmaps }
-import com.coralogix.zio.k8s.client.pods.{ v1 => pods }
-import com.coralogix.zio.k8s.client.apps.daemonsets.{ v1 => daemonsets }
-import com.coralogix.zio.k8s.client.apps.daemonsets.v1.DaemonSets
-import com.coralogix.zio.k8s.client.com.coralogix.alertsets.v1.AlertSets
+import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
+import com.coralogix.zio.k8s.client.v1.pods.Pods
+import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.coralogixloggers.v1.CoralogixLoggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
-import com.coralogix.zio.k8s.client.com.coralogix.rulegroupsets.v1.RuleGroupSets
-import com.coralogix.zio.k8s.client.config.{ k8sCluster, k8sSttpClient }
-import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.{
-  v1 => clusterrolebindings
-}
-import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterrolebindings.v1.ClusterRoleBindings
-import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.{ v1 => clusterroles }
-import com.coralogix.zio.k8s.client.io.k8s.authorization.rbac.clusterroles.v1.ClusterRoles
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
+import com.coralogix.zio.k8s.client.config.k8sCluster
+import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
+import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
+import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
 import com.coralogix.zio.k8s.client.model.{ K8sNamespace, ResourceMetadata }
-import com.coralogix.zio.k8s.client.serviceaccounts.v1.ServiceAccounts
+import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.system.System
 import zio.{ console, App, ExitCode, Fiber, Has, URIO, ZIO, ZLayer }
@@ -60,17 +57,17 @@ object Main extends App {
 
     val clients =
       logging.live ++ (operatorEnvironment >>>
-        (crd.live ++
-          serviceaccounts.live ++
-          clusterroles.live ++
-          clusterrolebindings.live ++
-          daemonsets.live ++
-          configmaps.live ++
-          pods.live ++
+        (CustomResourceDefinitions.live ++
+          ServiceAccounts.live ++
+          ClusterRoles.live ++
+          ClusterRoleBindings.live ++
+          DaemonSets.live ++
+          ConfigMaps.live ++
+          Pods.live ++
 
-          rulegroupsets.live ++
-          coralogixloggers.live ++
-          alertsets.live))
+          RuleGroupSets.live ++
+          CoralogixLoggers.live ++
+          AlertSets.live))
 
     val grpcServer = (logging.live ++ config.narrow(_.grpc)) >>> grpc.live
 
@@ -92,16 +89,13 @@ object Main extends App {
             config  <- getConfig[OperatorConfig]
             metrics <- OperatorMetrics.make
 
-            _ <- Registration.registerIfMissing(
-                   implicitly[ResourceMetadata[RuleGroupSet]],
+            _ <- Registration.registerIfMissing[RuleGroupSet](
                    rulegroupsets.customResourceDefinition
                  ) <&>
-                   Registration.registerIfMissing(
-                     implicitly[ResourceMetadata[CoralogixLogger]],
+                   Registration.registerIfMissing[CoralogixLogger](
                      coralogixloggers.customResourceDefinition
                    ) <&>
-                   Registration.registerIfMissing(
-                     implicitly[ResourceMetadata[AlertSet]],
+                   Registration.registerIfMissing[AlertSet](
                      alertsets.customResourceDefinition
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
@@ -192,14 +186,23 @@ object Main extends App {
       Fiber.Runtime[Nothing, Unit]
     ]
   ] =
-    SpawnOperators[CoralogixLogger](
-      "coralogix logger operator",
-      metrics,
-      resources,
-      _.coralogixLoggers,
-      CoralogixLoggerOperator.forAllNamespaces,
-      CoralogixLoggerOperator.forNamespace
-    )
+    for {
+      serviceAccounts     <- ZIO.service[ServiceAccounts.Service]
+      clusterRoles        <- ZIO.service[ClusterRoles.Service]
+      clusterRoleBindings <- ZIO.service[ClusterRoleBindings.Service]
+      daemonSets          <- ZIO.service[DaemonSets.Service]
+      op <-
+        SpawnOperators[CoralogixLogger](
+          "coralogix logger operator",
+          metrics,
+          resources,
+          _.coralogixLoggers,
+          CoralogixLoggerOperator.forAllNamespaces,
+          CoralogixLoggerOperator.forNamespace
+        ).provideSome[Clock with Logging with CoralogixLoggers](
+          _ ++ serviceAccounts.asGeneric ++ clusterRoles.asGeneric ++ clusterRoleBindings.asGeneric ++ daemonSets.asGeneric
+        )
+    } yield op
 
   private def spawnAlertOperators(
     metrics: OperatorMetrics,

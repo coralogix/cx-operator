@@ -13,16 +13,21 @@ import com.coralogix.zio.k8s.client.{
   ResourceStatus
 }
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
+import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
   CreateRuleGroupRequest,
   UpdateRuleGroupRequest
 }
 import com.coralogix.rules.grpc.external.v1.RuleMatcher
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import zio._
 import zio.clock.Clock
 import zio.console.Console
 import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
+import com.coralogix.zio.k8s.operator.{ KubernetesFailure, OperatorError, OperatorFailure }
+import zio.duration._
 import zio.logging.{ LogLevel, Logging }
 import zio.stm.TMap
 import zio.stream.Stream
@@ -201,78 +206,77 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
   ): ZIO[Console with Clock, Nothing, TestResult] =
     TMap.make[String, RuleGroupSet.Status]().commit.flatMap { statusMap =>
       val logging = Logging.console(LogLevel.Debug)
-      val client = ZLayer.succeed(
-        new NamespacedResource(
-          new Resource[RuleGroupSet] {
-            override def watch(
-              namespace: Option[K8sNamespace],
-              resourceVersion: Option[String]
-            ): Stream[K8sFailure, TypedWatchEvent[RuleGroupSet]] =
-              Stream.fromIterable(events)
+      val client =
+        new Resource[RuleGroupSet] {
+          override def watch(
+            namespace: Option[K8sNamespace],
+            resourceVersion: Option[String]
+          ): Stream[K8sFailure, TypedWatchEvent[RuleGroupSet]] =
+            Stream.fromIterable(events)
 
-            override def getAll(
-              namespace: Option[K8sNamespace],
-              chunkSize: Int
-            ): Stream[K8sFailure, RuleGroupSet] = ???
+          override def getAll(
+            namespace: Option[K8sNamespace],
+            chunkSize: Int
+          ): Stream[K8sFailure, RuleGroupSet] = ???
 
-            override def get(
-              name: String,
-              namespace: Option[K8sNamespace]
-            ): IO[K8sFailure, RuleGroupSet] = ???
+          override def get(
+            name: String,
+            namespace: Option[K8sNamespace]
+          ): IO[K8sFailure, RuleGroupSet] = ???
 
-            override def create(
-              newResource: RuleGroupSet,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, RuleGroupSet] = ???
+          override def create(
+            newResource: RuleGroupSet,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, RuleGroupSet] = ???
 
-            override def replace(
-              name: String,
-              updatedResource: RuleGroupSet,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, RuleGroupSet] = ???
+          override def replace(
+            name: String,
+            updatedResource: RuleGroupSet,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, RuleGroupSet] = ???
 
-            override def delete(
-              name: String,
-              deleteOptions: DeleteOptions,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, Status] = ???
-          }
-        )
-      )
+          override def delete(
+            name: String,
+            deleteOptions: DeleteOptions,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, Status] = ???
+        }
 
-      val statusClient = ZLayer.succeed(
-        new NamespacedResourceStatus(
-          new ResourceStatus[RuleGroupSet.Status, RuleGroupSet] {
+      val statusClient =
+        new ResourceStatus[RuleGroupSet.Status, RuleGroupSet] {
 
-            override def getStatus(name: String, namespace: Option[K8sNamespace])
-              : IO[K8sFailure, RuleGroupSet] =
-              ???
+          override def getStatus(
+            name: String,
+            namespace: Option[K8sNamespace]
+          ): IO[K8sFailure, RuleGroupSet] =
+            ???
 
-            override def replaceStatus(
-              of: RuleGroupSet,
-              updatedStatus: RuleGroupSet.Status,
-              namespace: Option[K8sNamespace],
-              dryRun: Boolean
-            ): IO[K8sFailure, RuleGroupSet] =
-              for {
-                name <- of.getName
-                _    <- statusMap.put(name, updatedStatus).commit
-              } yield of.copy(status = Some(updatedStatus))
+          override def replaceStatus(
+            of: RuleGroupSet,
+            updatedStatus: RuleGroupSet.Status,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean
+          ): IO[K8sFailure, RuleGroupSet] =
+            for {
+              name <- of.getName
+              _    <- statusMap.put(name, updatedStatus).commit
+            } yield of.copy(status = Some(updatedStatus))
 
-          }
-        )
-      )
+        }
+
+      val ruleGroupSets =
+        ZLayer.succeed[RuleGroupSets.Service](new RuleGroupSets.Live(client, statusClient))
 
       val test = for {
-        op         <- RuleGroupSetOperator.forTest().provideLayer(logging ++ client ++ statusClient)
+        op         <- RuleGroupSetOperator.forTest().provideLayer(logging ++ ruleGroupSets)
         fiber      <- op.start()
         result     <- fiber.join.cause
         testResult <- f(result, statusMap)
       } yield testResult
 
-      test.provideSomeLayer[Console with Clock](logging ++ client ++ statusClient ++ grpc)
+      test.provideSomeLayer[Console with Clock](logging ++ ruleGroupSets ++ grpc)
     }
 }
