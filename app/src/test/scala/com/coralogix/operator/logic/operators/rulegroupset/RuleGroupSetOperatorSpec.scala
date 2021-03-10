@@ -3,13 +3,23 @@ package com.coralogix.operator.logic.operators.rulegroupset
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Status.GroupIds
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
-import com.coralogix.zio.k8s.client.model.{ Added, K8sNamespace, Modified, TypedWatchEvent }
+import com.coralogix.zio.k8s.client.model.{
+  Added,
+  FieldSelector,
+  K8sNamespace,
+  LabelSelector,
+  ListResourceVersion,
+  Modified,
+  PropagationPolicy,
+  TypedWatchEvent
+}
 import com.coralogix.zio.k8s.client.{
   K8sFailure,
   NamespacedResource,
   NamespacedResourceStatus,
   NotFound,
   Resource,
+  ResourceDeleteAll,
   ResourceStatus
 }
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
@@ -207,17 +217,41 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
     TMap.make[String, RuleGroupSet.Status]().commit.flatMap { statusMap =>
       val logging = Logging.console(LogLevel.Debug)
       val client =
-        new Resource[RuleGroupSet] {
+        new Resource[RuleGroupSet] with ResourceDeleteAll[RuleGroupSet] {
           override def watch(
             namespace: Option[K8sNamespace],
-            resourceVersion: Option[String]
+            resourceVersion: Option[String],
+            fieldSelector: Option[FieldSelector],
+            labelSelector: Option[LabelSelector]
           ): Stream[K8sFailure, TypedWatchEvent[RuleGroupSet]] =
             Stream.fromIterable(events)
 
           override def getAll(
             namespace: Option[K8sNamespace],
-            chunkSize: Int
+            chunkSize: Int,
+            fieldSelector: Option[FieldSelector],
+            labelSelector: Option[LabelSelector],
+            resourceVersion: ListResourceVersion
           ): Stream[K8sFailure, RuleGroupSet] = ???
+
+          override def delete(
+            name: String,
+            deleteOptions: DeleteOptions,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean,
+            gracePeriod: Option[Duration],
+            propagationPolicy: Option[PropagationPolicy]
+          ): IO[K8sFailure, Status] = ???
+
+          override def deleteAll(
+            deleteOptions: DeleteOptions,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean,
+            gracePeriod: Option[Duration],
+            propagationPolicy: Option[PropagationPolicy],
+            fieldSelector: Option[FieldSelector],
+            labelSelector: Option[LabelSelector]
+          ): IO[K8sFailure, Status] = ???
 
           override def get(
             name: String,
@@ -236,13 +270,6 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
             namespace: Option[K8sNamespace],
             dryRun: Boolean
           ): IO[K8sFailure, RuleGroupSet] = ???
-
-          override def delete(
-            name: String,
-            deleteOptions: DeleteOptions,
-            namespace: Option[K8sNamespace],
-            dryRun: Boolean
-          ): IO[K8sFailure, Status] = ???
         }
 
       val statusClient =
