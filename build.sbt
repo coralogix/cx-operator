@@ -21,9 +21,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.coralogix"                 %% "zio-k8s-client"           % "0.3.0",
-      "com.coralogix"                 %% "zio-k8s-operator"         % "0.3.0",
-      "com.coralogix"                 %% "zio-k8s-client-quicklens" % "0.3.0",
+      "com.coralogix"                 %% "zio-k8s-client"           % "0.6.2",
+      "com.coralogix"                 %% "zio-k8s-operator"         % "0.6.2",
+      "com.coralogix"                 %% "zio-k8s-client-quicklens" % "0.6.2",
       "com.softwaremill.quicklens"    %% "quicklens"                % "1.6.1",
       "nl.vroste"                     %% "rezilience"               % "0.5.1",
       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.1.1",
@@ -70,6 +70,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.slf4j",
       "--initialize-at-build-time=scala.Predef$",
+      "--initialize-at-build-time=scala.Symbol$",
       "--initialize-at-build-time=scala.collection",
       "--initialize-at-build-time=scala.reflect",
       "--initialize-at-build-time=scala.package$",

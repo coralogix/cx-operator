@@ -32,7 +32,7 @@ import zio.console.Console
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
-import com.coralogix.zio.k8s.client.config.k8sCluster
+import com.coralogix.zio.k8s.client.config.{ httpclient, k8sCluster }
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
@@ -50,10 +50,9 @@ object Main extends App {
       (config.narrow(
         _.prometheus
       ) ++ monitoring.live ++ logging.live) >>> monitoring.prometheusExport
-    val sttp = config.narrow(_.k8sClient) >>> k8sSttpClient
-    val cluster = (Blocking.any ++ config.narrow(_.cluster)) >>> k8sCluster
+    val k8s = httpclient.k8sDefault
     val operatorEnvironment =
-      System.any ++ cluster ++ sttp ++ monitoring.live ++ monitoringExport
+      System.any ++ k8s ++ monitoring.live ++ monitoringExport
 
     val clients =
       logging.live ++ (operatorEnvironment >>>

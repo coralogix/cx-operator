@@ -49,8 +49,6 @@ case class GrpcClientsConfig(rulegroups: GrpcClientConfig, alerts: GrpcClientCon
 case class GrpcConfig(port: Int, clients: GrpcClientsConfig)
 
 case class OperatorConfig(
-  cluster: K8sClusterConfig,
-  @name("k8s-client") k8sClient: K8sClientConfig,
   prometheus: PrometheusConfig,
   grpc: GrpcConfig,
   resources: OperatorResources
