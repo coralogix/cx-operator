@@ -70,6 +70,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.slf4j",
       "--initialize-at-build-time=scala.Predef$",
+      "--initialize-at-build-time=scala.Symbol$",
       "--initialize-at-build-time=scala.collection",
       "--initialize-at-build-time=scala.reflect",
       "--initialize-at-build-time=scala.package$",
