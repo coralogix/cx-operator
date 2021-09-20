@@ -1,11 +1,7 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
-  CreateRuleGroupResponse,
-  UpdateRuleGroupResponse
-}
-import com.coralogix.rules.grpc.external.v1.RuleMatcher.Constraint
-import com.coralogix.rules.grpc.external.v1._
+import com.coralogix.rules.v1.RuleMatcher.Constraint
+import com.coralogix.rules.v1._
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
@@ -177,8 +173,10 @@ trait RuleGroupSetOperatorTestData {
         name = Some("group2"),
         ruleMatchers = Seq(
           RuleMatcher(Constraint.ApplicationName(ApplicationNameConstraint(Some("app1")))),
-          RuleMatcher(Constraint.Severity(SeverityConstraint(SeverityConstraint.Value.CRITICAL))),
-          RuleMatcher(Constraint.Severity(SeverityConstraint(SeverityConstraint.Value.ERROR)))
+          RuleMatcher(
+            Constraint.Severity(SeverityConstraint(SeverityConstraint.Value.VALUE_CRITICAL))
+          ),
+          RuleMatcher(Constraint.Severity(SeverityConstraint(SeverityConstraint.Value.VALUE_ERROR)))
         ),
         ruleSubgroups = Seq(
           RuleSubgroup(
