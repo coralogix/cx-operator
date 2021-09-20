@@ -6,4 +6,4 @@ revision = "v0.9"
 
 [[dependencies]]
 target = "github.com/coralogix/alerts-api-protobuf/"
-branch = "feature/linting"
+revision = "v0.6"
