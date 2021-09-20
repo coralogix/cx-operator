@@ -1,7 +1,7 @@
 package com.coralogix.operator
 
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
 import com.coralogix.zio.k8s.client.v1.serviceaccounts

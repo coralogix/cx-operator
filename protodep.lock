@@ -9,7 +9,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
   target = "github.com/coralogix/alerts-api-protobuf/"
-  revision = "c30fd3142dd78dd1b188bcac3da4c2f08919d770"
-  branch = ""
+  revision = "4fb4a68827cac91f70bfa09ce79f6090ae505553"
+  branch = "feature/linting"
   path = ""
   protocol = ""
