@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -67,7 +68,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     externalCustomResourceDefinitions := Seq(
       file("crds/crd-coralogix-rule-group-set.yaml"),
       file("crds/crd-coralogix-loggers.yaml"),
-      file("crds/crd-coralogix-alert-set.yaml")
+      file("crds/crd-coralogix-alert-set.yaml"),
+      file("crds/crd-coralogix-users-set.yaml")
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
