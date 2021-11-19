@@ -109,7 +109,7 @@ object ModelTransformations {
       ) orElse
         rule.jsonExtract.map(p =>
           RuleParameters.RuleParameters.JsonExtractParameters(
-            JsonExtractParameters(toDestinationField(p.destField))
+            JsonExtractParameters(toDestinationField(p.destField), Some(p.rule))
           )
         ) orElse
         rule.replace.map(p =>

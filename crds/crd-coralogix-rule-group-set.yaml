@@ -108,6 +108,7 @@ spec:
                                      type: object
                                      required:
                                        - dest-field
+                                       - rule
                                      properties:
                                        dest-field:
                                          type: string
@@ -117,6 +118,8 @@ spec:
                                            - METHODNAME
                                            - THREADID
                                            - SEVERITY
+                                       rule:
+                                         type: string
                                    replace:
                                      type: object
                                      required:
