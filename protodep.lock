@@ -2,7 +2,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
   target = "github.com/coralogix/rules-api-protobuf/"
-  revision = "9c00ed3aed97e29d357bcddf01ecf7c33b52e393"
+  revision = "f2b159d3ca1fabc28c7c83d3781b5cf1faf6dc69"
   branch = "master"
   path = ""
   protocol = "https"
@@ -16,7 +16,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
   target = "github.com/coralogix/cx-api-user-settings/"
-  revision = "a213debb428dd220695f51d2e82bf73904f381f6"
+  revision = "a1e9c688ef64b20fec65078aeef138e13555785f"
   branch = "feature/user-settings-v2"
   path = ""
-  protocol = "https"
+  protocol = "ssh"

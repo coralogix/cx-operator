@@ -6,14 +6,24 @@ Global / protodepUseHttps := true
 ThisBuild / scalaVersion := ScalaVer
 
 val commonSettings = Seq(
-  organization := "com.coralogix",
-  version      := "0.1"
+  organization      := "com.coralogix",
+  version           := "0.1",
+  scalafmtOnCompile := true
 )
 
 lazy val root = Project("coralogix-kubernetes-operator", file("."))
   .aggregate(
     app
   )
+
+val sonatypeDomain = "sonatype-nexus.default.svc.cluster.local"
+val sonatypeBaseUrl = s"http://$sonatypeDomain:8080/"
+
+val sonatypeUser = sys.env.getOrElse("NEXUS_USER", "")
+val sonatypePass = sys.env.getOrElse("NEXUS_PASSWORD", "")
+
+lazy val privateNexus = ("Private Nexus" at sonatypeBaseUrl + "repository/maven-public/")
+  .withAllowInsecureProtocol(true)
 
 lazy val grpcDeps = Protodep
   .generateProject("grpc-deps")
@@ -56,9 +66,11 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
     ),
     PB.targets in Compile := Seq(
-      scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
-      scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
+      scalapb.gen(grpc = true)                    -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator           -> (Compile / sourceManaged).value,
+      com.coralogix.crdgen.compiler.CodeGenerator -> (Compile / sourceManaged).value
     ),
+//    resolvers += privateNexus,
     PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     fork          := true,
