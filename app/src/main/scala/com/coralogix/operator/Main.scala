@@ -3,21 +3,24 @@ package com.coralogix.operator
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
-import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
+import com.coralogix.operator.logic.operators.alertset.ApiKeySetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.users.v2beta1.ZioApiKeysService.ApiKeysServiceClient
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
 import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.apikeyset.v1.ApiKeySet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.apikeysets.ApiKeySets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, apikeysets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
@@ -97,7 +100,7 @@ object Main extends App {
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
             loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-            alertFibers     <- spawnAlertOperators(metrics, config.resources)
+            alertFibers     <- spawnApiKeysOperators(metrics, config.resources)
 //            userOperators     <- spawnUserOperators(metrics, config.resources) // TODO
             allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers // :: userOperators
             _ <- ZIO.never.raceAll(allFibers.map(_.await))
@@ -215,8 +218,26 @@ object Main extends App {
       metrics,
       resources,
       _.alerts,
-      AlertSetOperator.forAllNamespaces,
-      AlertSetOperator.forNamespace
+      ApiKeySetOperator.forAllNamespaces,
+      ApiKeySetOperator.forNamespace
+    )
+
+  // TODO should be all ApiKeys
+  private def spawnApiKeysOperators(
+    metrics: OperatorMetrics,
+    resources: OperatorResources
+  ): ZIO[
+    Clock with Logging with ApiKeySets with ApiKeysServiceClient,
+    Nothing,
+    List[Fiber.Runtime[Nothing, Unit]]
+  ] =
+    SpawnOperators[ApiKeySet](
+      "api keys operator",
+      metrics,
+      resources,
+      _.alerts,
+      ApiKeySetOperator.forAllNamespaces,
+      ApiKeySetOperator.forNamespace
     )
 
 }

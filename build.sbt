@@ -19,6 +19,7 @@ commands += Command.command("compile") { state =>
 
 lazy val root =
   Project("coralogix-kubernetes-operator", file("."))
+//    .dependsOn(grpcDeps) // TODO test this
     .aggregate(app)
 
 val sonatypeDomain = "sonatype-nexus.default.svc.cluster.local"
