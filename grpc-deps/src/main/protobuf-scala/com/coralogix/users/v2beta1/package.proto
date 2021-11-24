@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package com.coralogix.rules.v2beta1;
+package com.coralogix.users.v2beta1;
 
 import "scalapb/scalapb.proto";
 

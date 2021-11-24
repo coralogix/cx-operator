@@ -18,7 +18,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixl
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets, userssets }
+import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, apikeysets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.config.k8sCluster
@@ -93,7 +93,7 @@ object Main extends App {
                      alertsets.customResourceDefinition
                    ) <&>
                    Registration.registerIfMissing[AlertSet](
-                     userssets.customResourceDefinition
+                     apikeysets.customResourceDefinition
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
             loggerFibers    <- spawnLoggerOperators(metrics, config.resources)

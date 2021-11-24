@@ -6,7 +6,7 @@ A Kubernetes _operator_ managing the following custom resource types:
 - `rulegroupsets.coralogix.com`
 - `alertsets.coralogix.com`
 - `coralogixloggers.loggers.coralogix.com`
-- `usersset.coralogix.com` *<= WIP, TODO write the readme*
+- `apikeysets.coralogix.com` *<= WIP, TODO write the readme*
 
 #### Rule group sets
 The `RuleGroupSet` custom resource describes one or more Coralogix [_rule groups_](https://coralogix.com/tutorials/log-parsing-rules/).

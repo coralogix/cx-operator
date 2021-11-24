@@ -1,7 +1,6 @@
 val ScalaVer = "2.13.4"
 
 enablePlugins(Protodep)
-Global / protodepUseHttps := true
 
 ThisBuild / scalaVersion := ScalaVer
 
@@ -11,10 +10,16 @@ val commonSettings = Seq(
   scalafmtOnCompile := true
 )
 
-lazy val root = Project("coralogix-kubernetes-operator", file("."))
-  .aggregate(
-    app
-  )
+// TODO this is hack to have CRD yaml generated before the app which needs it for compilation is compiled
+commands += Command.command("compile") { state =>
+  "grpc-deps/compile" ::
+    "coralogix-kubernetes-operator/compile" ::
+    state
+}
+
+lazy val root =
+  Project("coralogix-kubernetes-operator", file("."))
+    .aggregate(app)
 
 val sonatypeDomain = "sonatype-nexus.default.svc.cluster.local"
 val sonatypeBaseUrl = s"http://$sonatypeDomain:8080/"
@@ -28,7 +33,9 @@ lazy val privateNexus = ("Private Nexus" at sonatypeBaseUrl + "repository/maven-
 lazy val grpcDeps = Protodep
   .generateProject("grpc-deps")
   .settings(
-    Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
+    Compile / PB.targets += com.coralogix.crdgen.compiler.CodeGenerator -> (Compile / sourceManaged).value,
+    Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala"),
+    libraryDependencies += "com.coralogix" %% "zio-k8s-client" % "0.3.0"
   )
 
 lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
@@ -53,7 +60,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.6",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
-      "io.grpc"                             % "grpc-netty"                              % "1.31.1",
+      "io.grpc"                             % "grpc-netty"                              % scalapb.compiler.Version.grpcJavaVersion,
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0" % "protobuf",
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0",
       "io.github.scalapb-json"             %% "scalapb-circe"                           % "0.7.1",
@@ -66,9 +73,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
     ),
     PB.targets in Compile := Seq(
-      scalapb.gen(grpc = true)                    -> (Compile / sourceManaged).value,
-      scalapb.zio_grpc.ZioCodeGenerator           -> (Compile / sourceManaged).value,
-      com.coralogix.crdgen.compiler.CodeGenerator -> (Compile / sourceManaged).value
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value
     ),
 //    resolvers += privateNexus,
     PB.deleteTargetDirectory := false,
@@ -81,7 +87,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       file("crds/crd-coralogix-rule-group-set.yaml"),
       file("crds/crd-coralogix-loggers.yaml"),
       file("crds/crd-coralogix-alert-set.yaml"),
-      file("crds/crd-coralogix-users-set.yaml")
+      file(
+        "grpc-deps/target/scala-2.13/src_managed/main/com/coralogix/users/v2beta1/ApiKeyCRDSchema.yaml"
+      )
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
