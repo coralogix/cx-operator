@@ -1,7 +1,6 @@
 package com.coralogix.operator.logic.operators.apikeys
 
 import com.coralogix.users.v2beta1.ApiKeyType
-import com.coralogix.users.v2beta1.GetApiKeyRequest.Id.{ CompanyId, UserId }
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.apikeyset.v1.ApiKeySet
 import com.coralogix.zio.k8s.quicklens._
 import com.softwaremill.quicklens._
@@ -10,9 +9,9 @@ sealed trait StatusUpdate
 object StatusUpdate {
   // Some kind of version would be added to api keys, so we would be able to tell if we want to generate new or not
   //   this would be only for purpose of cx-operator and stored only in its state not db at least for starters.
-  final case class CreateUserApiKey(tpe: ApiKeyType, id: UserId, tokenValue: Option[String])
+  final case class CreateUserApiKey(tpe: ApiKeyType, id: String, tokenValue: Option[String])
       extends StatusUpdate
-  final case class CreateCompanyApiKey(tpe: ApiKeyType, id: CompanyId, tokenValue: Option[String])
+  final case class CreateCompanyApiKey(tpe: ApiKeyType, id: String, tokenValue: Option[String])
       extends StatusUpdate
   // TODO api is not there yet but would be
   final case class DeleteUserApiKey(tpe: ApiKeyType) extends StatusUpdate

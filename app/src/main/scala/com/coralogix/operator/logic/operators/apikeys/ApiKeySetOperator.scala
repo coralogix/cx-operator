@@ -2,11 +2,9 @@ package com.coralogix.operator.logic.operators.apikeys
 
 import com.coralogix.operator.logic._
 import com.coralogix.operator.logic.aspects.metered
-import com.coralogix.operator.logic.operators.apikeys.StatusUpdate.runStatusUpdates
 import com.coralogix.operator.monitoring.OperatorMetrics
-import com.coralogix.users.v2beta1.GetApiKeyRequest.Id.UserId
-import com.coralogix.users.v2beta1.{ ApiKeyType, CreateApiKeyRequest }
 import com.coralogix.users.v2beta1.ZioApiKeysService.ApiKeysServiceClient
+import com.coralogix.users.v2beta1.{ ApiKeyType, CreateApiKeyRequest }
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.apikeyset.v1.ApiKeySet
 import com.coralogix.zio.k8s.client.com.coralogix.v1.apikeysets.ApiKeySets
 import com.coralogix.zio.k8s.client.model._
@@ -75,7 +73,7 @@ object ApiKeySetOperator {
             .debug(
               "There was try to delete api_key, skipping it over as we have no support for api key deletion"
             )
-            .unit // TODO - we do not have support for deletion, do we even want/need it here?
+            .unit // TODO
       }
 
   private def upsertApiKeys(
@@ -115,7 +113,7 @@ object ApiKeySetOperator {
                   .flatMap(_.serverGenerated.map(_.tokenValue))
                   .toRight(UndefinedGrpcField("CreateApiKeyResponse.server_generated.token_value"))
               )
-          } yield StatusUpdate.CreateUserApiKey(apiKeyType, UserId("TODO"), tokenValue)
+          } yield StatusUpdate.CreateUserApiKey(apiKeyType, "TODO - userid ?", tokenValue)
         }
           .catchAll { (failure: CoralogixOperatorFailure) =>
             logFailure(
