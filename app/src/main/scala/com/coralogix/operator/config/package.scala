@@ -36,15 +36,21 @@ case class RulegroupConfig(namespace: K8sNamespace, buffer: Option[Int]) extends
 case class CoralogixLoggerConfig(namespace: K8sNamespace, buffer: Option[Int])
     extends BaseOperatorConfig
 case class AlertConfig(namespace: K8sNamespace, buffer: Option[Int]) extends BaseOperatorConfig
+case class ApiKeysConfig(namespace: K8sNamespace, buffer: Option[Int]) extends BaseOperatorConfig
 
 case class OperatorResources(
   defaultBuffer: Int,
   rulegroups: List[RulegroupConfig],
   coralogixLoggers: List[CoralogixLoggerConfig],
-  alerts: List[AlertConfig]
+  alerts: List[AlertConfig],
+  apiKeys: List[ApiKeysConfig]
 )
 
-case class GrpcClientsConfig(rulegroups: GrpcClientConfig, alerts: GrpcClientConfig)
+case class GrpcClientsConfig(
+  rulegroups: GrpcClientConfig,
+  alerts: GrpcClientConfig,
+  apikeys: GrpcClientConfig
+)
 
 case class GrpcConfig(port: Int, clients: GrpcClientsConfig)
 

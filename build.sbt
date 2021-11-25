@@ -52,6 +52,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "nl.vroste"                     %% "rezilience"               % "0.5.1",
       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.1.1",
       "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.1.1",
+      "io.github.kitlangton"          %% "zio-magic"                % "0.3.10",
       // Config
       "dev.zio" %% "zio-config"          % "1.0.0",
       "dev.zio" %% "zio-config-magnolia" % "1.0.0",

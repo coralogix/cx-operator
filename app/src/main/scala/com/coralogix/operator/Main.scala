@@ -3,7 +3,8 @@ package com.coralogix.operator
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
-import com.coralogix.operator.logic.operators.alertset.ApiKeySetOperator
+import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
+import com.coralogix.operator.logic.operators.apikeys.ApiKeySetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
@@ -36,8 +37,9 @@ import zio.config._
 import zio.config.syntax._
 import zio.console.Console
 import zio.logging.{ log, LogAnnotation, Logging }
+import zio.magic._
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
+import zio.{ console, App, ExitCode, Fiber, URIO, ZIO, ZLayer }
 
 object Main extends App {
 
@@ -64,7 +66,8 @@ object Main extends App {
 
           RuleGroupSets.live ++
           CoralogixLoggers.live ++
-          AlertSets.live))
+          AlertSets.live ++
+          ApiKeySets.live))
 
     val grpcServer = (logging.live ++ config.narrow(_.grpc)) >>> grpc.live
 
@@ -73,10 +76,17 @@ object Main extends App {
         _.grpc.clients.rulegroups
       ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.rulegroups.live
 
-    val alertsClient =
+    val alertsClient
+      : ZLayer[System with Clock with Console with Any, Throwable, AlertServiceClient] =
       (config.narrow(
         _.grpc.clients.alerts
       ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.alerts.live
+
+    val apiKeysClient
+      : ZLayer[System with Clock with Console with Any, Throwable, ApiKeysServiceClient] =
+      (config.narrow(
+        _.grpc.clients.apikeys
+      ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.apikeys.live
 
     val service =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
@@ -100,24 +110,29 @@ object Main extends App {
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
             loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-            alertFibers     <- spawnApiKeysOperators(metrics, config.resources)
-//            userOperators     <- spawnUserOperators(metrics, config.resources) // TODO
-            allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers // :: userOperators
+            alertFibers     <- spawnAlertOperators(metrics, config.resources)
+            apikeyOperators <- spawnApiKeysOperators(metrics, config.resources)
+            allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers ::: apikeyOperators
             _ <- ZIO.never.raceAll(allFibers.map(_.await))
           } yield ()
         }
       }
 
     service
-      .provideSomeLayer[Blocking with System with Clock with Console](
-        config ++ monitoring.live ++ clients ++ grpcServer ++ ruleGroupsClient ++ alertsClient
+      .injectSome[Blocking with System with Clock with Console](
+        config,
+        monitoring.live,
+        clients ++ grpcServer,
+        ruleGroupsClient,
+        alertsClient,
+        apiKeysClient
       )
       .tapCause { cause =>
         console.putStrLnErr(s"Critical failure\n${cause.squash}")
       }
       .exitCode
       .ensuring {
-        console.putStrLnErr("Shutting down")
+        console.putStrLnErr("Shutting down").orDie
       }
       .untraced
   }
@@ -163,9 +178,8 @@ object Main extends App {
   private def spawnRuleGroupOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[
+  ): URIO[
     Clock with Logging with RuleGroupSets with RuleGroupsServiceClient,
-    Nothing,
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
     SpawnOperators[RuleGroupSet](
@@ -180,9 +194,8 @@ object Main extends App {
   private def spawnLoggerOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[
+  ): URIO[
     Clock with Logging with CoralogixLoggers with ServiceAccounts with ClusterRoles with ClusterRoleBindings with DaemonSets,
-    Nothing,
     List[
       Fiber.Runtime[Nothing, Unit]
     ]
@@ -208,9 +221,8 @@ object Main extends App {
   private def spawnAlertOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[
+  ): URIO[
     Clock with Logging with AlertSets with AlertServiceClient,
-    Nothing,
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
     SpawnOperators[AlertSet](
@@ -218,24 +230,22 @@ object Main extends App {
       metrics,
       resources,
       _.alerts,
-      ApiKeySetOperator.forAllNamespaces,
-      ApiKeySetOperator.forNamespace
+      AlertSetOperator.forAllNamespaces,
+      AlertSetOperator.forNamespace
     )
 
-  // TODO should be all ApiKeys
   private def spawnApiKeysOperators(
     metrics: OperatorMetrics,
     resources: OperatorResources
-  ): ZIO[
+  ): URIO[
     Clock with Logging with ApiKeySets with ApiKeysServiceClient,
-    Nothing,
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
     SpawnOperators[ApiKeySet](
       "api keys operator",
       metrics,
       resources,
-      _.alerts,
+      _.apiKeys,
       ApiKeySetOperator.forAllNamespaces,
       ApiKeySetOperator.forNamespace
     )

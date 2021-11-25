@@ -4,6 +4,7 @@ import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ GrpcClientConfig, GrpcConfig }
 import com.coralogix.operator.monitoring.ClientMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.users.v2beta1.ZioApiKeysService.ApiKeysServiceClient
 import io.grpc.{
   CallOptions,
   ManagedChannelBuilder,
@@ -224,6 +225,13 @@ package object grpc {
         ClientMetrics
       ] with Clock, Throwable, AlertServiceClient] =
         grpcClientLayer("com.coralogix.alerts.v1.AlertService", AlertServiceClient.managed)
+    }
+
+    object apikeys {
+      val live: ZLayer[Has[GrpcClientConfig] with Has[
+        ClientMetrics
+      ] with Clock, Throwable, ApiKeysServiceClient] =
+        grpcClientLayer("com.coralogix.users.v2beta1.ApiKeysService", ApiKeysServiceClient.managed)
     }
   }
 }

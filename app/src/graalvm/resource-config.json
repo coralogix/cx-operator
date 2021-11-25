@@ -131,7 +131,7 @@
     {"pattern":"\\Qcrds/crd-coralogix-rule-group-set.yaml\\E"},
     {"pattern":"\\Qcrds/crd-coralogix-loggers.yaml\\E"},
     {"pattern":"\\Qcrds/crd-coralogix-alert-set.yaml\\E"},
-    {"pattern":"\\Qcrds/crd-coralogix-users-set.yaml\\E"}
+    {"pattern":"\\Qgrpc-deps/target/scala-2.13/src_managed/main/com/coralogix/users/v2beta1/ApiKeyCRDSchema.yaml\\E"}
   ]},
   "bundles":[]
 }
