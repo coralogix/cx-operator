@@ -15,7 +15,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
     target = "github.com/coralogix/cx-api-user-settings/"
-    revision = "2a95d9a3b160755edaf5972796fef91aa83ae59a"
+    revision = "639cfb9dec674e13a850f8a158d83c9795546e4a"
     branch = "feature/user-settings-v2"
 #     revision = "v0.1"
 #     branch = "master"
