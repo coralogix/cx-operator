@@ -10,13 +10,21 @@ val commonSettings = Seq(
   version      := "0.1"
 )
 
-lazy val root = Project("coralogix-kubernetes-operator", file("."))
-  .aggregate(
-    app
-  )
+// TODO this is hack to have CRD yaml generated before the app which needs it for compilation is compiled
+commands += Command.command("compile") { state =>
+  "grpc-deps/compile" ::
+    "coralogix-kubernetes-operator/compile" ::
+    state
+}
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val root = Project("coralogix-kubernetes-operator", file("."))
+//  .dependsOn(grpcDeps) // TODO make something like this work
+  .aggregate(app)
+
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
+    Compile / PB.targets += com.coralogix.crdgen.compiler.CodeGenerator -> (Compile / sourceManaged).value,
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
 
@@ -67,7 +75,10 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     externalCustomResourceDefinitions := Seq(
       file("crds/crd-coralogix-rule-group-set.yaml"),
       file("crds/crd-coralogix-loggers.yaml"),
-      file("crds/crd-coralogix-alert-set.yaml")
+      file("crds/crd-coralogix-alert-set.yaml"),
+      file(
+        "grpc-deps/target/scala-2.13/src_managed/main/com/coralogix/rules/v2/RuleGroupCRDSchema.yaml"
+      )
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
