@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -38,8 +39,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "dev.zio" %% "zio-config-magnolia" % "1.0.0",
       "dev.zio" %% "zio-config-typesafe" % "1.0.0",
       // Logging
-      "dev.zio" %% "zio-logging"              % "0.5.6",
-      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.6",
+      "dev.zio" %% "zio-logging"              % "0.5.14",
+      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.14",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
       "io.grpc"                             % "grpc-netty"                              % "1.31.1",
