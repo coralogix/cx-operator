@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -29,7 +30,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "com.coralogix"                 %% "zio-k8s-client"           % "0.3.0",
       "com.coralogix"                 %% "zio-k8s-operator"         % "0.3.0",
       "com.coralogix"                 %% "zio-k8s-client-quicklens" % "0.3.0",
-      "com.softwaremill.quicklens"    %% "quicklens"                % "1.6.1",
+      "com.softwaremill.quicklens"    %% "quicklens"                % "1.8.2",
       "nl.vroste"                     %% "rezilience"               % "0.5.1",
       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.1.1",
       "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.1.1",
