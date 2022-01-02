@@ -7,4 +7,4 @@ addSbtPlugin("org.scalameta"    % "sbt-native-image"    % "0.2.2")
 addSbtPlugin("com.coralogix"    % "sbt-protodep"        % "0.0.11")
 addSbtPlugin("com.coralogix"    % "zio-k8s-crd"         % "0.3.0")
 
-libraryDependencies += "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-codegen" % "0.4.2"
+libraryDependencies += "com.thesamet.scalapb.zio-grpc" %% "zio-grpc-codegen" % "0.4.4"
