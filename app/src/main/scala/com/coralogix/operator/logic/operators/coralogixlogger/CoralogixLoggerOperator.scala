@@ -87,9 +87,8 @@ object CoralogixLoggerOperator {
           }
         }
       }
-    }.catchSome {
-      case OperatorError(ProvisioningFailed) =>
-        log.info(s"Provision failed")
+    }.catchSome { case OperatorError(ProvisioningFailed) =>
+      log.info(s"Provision failed")
     }
 
   private def skipIfAlredyRunning[R <: Logging](resource: CoralogixLogger)(

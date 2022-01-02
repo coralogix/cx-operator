@@ -61,18 +61,17 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
               hasField[CreateRuleGroupRequest, Option[Int]]("order", _.order, isSome(equalTo(1))),
             Expectation.value(testSet1Group1Response)
           )
-        ) {
-          case (result, statusMap) =>
-            assertM(statusMap.get("set1").commit)(
-              isSome(
-                equalTo(
-                  RuleGroupSet.Status(
-                    Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
-                    lastUploadedGeneration = Some(0L)
-                  )
+        ) { case (result, statusMap) =>
+          assertM(statusMap.get("set1").commit)(
+            isSome(
+              equalTo(
+                RuleGroupSet.Status(
+                  Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
+                  lastUploadedGeneration = Some(0L)
                 )
               )
             )
+          )
         }
       },
       testM("modifying a set with with unchanged generation does not do anything") {
@@ -81,9 +80,8 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
             Modified[RuleGroupSet](testSet1)
           ),
           RuleGroupsServiceClientMock.failing
-        ) {
-          case (result, statusMap) =>
-            assertM(statusMap.isEmpty.commit)(isTrue)
+        ) { case (result, statusMap) =>
+          assertM(statusMap.isEmpty.commit)(isTrue)
         }
       },
       testM("modifying a set with a single already assigned rule group") {
@@ -122,18 +120,17 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
               ),
             Expectation.value(testSet1Group1UpdateResponse)
           )
-        ) {
-          case (result, statusMap) =>
-            assertM(statusMap.get("set1").commit)(
-              isSome(
-                equalTo(
-                  RuleGroupSet.Status(
-                    Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
-                    lastUploadedGeneration = Some(1L)
-                  )
+        ) { case (result, statusMap) =>
+          assertM(statusMap.get("set1").commit)(
+            isSome(
+              equalTo(
+                RuleGroupSet.Status(
+                  Some(Vector(GroupIds(RuleGroupName("group1"), RuleGroupId("group1-id")))),
+                  lastUploadedGeneration = Some(1L)
                 )
               )
             )
+          )
         }
       },
       testM("adding a group to a set with an already assigned one") {
@@ -181,26 +178,25 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
                 hasField("ruleSubgroups", _.ruleSubgroups, isNonEmpty),
               Expectation.value(testSet2CreateGroup2Response)
             )
-        ) {
-          case (result, statusMap) =>
-            assertM(statusMap.get("set2").commit)(
-              isSome(
-                equalTo(
-                  RuleGroupSet.Status(
-                    Some(
-                      Vector(
-                        GroupIds(
-                          RuleGroupName("group1"),
-                          RuleGroupId("group1-id")
-                        ), // kept from input
-                        GroupIds(RuleGroupName("group2"), RuleGroupId("group2-id"))
-                      )
-                    ), // added newly created
-                    lastUploadedGeneration = Some(1L)
-                  )
+        ) { case (result, statusMap) =>
+          assertM(statusMap.get("set2").commit)(
+            isSome(
+              equalTo(
+                RuleGroupSet.Status(
+                  Some(
+                    Vector(
+                      GroupIds(
+                        RuleGroupName("group1"),
+                        RuleGroupId("group1-id")
+                      ), // kept from input
+                      GroupIds(RuleGroupName("group2"), RuleGroupId("group2-id"))
+                    )
+                  ), // added newly created
+                  lastUploadedGeneration = Some(1L)
                 )
               )
             )
+          )
         }
       }
     )

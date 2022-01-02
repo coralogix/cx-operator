@@ -48,12 +48,11 @@ object RuleGroupSetOperator {
                            ctx,
                            name,
                            item.spec.ruleGroupsSequence.zipWithIndex
-                             .map {
-                               case (ruleGroup, idx) =>
-                                 RuleGroupWithIndex(
-                                   ruleGroup,
-                                   idx + 1
-                                 ) // the rules-api uses 1-based indexing
+                             .map { case (ruleGroup, idx) =>
+                               RuleGroupWithIndex(
+                                 ruleGroup,
+                                 idx + 1
+                               ) // the rules-api uses 1-based indexing
                              },
                            item.spec.startOrder.toOption
                          )
@@ -74,20 +73,18 @@ object RuleGroupSetOperator {
             if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
               val mappings = status.groupIds.getOrElse(Vector.empty)
               val byName =
-                item.spec.ruleGroupsSequence.zipWithIndex.map {
-                  case (ruleGroup, idx) =>
-                    ruleGroup.name -> RuleGroupWithIndex(
-                      ruleGroup,
-                      idx + 1
-                    ) // rules-api uses 1-based indexing
+                item.spec.ruleGroupsSequence.zipWithIndex.map { case (ruleGroup, idx) =>
+                  ruleGroup.name -> RuleGroupWithIndex(
+                    ruleGroup,
+                    idx + 1
+                  ) // rules-api uses 1-based indexing
                 }.toMap
               val alreadyAssigned = mappingToMap(mappings)
               val toAdd = byName.keySet.diff(alreadyAssigned.keySet)
               val toRemove = alreadyAssigned -- byName.keysIterator
               val toUpdate = alreadyAssigned
-                .flatMap {
-                  case (name, status) =>
-                    byName.get(name).map(data => name -> (status, data))
+                .flatMap { case (name, status) =>
+                  byName.get(name).map(data => name -> (status, data))
                 }
 
               for {
@@ -139,38 +136,37 @@ object RuleGroupSetOperator {
     startOrder: Option[Int]
   ): ZIO[RuleGroupsServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
-      .foreachPar(mappings.toVector) {
-        case (ruleGroupName, (id, data)) =>
-          (for {
-            _ <- log.info(s"Modifying rule group '${ruleGroupName.value}' (${id.value})")
-            response <- RuleGroupsServiceClient
-                          .updateRuleGroup(
-                            UpdateRuleGroupRequest(
-                              groupId = Some(id.value),
-                              ruleGroup = Some(toCreateRuleGroup(data, startOrder, ctx, setName))
-                            )
+      .foreachPar(mappings.toVector) { case (ruleGroupName, (id, data)) =>
+        (for {
+          _ <- log.info(s"Modifying rule group '${ruleGroupName.value}' (${id.value})")
+          response <- RuleGroupsServiceClient
+                        .updateRuleGroup(
+                          UpdateRuleGroupRequest(
+                            groupId = Some(id.value),
+                            ruleGroup = Some(toCreateRuleGroup(data, startOrder, ctx, setName))
                           )
-                          .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Rules API response for modifying rule group '${ruleGroupName.value}' (${id.value}): $response"
-              )
-            groupId <- ZIO.fromEither(
-                         response.ruleGroup
-                           .flatMap(_.id)
-                           .map(RuleGroupId.apply)
-                           .toRight(UndefinedGrpcField("CreateRuleGroupResponse.ruleGroup.id"))
-                       )
-          } yield StatusUpdate.AddRuleGroupMapping(ruleGroupName, groupId)).catchAll {
-            (failure: CoralogixOperatorFailure) =>
-              logFailure(
-                s"Failed to modify rule group '${ruleGroupName.value}'",
-                Cause.fail(failure)
-              ).as(
-                StatusUpdate
-                  .RecordFailure(ruleGroupName, CoralogixOperatorFailure.toFailureString(failure))
-              )
-          }
+                        )
+                        .mapError(GrpcFailure.apply)
+          _ <-
+            log.trace(
+              s"Rules API response for modifying rule group '${ruleGroupName.value}' (${id.value}): $response"
+            )
+          groupId <- ZIO.fromEither(
+                       response.ruleGroup
+                         .flatMap(_.id)
+                         .map(RuleGroupId.apply)
+                         .toRight(UndefinedGrpcField("CreateRuleGroupResponse.ruleGroup.id"))
+                     )
+        } yield StatusUpdate.AddRuleGroupMapping(ruleGroupName, groupId)).catchAll {
+          (failure: CoralogixOperatorFailure) =>
+            logFailure(
+              s"Failed to modify rule group '${ruleGroupName.value}'",
+              Cause.fail(failure)
+            ).as(
+              StatusUpdate
+                .RecordFailure(ruleGroupName, CoralogixOperatorFailure.toFailureString(failure))
+            )
+        }
       }
 
   private def createNewRuleGroups(
@@ -218,23 +214,22 @@ object RuleGroupSetOperator {
     StatusUpdate
   ]] =
     ZIO
-      .foreachPar(mappings.toVector) {
-        case (name, id) =>
-          (for {
-            _ <- log.info(s"Deleting rule group '${name.value}' (${id.value})'")
-            response <- RuleGroupsServiceClient
-                          .deleteRuleGroup(DeleteRuleGroupRequest(id.value))
-                          .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Rules API response for deleting rule group '${name.value}' (${id.value}): $response"
-              )
-          } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
-            (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to delete rule group '${name.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
-              )
-          }
+      .foreachPar(mappings.toVector) { case (name, id) =>
+        (for {
+          _ <- log.info(s"Deleting rule group '${name.value}' (${id.value})'")
+          response <- RuleGroupsServiceClient
+                        .deleteRuleGroup(DeleteRuleGroupRequest(id.value))
+                        .mapError(GrpcFailure.apply)
+          _ <-
+            log.trace(
+              s"Rules API response for deleting rule group '${name.value}' (${id.value}): $response"
+            )
+        } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
+          (failure: CoralogixOperatorFailure) =>
+            logFailure(s"Failed to delete rule group '${name.value}'", Cause.fail(failure)).as(
+              StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
+            )
+        }
       }
 
   private def applyStatusUpdates(

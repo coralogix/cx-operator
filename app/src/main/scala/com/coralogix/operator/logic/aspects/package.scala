@@ -6,8 +6,7 @@ import zio.clock.Clock
 
 package object aspects {
 
-  /**
-    * Measures execution time and occurrence per event type
+  /** Measures execution time and occurrence per event type
     *
     * @param operatorMetrics Pre-created shared Prometheus metric objects
     */
@@ -26,15 +25,14 @@ package object aspects {
           )
 
           operatorMetrics.eventCounter.inc(labels).ignore *>
-            f(ctx, event).timed.flatMap {
-              case (duration, result) =>
-                operatorMetrics.eventProcessingTime
-                  .observe(
-                    duration.toMillis.toDouble / 1000.0,
-                    labels
-                  )
-                  .ignore
-                  .as(result)
+            f(ctx, event).timed.flatMap { case (duration, result) =>
+              operatorMetrics.eventProcessingTime
+                .observe(
+                  duration.toMillis.toDouble / 1000.0,
+                  labels
+                )
+                .ignore
+                .as(result)
             }
         }
     }

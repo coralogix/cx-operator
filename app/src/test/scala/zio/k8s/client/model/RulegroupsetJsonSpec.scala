@@ -15,8 +15,7 @@ import zio.test.TestAspect.{ samples, sized }
 import zio.test._
 import zio.test.magnolia._
 
-/**
-  * Serialization tests for the generated RuleGroup model class,
+/** Serialization tests for the generated RuleGroup model class,
   * to ensure that the https://github.com/circe/circe/issues/561
   * does not apply for it.
   */

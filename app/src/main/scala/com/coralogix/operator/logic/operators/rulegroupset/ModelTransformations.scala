@@ -176,8 +176,8 @@ object ModelTransformations {
   ): CreateRuleSubgroup =
     CreateRuleSubgroup(
       rules = subGroup.orGroup.zipWithIndex
-        .map {
-          case (rule, idx) => toCreateRule(rule, idx + 1) // rules-api uses 1-based indexing
+        .map { case (rule, idx) =>
+          toCreateRule(rule, idx + 1) // rules-api uses 1-based indexing
         },
       enabled = None,
       order = Some(index)
@@ -197,9 +197,8 @@ object ModelTransformations {
       creator = Some(Creator),
       ruleMatchers = toGrpcRuleMatchers(item.ruleGroup.matcher),
       ruleSubgroups = item.ruleGroup.andSequence.zipWithIndex
-        .map {
-          case (subGroup, idx) =>
-            toCreateRuleSubgroups(subGroup, idx + 1) // rules-api uses 1-based indexing
+        .map { case (subGroup, idx) =>
+          toCreateRuleSubgroups(subGroup, idx + 1) // rules-api uses 1-based indexing
         },
       order = Some(
         item.ruleGroup.order

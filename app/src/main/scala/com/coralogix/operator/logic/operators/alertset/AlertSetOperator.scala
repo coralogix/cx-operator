@@ -60,9 +60,8 @@ object AlertSetOperator {
               val alreadyAssigned = mappingToMap(mappings)
               val toAdd = byName.keySet.diff(alreadyAssigned.keySet)
               val toRemove = alreadyAssigned -- byName.keysIterator
-              val toUpdate = alreadyAssigned.flatMap {
-                case (name, status) =>
-                  byName.get(name).map(data => name -> (status, data))
+              val toUpdate = alreadyAssigned.flatMap { case (name, status) =>
+                byName.get(name).map(data => name -> (status, data))
               }
 
               for {
@@ -130,61 +129,59 @@ object AlertSetOperator {
     mappings: Map[AlertName, (AlertId, AlertSet.Spec.Alerts)]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
-      .foreachPar(mappings.toVector) {
-        case (alertName, (id, data)) =>
-          (for {
-            _ <- log.info(s"Modifying alert '${alertName.value}' (${id.value})")
-            alert <-
-              ZIO.fromEither(toAlert(data, id, ctx, name)).mapError(CustomResourceError.apply)
-            response <- AlertServiceClient
-                          .updateAlert(
-                            UpdateAlertRequest(
-                              alert = Some(alert)
-                            )
+      .foreachPar(mappings.toVector) { case (alertName, (id, data)) =>
+        (for {
+          _ <- log.info(s"Modifying alert '${alertName.value}' (${id.value})")
+          alert <-
+            ZIO.fromEither(toAlert(data, id, ctx, name)).mapError(CustomResourceError.apply)
+          response <- AlertServiceClient
+                        .updateAlert(
+                          UpdateAlertRequest(
+                            alert = Some(alert)
                           )
-                          .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Alerts API response for modifying alert '${alertName.value}' (${id.value}): $response"
+                        )
+                        .mapError(GrpcFailure.apply)
+          _ <-
+            log.trace(
+              s"Alerts API response for modifying alert '${alertName.value}' (${id.value}): $response"
+            )
+          alertId <- ZIO.fromEither(
+                       response.alert
+                         .flatMap(_.id)
+                         .map(AlertId.apply)
+                         .toRight(UndefinedGrpcField("UpdateAlertResponse.alert.id"))
+                     )
+        } yield StatusUpdate.AddRuleGroupMapping(alertName, alertId)).catchAll {
+          (failure: CoralogixOperatorFailure) =>
+            logFailure(s"Failed to modify alert '${alertName.value}'", Cause.fail(failure)).as(
+              StatusUpdate.RecordFailure(
+                alertName,
+                CoralogixOperatorFailure.toFailureString(failure)
               )
-            alertId <- ZIO.fromEither(
-                         response.alert
-                           .flatMap(_.id)
-                           .map(AlertId.apply)
-                           .toRight(UndefinedGrpcField("UpdateAlertResponse.alert.id"))
-                       )
-          } yield StatusUpdate.AddRuleGroupMapping(alertName, alertId)).catchAll {
-            (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to modify alert '${alertName.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(
-                  alertName,
-                  CoralogixOperatorFailure.toFailureString(failure)
-                )
-              )
-          }
+            )
+        }
       }
 
   private def deleteAlerts(
     mappings: Map[AlertName, AlertId]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
-      .foreachPar(mappings.toVector) {
-        case (name, id) =>
-          (for {
-            _ <- log.info(s"Deleting alert '${name.value}' (${id.value})'")
-            response <- AlertServiceClient
-                          .deleteAlert(DeleteAlertRequest(Some(id.value)))
-                          .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Alerts API response for deleting alert '${name.value}' (${id.value}): $response"
-              )
-          } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
-            (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to delete alert '${name.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
-              )
-          }
+      .foreachPar(mappings.toVector) { case (name, id) =>
+        (for {
+          _ <- log.info(s"Deleting alert '${name.value}' (${id.value})'")
+          response <- AlertServiceClient
+                        .deleteAlert(DeleteAlertRequest(Some(id.value)))
+                        .mapError(GrpcFailure.apply)
+          _ <-
+            log.trace(
+              s"Alerts API response for deleting alert '${name.value}' (${id.value}): $response"
+            )
+        } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
+          (failure: CoralogixOperatorFailure) =>
+            logFailure(s"Failed to delete alert '${name.value}'", Cause.fail(failure)).as(
+              StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
+            )
+        }
       }
 
   private def withExpectedStatus[R <: Logging, E](

@@ -103,9 +103,8 @@ package object grpc {
                 .sendMessage(message)
                 .either
                 .timed
-                .tap {
-                  case (duration, result) =>
-                    sendMetrics(duration, result.left.getOrElse(Status.OK))
+                .tap { case (duration, result) =>
+                  sendMetrics(duration, result.left.getOrElse(Status.OK))
                 }
                 .map(_._2)
                 .absolve
@@ -136,9 +135,8 @@ package object grpc {
       else
         Seq(
           ZClientInterceptor.headersUpdater((_, _, metadata) =>
-            ZIO.foreach_(customHeaders) {
-              case (name, value) =>
-                metadata.put(name, value)
+            ZIO.foreach_(customHeaders) { case (name, value) =>
+              metadata.put(name, value)
             }
           )
         )
@@ -184,32 +182,30 @@ package object grpc {
         Any,
         Throwable,
         Client
-      ] {
-        case (config, clientMetrics, clock) =>
-          for {
-            bulkhead <- Bulkhead.make(config.parallelism, config.queueSize)
-            _ <- bulkheadMonitoring(serviceName, bulkhead, clientMetrics)
-                   .provide(Has(clock))
-                   .forkManaged
-            headers = config.headers.map {
-                        case (name, value) =>
-                          Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER) -> value
-                      }
-            client <- create(
-                        ZManagedChannel(
-                          setupTLS(
-                            config.tls,
-                            ManagedChannelBuilder
-                              .forAddress(config.name, config.port)
-                          ),
-                          bulkheadInterceptor(bulkhead) +:
-                            monitoringInterceptor(clock, clientMetrics) +:
-                            customHeadersInterceptor(headers)
+      ] { case (config, clientMetrics, clock) =>
+        for {
+          bulkhead <- Bulkhead.make(config.parallelism, config.queueSize)
+          _ <- bulkheadMonitoring(serviceName, bulkhead, clientMetrics)
+                 .provide(Has(clock))
+                 .forkManaged
+          headers = config.headers.map { case (name, value) =>
+                      Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER) -> value
+                    }
+          client <- create(
+                      ZManagedChannel(
+                        setupTLS(
+                          config.tls,
+                          ManagedChannelBuilder
+                            .forAddress(config.name, config.port)
                         ),
-                        callOptions(config),
-                        authorizationHeaders(config.token)
-                      )
-          } yield client
+                        bulkheadInterceptor(bulkhead) +:
+                          monitoringInterceptor(clock, clientMetrics) +:
+                          customHeadersInterceptor(headers)
+                      ),
+                      callOptions(config),
+                      authorizationHeaders(config.token)
+                    )
+        } yield client
       }
 
     object rulegroups {

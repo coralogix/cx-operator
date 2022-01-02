@@ -20,18 +20,18 @@ class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {
     for {
       name <- resource.getName.mapError(KubernetesFailure)
       found <- (for {
-                   entry <- failedProvisions.get(name)
-                   result = entry match {
-                              case Some(failedResourceVersion) =>
-                                resource.metadata
-                                  .flatMap(
-                                    _.resourceVersion
-                                  )
-                                  .toOption == failedResourceVersion
-                              case None =>
-                                false
-                            }
-                 } yield result).commit
+                 entry <- failedProvisions.get(name)
+                 result = entry match {
+                            case Some(failedResourceVersion) =>
+                              resource.metadata
+                                .flatMap(
+                                  _.resourceVersion
+                                )
+                                .toOption == failedResourceVersion
+                            case None =>
+                              false
+                          }
+               } yield result).commit
     } yield found
 }
 
