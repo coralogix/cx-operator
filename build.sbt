@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -49,9 +50,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       // Metrics
       "dev.zio" %% "zio-metrics-prometheus" % "1.0.1",
       // Tests
-      "dev.zio" %% "zio-test"          % "1.0.4-2" % Test,
-      "dev.zio" %% "zio-test-sbt"      % "1.0.4-2" % Test,
-      "dev.zio" %% "zio-test-magnolia" % "1.0.4-2" % Test
+      "dev.zio" %% "zio-test"          % "1.0.13" % Test,
+      "dev.zio" %% "zio-test-sbt"      % "1.0.13" % Test,
+      "dev.zio" %% "zio-test-magnolia" % "1.0.13" % Test
       //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
     ),
     PB.targets in Compile := Seq(
