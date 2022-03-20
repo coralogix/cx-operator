@@ -1,4 +1,4 @@
-val ScalaVer = "2.13.4"
+val ScalaVer = "2.13.8"
 
 enablePlugins(Protodep)
 Global / protodepUseHttps := true
@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
