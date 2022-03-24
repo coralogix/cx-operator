@@ -53,12 +53,7 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
                 _.ruleMatchers,
                 isNonEmpty
               ) &&
-              hasField[CreateRuleGroupRequest, Seq[_]](
-                "ruleSubgroups",
-                _.ruleSubgroups,
-                isNonEmpty
-              ) &&
-              hasField[CreateRuleGroupRequest, Option[Int]]("order", _.order, isSome(equalTo(1))),
+              hasField("ruleSubgroups", _.ruleSubgroups, isNonEmpty),
             Expectation.value(testSet1Group1Response)
           )
         ) {
@@ -114,11 +109,6 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
                 "ruleMatchers",
                 _.ruleGroup,
                 isSome
-              ) &&
-              hasField[UpdateRuleGroupRequest, Option[Int]](
-                "order",
-                _.ruleGroup.flatMap(_.order),
-                isSome(equalTo(1))
               ),
             Expectation.value(testSet1Group1UpdateResponse)
           )

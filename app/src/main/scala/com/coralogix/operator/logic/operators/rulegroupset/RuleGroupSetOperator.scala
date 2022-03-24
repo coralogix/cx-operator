@@ -48,13 +48,7 @@ object RuleGroupSetOperator {
                            ctx,
                            name,
                            item.spec.ruleGroupsSequence.zipWithIndex
-                             .map {
-                               case (ruleGroup, idx) =>
-                                 RuleGroupWithIndex(
-                                   ruleGroup,
-                                   idx + 1
-                                 ) // the rules-api uses 1-based indexing
-                             },
+                             .map { case (ruleGroup, idx) => RuleGroupWithIndex(ruleGroup, idx) },
                            item.spec.startOrder.toOption
                          )
               _ <- applyStatusUpdates(
@@ -75,11 +69,7 @@ object RuleGroupSetOperator {
               val mappings = status.groupIds.getOrElse(Vector.empty)
               val byName =
                 item.spec.ruleGroupsSequence.zipWithIndex.map {
-                  case (ruleGroup, idx) =>
-                    ruleGroup.name -> RuleGroupWithIndex(
-                      ruleGroup,
-                      idx + 1
-                    ) // rules-api uses 1-based indexing
+                  case (ruleGroup, idx) => ruleGroup.name -> RuleGroupWithIndex(ruleGroup, idx)
                 }.toMap
               val alreadyAssigned = mappingToMap(mappings)
               val toAdd = byName.keySet.diff(alreadyAssigned.keySet)

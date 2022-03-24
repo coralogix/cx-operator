@@ -175,10 +175,7 @@ object ModelTransformations {
     index: Int
   ): CreateRuleSubgroup =
     CreateRuleSubgroup(
-      rules = subGroup.orGroup.zipWithIndex
-        .map {
-          case (rule, idx) => toCreateRule(rule, idx + 1) // rules-api uses 1-based indexing
-        },
+      rules = subGroup.orGroup.zipWithIndex.map((toCreateRule _).tupled),
       enabled = None,
       order = Some(index)
     )
@@ -197,15 +194,8 @@ object ModelTransformations {
       creator = Some(Creator),
       ruleMatchers = toGrpcRuleMatchers(item.ruleGroup.matcher),
       ruleSubgroups = item.ruleGroup.andSequence.zipWithIndex
-        .map {
-          case (subGroup, idx) =>
-            toCreateRuleSubgroups(subGroup, idx + 1) // rules-api uses 1-based indexing
-        },
-      order = Some(
-        item.ruleGroup.order
-          .orElse(startOrder.map(_ + item.index))
-          .getOrElse(item.index)
-      )
+        .map((toCreateRuleSubgroups _).tupled),
+      order = item.ruleGroup.order.orElse(startOrder.map(_ + item.index))
     )
 
   private def defaultDescription(ctx: OperatorContext, setName: String): Optional[String] =
