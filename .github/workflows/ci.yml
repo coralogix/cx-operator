@@ -26,13 +26,14 @@ jobs:
       - uses: webfactory/ssh-agent@v0.4.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ref: 03a175e3a5a6a12bca00dacd9a25bcd36b40bf2b
 
-      - name: Docker meta
-        id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
-        with:
-          images: coralogixrepo/cx-operator
-          tag-sha: true
+      #- name: Docker meta
+      #  id: docker_meta
+      #  uses: crazy-max/ghaction-docker-meta@v1
+      #  with:
+      #    images: coralogixrepo/cx-operator
+      #    tag-sha: true
 
       - name: Setup Scala
         uses: olafurpg/setup-scala@v10
@@ -57,7 +58,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: ${{ github.ref == 'refs/heads/master' }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
+          #tags: ${{ steps.docker_meta.outputs.tags }}
+          tags: 0.3.8
           labels: ${{ steps.docker_meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
