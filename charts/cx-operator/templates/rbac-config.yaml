@@ -67,7 +67,7 @@ rules:
       - ""
     resources:
       - configmaps
-    verbs: [ "get", "list", "create", "update", "delete" ]
+    verbs: [ "get", "list", "create", "update" ]
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
