@@ -56,7 +56,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.ref == 'refs/heads/master' }}
+          push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
       - name: Image digest
