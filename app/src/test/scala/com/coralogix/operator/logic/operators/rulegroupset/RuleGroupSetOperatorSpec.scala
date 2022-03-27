@@ -14,9 +14,12 @@ import com.coralogix.zio.k8s.client.{
 }
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
 import com.coralogix.operator.logic.CoralogixOperatorFailure
-import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
-import com.coralogix.rules.v1.{ CreateRuleGroupRequest, UpdateRuleGroupRequest }
-import com.coralogix.rules.v1.RuleMatcher
+import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
+  CreateRuleGroupRequest,
+  UpdateRuleGroupRequest
+}
+import com.coralogix.rules.grpc.external.v1.RuleMatcher
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import zio._
