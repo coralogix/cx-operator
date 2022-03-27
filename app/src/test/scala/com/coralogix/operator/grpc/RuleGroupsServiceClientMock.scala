@@ -1,6 +1,6 @@
 package com.coralogix.operator.grpc
 
-import com.coralogix.rules.v1.{
+import com.coralogix.rules.grpc.external.v1.RuleGroupsService.{
   CreateRuleGroupRequest,
   CreateRuleGroupResponse,
   DeleteRuleGroupRequest,
@@ -10,7 +10,7 @@ import com.coralogix.rules.v1.{
   UpdateRuleGroupRequest,
   UpdateRuleGroupResponse
 }
-import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
 import io.grpc.{ CallOptions, Status }
 import scalapb.zio_grpc.SafeMetadata
 import zio.test.mock
