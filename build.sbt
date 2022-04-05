@@ -15,6 +15,11 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
+lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+  .settings(
+    Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
+  )
+
 lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)
   .settings(
@@ -87,7 +92,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "-H:ResourceConfigurationFiles=../../src/graalvm/resource-config.json"
     )
   )
-  .dependsOn(LocalProject("grpc-deps"))
+  .dependsOn(grpcDeps)
   .enablePlugins(
     UniversalPlugin,
     JavaAppPackaging,

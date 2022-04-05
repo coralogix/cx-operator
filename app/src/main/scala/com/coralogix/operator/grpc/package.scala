@@ -1,9 +1,9 @@
 package com.coralogix.operator
 
-import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ GrpcClientConfig, GrpcConfig }
 import com.coralogix.operator.monitoring.ClientMetrics
-import com.coralogix.rules.grpc.external.v1.RuleGroupsService.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
 import io.grpc.{
   CallOptions,
   ManagedChannelBuilder,

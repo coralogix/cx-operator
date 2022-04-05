@@ -1,7 +1,7 @@
 package com.coralogix.operator.logic.operators.alertset
 
-import com.coralogix.alerts.grpc.external.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.alerts.grpc.external.v1.{ DeleteAlertRequest, UpdateAlertRequest }
+import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.{ DeleteAlertRequest, UpdateAlertRequest }
 import com.coralogix.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.alertset.ModelTransformations._
 import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpdates
