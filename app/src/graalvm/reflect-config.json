@@ -16,9 +16,6 @@
   "name":"com.coralogix.operator.logging.package$"
 },
 {
-  "name":"com.coralogix.operator.logic.Operator"
-},
-{
   "name":"com.coralogix.operator.logic.OperatorFailure$"
 },
 {
