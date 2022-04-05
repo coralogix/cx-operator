@@ -41,7 +41,7 @@ object OperatorMetrics {
     namespace: Option[K8sNamespace]
   ): Array[String] = {
     val eventType = event match {
-      case Reseted =>
+      case Reseted() =>
         "reseted"
       case Added(_) =>
         "added"

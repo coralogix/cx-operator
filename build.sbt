@@ -15,7 +15,8 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
     app
   )
 
-lazy val grpcDeps = Protodep.generateProject("grpc-deps")
+lazy val grpcDeps = Protodep
+  .generateProject("grpc-deps")
   .settings(
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -26,20 +27,21 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers += Resolver.jcenterRepo,
     libraryDependencies ++= Seq(
-      "com.coralogix"                 %% "zio-k8s-client"           % "0.3.0",
-      "com.coralogix"                 %% "zio-k8s-operator"         % "0.3.0",
-      "com.coralogix"                 %% "zio-k8s-client-quicklens" % "0.3.0",
+      "com.coralogix"                 %% "zio-k8s-client"           % "1.4.3",
+      "com.coralogix"                 %% "zio-k8s-operator"         % "1.4.3",
+      "com.coralogix"                 %% "zio-k8s-client-quicklens" % "1.4.3",
       "com.softwaremill.quicklens"    %% "quicklens"                % "1.6.1",
       "nl.vroste"                     %% "rezilience"               % "0.5.1",
       "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.1.1",
       "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.1.1",
+      "io.github.kitlangton"          %% "zio-magic"                % "0.3.11",
       // Config
-      "dev.zio" %% "zio-config"          % "1.0.0",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.0",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.0",
+      "dev.zio" %% "zio-config"          % "1.0.10",
+      "dev.zio" %% "zio-config-magnolia" % "1.0.10",
+      "dev.zio" %% "zio-config-typesafe" % "1.0.10",
       // Logging
-      "dev.zio" %% "zio-logging"              % "0.5.6",
-      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.6",
+      "dev.zio" %% "zio-logging"              % "0.5.14",
+      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.14",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
       "io.grpc"                             % "grpc-netty"                              % "1.45.0",
@@ -79,9 +81,22 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "--initialize-at-build-time=scala.reflect",
       "--initialize-at-build-time=scala.package$",
       "--initialize-at-build-time=scala.math",
+      "--initialize-at-run-time=io.netty.util.AbstractReferenceCounted",
+      "--initialize-at-run-time=io.netty.channel.epoll.Epoll",
+      "--initialize-at-run-time=io.netty.channel.epoll.Native",
+      "--initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop",
+      "--initialize-at-run-time=io.netty.channel.epoll.EpollEventArray",
+      "--initialize-at-run-time=io.netty.channel.DefaultFileRegion",
+      "--initialize-at-run-time=io.netty.channel.kqueue.KQueueEventArray",
+      "--initialize-at-run-time=io.netty.channel.kqueue.KQueueEventLoop",
+      "--initialize-at-run-time=io.netty.channel.kqueue.Native",
+      "--initialize-at-run-time=io.netty.channel.unix.Errors",
+      "--initialize-at-run-time=io.netty.channel.unix.IovArray",
+      "--initialize-at-run-time=io.netty.channel.unix.Limits",
+      "--initialize-at-run-time=io.netty.util.internal.logging.Log4JLogger",
       "--enable-https",
       "--no-fallback",
-//      "--allow-incomplete-classpath",
+      "--allow-incomplete-classpath",
       "--report-unsupported-elements-at-runtime",
       "--install-exit-handlers",
       "-H:+ReportExceptionStackTraces",

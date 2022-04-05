@@ -1,76 +1,48 @@
 package com.coralogix.operator
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
-import com.coralogix.zio.k8s.client.v1.serviceaccounts
-import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
-import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
-import com.coralogix.zio.k8s.operator.{ Leader, Operator, Registration }
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
+import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
+import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
+import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
+import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
+import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
+import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
+import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster, kubeconfig }
+import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
-import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
+import com.coralogix.zio.k8s.operator.contextinfo.ContextInfoFailure._
+import com.coralogix.zio.k8s.operator.leader.{ runAsLeader, LeaderElection }
+import com.coralogix.zio.k8s.operator.{ contextinfo, Operator, Registration }
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
-import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
-import com.coralogix.zio.k8s.client.config.k8sCluster
-import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
-import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
-import com.coralogix.zio.k8s.client.model.{ K8sNamespace, ResourceMetadata }
-import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
 import zio.logging.{ log, LogAnnotation, Logging }
+import zio.magic._
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, Has, URIO, ZIO, ZLayer }
+import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
 
 object Main extends App {
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     val config = (System.any ++ logging.live) >>> OperatorConfig.live
-    val monitoringExport =
-      (config.narrow(
-        _.prometheus
-      ) ++ monitoring.live ++ logging.live) >>> monitoring.prometheusExport
-    val sttp = config.narrow(_.k8sClient) >>> k8sSttpClient
-    val cluster = (Blocking.any ++ config.narrow(_.cluster)) >>> k8sCluster
-    val operatorEnvironment =
-      System.any ++ cluster ++ sttp ++ monitoring.live ++ monitoringExport
-
-    val clients =
-      logging.live ++ (operatorEnvironment >>>
-        (CustomResourceDefinitions.live ++
-          ServiceAccounts.live ++
-          ClusterRoles.live ++
-          ClusterRoleBindings.live ++
-          DaemonSets.live ++
-          ConfigMaps.live ++
-          Pods.live ++
-
-          RuleGroupSets.live ++
-          CoralogixLoggers.live ++
-          AlertSets.live))
-
-    val grpcServer = (logging.live ++ config.narrow(_.grpc)) >>> grpc.live
-
     val ruleGroupsClient =
       (config.narrow(
         _.grpc.clients.rulegroups
@@ -83,7 +55,7 @@ object Main extends App {
 
     val service =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
-        Leader.leaderForLife("cx-operator-lock", None) {
+        runAsLeader {
           for {
             _       <- log.info(s"Operator started")
             config  <- getConfig[OperatorConfig]
@@ -108,15 +80,36 @@ object Main extends App {
       }
 
     service
-      .provideSomeLayer[Blocking with System with Clock with Console](
-        config ++ monitoring.live ++ clients ++ grpcServer ++ ruleGroupsClient ++ alertsClient
+      .injectSome[Blocking with System with Clock with Console](
+        OperatorConfig.live,
+        monitoring.live,
+        logging.live,
+        kubeconfig(disableHostnameVerification = true).project(_.dropTrailingDot),
+        k8sSttpClient,
+        k8sCluster,
+        CustomResourceDefinitions.live,
+        ServiceAccounts.live,
+        ClusterRoles.live,
+        ClusterRoleBindings.live,
+        DaemonSets.live,
+        ConfigMaps.live,
+        Pods.live,
+        RuleGroupSets.live,
+        CoralogixLoggers.live,
+        AlertSets.live,
+        ruleGroupsClient,
+        alertsClient,
+        contextinfo.ContextInfo.live.mapError(error =>
+          contextInfoFailureToThrowable.toThrowable(error)
+        ),
+        LeaderElection.configMapLock("cx-operator-lock")
       )
       .tapCause { cause =>
         console.putStrLnErr(s"Critical failure\n${cause.squash}")
       }
       .exitCode
       .ensuring {
-        console.putStrLnErr("Shutting down")
+        console.putStrLnErr("Shutting down").ignore
       }
       .untraced
   }
