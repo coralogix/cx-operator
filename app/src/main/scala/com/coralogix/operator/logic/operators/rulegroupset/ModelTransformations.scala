@@ -1,16 +1,16 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.rules.grpc.external.v1.ExtractTimestampParameters.FormatStandard
+import com.coralogix.rules.v1.ExtractTimestampParameters.FormatStandard
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
-import com.coralogix.rules.grpc.external.v1.JsonExtractParameters.DestinationField
-import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest
-import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest.CreateRuleSubgroup
-import com.coralogix.rules.grpc.external.v1.RuleGroupsService.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
-import com.coralogix.rules.grpc.external.v1.RuleMatcher.Constraint
-import com.coralogix.rules.grpc.external.v1.{
+import com.coralogix.rules.v1.JsonExtractParameters.DestinationField
+import com.coralogix.rules.v1.CreateRuleGroupRequest
+import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup
+import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
+import com.coralogix.rules.v1.RuleMatcher.Constraint
+import com.coralogix.rules.v1.{
   AllowParameters,
   ApplicationNameConstraint,
   BlockParameters,
@@ -44,12 +44,12 @@ object ModelTransformations {
     severity: RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
   ): SeverityConstraint.Value.Recognized =
     severity match {
-      case Severities.members.Debug    => SeverityConstraint.Value.DEBUG
-      case Severities.members.Verbose  => SeverityConstraint.Value.VERBOSE
-      case Severities.members.Info     => SeverityConstraint.Value.INFO
-      case Severities.members.Warning  => SeverityConstraint.Value.WARNING
-      case Severities.members.Error    => SeverityConstraint.Value.ERROR
-      case Severities.members.Critical => SeverityConstraint.Value.CRITICAL
+      case Severities.members.Debug    => SeverityConstraint.Value.VALUE_DEBUG_OR_UNSPECIFIED
+      case Severities.members.Verbose  => SeverityConstraint.Value.VALUE_VERBOSE
+      case Severities.members.Info     => SeverityConstraint.Value.VALUE_INFO
+      case Severities.members.Warning  => SeverityConstraint.Value.VALUE_WARNING
+      case Severities.members.Error    => SeverityConstraint.Value.VALUE_ERROR
+      case Severities.members.Critical => SeverityConstraint.Value.VALUE_CRITICAL
     }
 
   private def toGrpcRuleMatchers(
@@ -84,22 +84,22 @@ object ModelTransformations {
 
   private def toDestinationField(field: DestField): DestinationField =
     field match {
-      case DestField.members.Category   => DestinationField.CATEGORY
-      case DestField.members.Classname  => DestinationField.CLASSNAME
-      case DestField.members.Methodname => DestinationField.METHODNAME
-      case DestField.members.Threadid   => DestinationField.THREADID
-      case DestField.members.Severity   => DestinationField.SEVERITY
+      case DestField.members.Category   => DestinationField.DESTINATION_FIELD_CATEGORY_OR_UNSPECIFIED
+      case DestField.members.Classname  => DestinationField.DESTINATION_FIELD_CLASSNAME
+      case DestField.members.Methodname => DestinationField.DESTINATION_FIELD_METHODNAME
+      case DestField.members.Threadid   => DestinationField.DESTINATION_FIELD_THREADID
+      case DestField.members.Severity   => DestinationField.DESTINATION_FIELD_SEVERITY
     }
 
   private def toFormatStandard(standard: Standard): FormatStandard =
     standard match {
-      case members.Strftime  => FormatStandard.STRFTIME
-      case members.Javasdf   => FormatStandard.JAVASDF
-      case members.Golang    => FormatStandard.GOLANG
-      case members.Secondsts => FormatStandard.SECONDSTS
-      case members.Millits   => FormatStandard.MILLITS
-      case members.Microts   => FormatStandard.MICROTS
-      case members.Nanots    => FormatStandard.NANOTS
+      case members.Strftime  => FormatStandard.FORMAT_STANDARD_STRFTIME_OR_UNSPECIFIED
+      case members.Javasdf   => FormatStandard.FORMAT_STANDARD_JAVASDF
+      case members.Golang    => FormatStandard.FORMAT_STANDARD_GOLANG
+      case members.Secondsts => FormatStandard.FORMAT_STANDARD_SECONDSTS
+      case members.Millits   => FormatStandard.FORMAT_STANDARD_MILLITS
+      case members.Microts   => FormatStandard.FORMAT_STANDARD_MICROTS
+      case members.Nanots    => FormatStandard.FORMAT_STANDARD_NANOTS
     }
 
   private def toParameters(rule: OrGroup): RuleParameters =
@@ -109,7 +109,7 @@ object ModelTransformations {
       ) orElse
         rule.jsonExtract.map(p =>
           RuleParameters.RuleParameters.JsonExtractParameters(
-            JsonExtractParameters(toDestinationField(p.destField))
+            JsonExtractParameters(toDestinationField(p.destField), Some(p.rule))
           )
         ) orElse
         rule.replace.map(p =>
