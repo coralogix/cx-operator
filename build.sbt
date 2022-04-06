@@ -42,7 +42,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.6",
       // gRPC
       "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
-      "io.grpc"                             % "grpc-netty"                              % "1.31.1",
+      "io.grpc"                             % "grpc-netty"                              % "1.45.0",
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0" % "protobuf",
       "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0",
       "io.github.scalapb-json"             %% "scalapb-circe"                           % "0.7.1",
@@ -79,6 +79,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "--initialize-at-build-time=scala.reflect",
       "--initialize-at-build-time=scala.package$",
       "--initialize-at-build-time=scala.math",
+      "--initialize-at-run-time=io.netty",
       "--enable-https",
       "--no-fallback",
       "--allow-incomplete-classpath",
