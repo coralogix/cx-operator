@@ -22,12 +22,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{
-  defaultConfigChain,
-  k8sCluster,
-  kubeconfig,
-  serviceAccount
-}
+import com.coralogix.zio.k8s.client.config.{ k8sCluster, kubeconfig, serviceAccount }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
@@ -96,7 +91,6 @@ object Main extends App {
       }
 
     service
-      .timeout(Duration.ofMinutes(1))
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
         monitoring.live,
