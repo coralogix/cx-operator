@@ -21,7 +21,12 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster, kubeconfig }
+import com.coralogix.zio.k8s.client.config.{
+  defaultConfigChain,
+  k8sCluster,
+  kubeconfig,
+  serviceAccount
+}
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
@@ -84,7 +89,9 @@ object Main extends App {
         OperatorConfig.live,
         monitoring.live,
         logging.live,
-        kubeconfig(disableHostnameVerification = true).project(_.dropTrailingDot),
+        kubeconfig(disableHostnameVerification = true)
+          .project(_.dropTrailingDot)
+          .orElse(serviceAccount()),
         k8sSttpClient,
         k8sCluster,
         CustomResourceDefinitions.live,
