@@ -90,9 +90,10 @@ object Main extends App {
         }
       }
 
-    service
+    (service <&> grpc.server.useForever)
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
+        config.narrow(_.grpc),
         monitoring.live,
         logging.live,
         kubeconfig(disableHostnameVerification = true)

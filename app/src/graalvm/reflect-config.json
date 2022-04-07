@@ -146,6 +146,9 @@
   "methods":[{"name":"newBuilder","parameterTypes":[] }]
 },
 {
+  "name":"com.google.protobuf.Descriptors$FileDescriptor[]"
+},
+{
   "name":"com.google.protobuf.ExtensionRegistry",
   "methods":[{"name":"getEmptyRegistry","parameterTypes":[] }]
 },
@@ -236,6 +239,16 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"io.netty.bootstrap.ServerBootstrap$1"
+},
+{
+  "name":"io.netty.bootstrap.ServerBootstrap$ServerBootstrapAcceptor",
+  "methods":[
+    {"name":"channelRead","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
+  ]
+},
+{
   "name":"io.netty.buffer.AbstractByteBufAllocator",
   "allDeclaredMethods":true
 },
@@ -268,6 +281,13 @@
     {"name":"channelWritabilityChanged","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
     {"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
+  ]
+},
+{
+  "name":"io.netty.channel.ChannelInitializer",
+  "methods":[
+    {"name":"channelRegistered","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
   ]
 },
 {
@@ -346,6 +366,10 @@
     {"name":"read","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
   ]
+},
+{
+  "name":"io.netty.util.AbstractReferenceCounted",
+  "fields":[{"name":"refCnt", "allowUnsafeAccess":true}]
 },
 {
   "name":"io.netty.util.ReferenceCountUtil",
@@ -841,10 +865,30 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"org.slf4j.impl.ZioLoggerFactory$$Lambda$1867/0x0000000840978440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
   "name":"scala.Symbol"
 },
 {
   "name":"scala.collection.immutable.List[]"
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3206/0x0000000840e57840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3208/0x0000000840e56840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3209/0x0000000840e56040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3211/0x0000000840e55040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
   "name":"sun.misc.Unsafe",
