@@ -270,7 +270,15 @@ object RuleGroupSetOperatorSpec extends DefaultRunnableSpec with RuleGroupSetOpe
             propagationPolicy: Option[PropagationPolicy]
           ): IO[K8sFailure, Status] = ???
 
-          override def deleteAll(deleteOptions: DeleteOptions, namespace: Option[K8sNamespace], dryRun: Boolean, gracePeriod: Option[Duration], propagationPolicy: Option[PropagationPolicy], fieldSelector: Option[FieldSelector], labelSelector: Option[LabelSelector]): IO[K8sFailure, Status] = ???
+          override def deleteAll(
+            deleteOptions: DeleteOptions,
+            namespace: Option[K8sNamespace],
+            dryRun: Boolean,
+            gracePeriod: Option[Duration],
+            propagationPolicy: Option[PropagationPolicy],
+            fieldSelector: Option[FieldSelector],
+            labelSelector: Option[LabelSelector]
+          ): IO[K8sFailure, Status] = ???
         }
 
       val statusClient =
