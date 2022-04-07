@@ -116,7 +116,7 @@ object Main extends App {
       }
       .exitCode
       .ensuring {
-        console.putStrLnErr("Shutting down")
+        console.putStrLnErr("Shutting down").ignore
       }
       .untraced
   }

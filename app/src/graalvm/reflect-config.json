@@ -4,19 +4,33 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"boolean[]"
-},
-{
   "name":"byte[]"
 },
 {
-  "name":"char[]"
+  "name":"com.google.protobuf.DescriptorProtos$EnumValueOptions",
+  "methods":[
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }
+  ]
 },
 {
-  "name":"com.coralogix.operator.logging.package$"
-},
-{
-  "name":"com.coralogix.operator.logic.OperatorFailure$"
+  "name":"com.google.protobuf.DescriptorProtos$EnumValueOptions$Builder",
+  "methods":[
+    {"name":"addUninterpretedOption","parameterTypes":["com.google.protobuf.DescriptorProtos$UninterpretedOption"] }, 
+    {"name":"clearDeprecated","parameterTypes":[] }, 
+    {"name":"clearUninterpretedOption","parameterTypes":[] }, 
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionBuilder","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }, 
+    {"name":"setDeprecated","parameterTypes":["boolean"] }, 
+    {"name":"setUninterpretedOption","parameterTypes":["int","com.google.protobuf.DescriptorProtos$UninterpretedOption"] }
+  ]
 },
 {
   "name":"com.google.protobuf.DescriptorProtos$FieldOptions",
@@ -89,183 +103,6 @@
   ]
 },
 {
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions",
-  "methods":[
-    {"name":"getCcEnableArenas","parameterTypes":[] }, 
-    {"name":"getCcGenericServices","parameterTypes":[] }, 
-    {"name":"getCsharpNamespace","parameterTypes":[] }, 
-    {"name":"getCsharpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getDeprecated","parameterTypes":[] }, 
-    {"name":"getGoPackage","parameterTypes":[] }, 
-    {"name":"getGoPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"getJavaGenericServices","parameterTypes":[] }, 
-    {"name":"getJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassnameBytes","parameterTypes":[] }, 
-    {"name":"getJavaPackage","parameterTypes":[] }, 
-    {"name":"getJavaPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getOptimizeFor","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getPhpGenericServices","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPhpNamespace","parameterTypes":[] }, 
-    {"name":"getPhpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPyGenericServices","parameterTypes":[] }, 
-    {"name":"getRubyPackage","parameterTypes":[] }, 
-    {"name":"getRubyPackageBytes","parameterTypes":[] }, 
-    {"name":"getSwiftPrefix","parameterTypes":[] }, 
-    {"name":"getSwiftPrefixBytes","parameterTypes":[] }, 
-    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
-    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
-    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
-    {"name":"hasCcEnableArenas","parameterTypes":[] }, 
-    {"name":"hasCcGenericServices","parameterTypes":[] }, 
-    {"name":"hasCsharpNamespace","parameterTypes":[] }, 
-    {"name":"hasDeprecated","parameterTypes":[] }, 
-    {"name":"hasGoPackage","parameterTypes":[] }, 
-    {"name":"hasJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"hasJavaGenericServices","parameterTypes":[] }, 
-    {"name":"hasJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"hasJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"hasJavaPackage","parameterTypes":[] }, 
-    {"name":"hasJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"hasObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"hasOptimizeFor","parameterTypes":[] }, 
-    {"name":"hasPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"hasPhpGenericServices","parameterTypes":[] }, 
-    {"name":"hasPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"hasPhpNamespace","parameterTypes":[] }, 
-    {"name":"hasPyGenericServices","parameterTypes":[] }, 
-    {"name":"hasRubyPackage","parameterTypes":[] }, 
-    {"name":"hasSwiftPrefix","parameterTypes":[] }
-  ]
-},
-{
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions$Builder",
-  "methods":[
-    {"name":"addUninterpretedOption","parameterTypes":["com.google.protobuf.DescriptorProtos$UninterpretedOption"] }, 
-    {"name":"clearCcEnableArenas","parameterTypes":[] }, 
-    {"name":"clearCcGenericServices","parameterTypes":[] }, 
-    {"name":"clearCsharpNamespace","parameterTypes":[] }, 
-    {"name":"clearDeprecated","parameterTypes":[] }, 
-    {"name":"clearGoPackage","parameterTypes":[] }, 
-    {"name":"clearJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"clearJavaGenericServices","parameterTypes":[] }, 
-    {"name":"clearJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"clearJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"clearJavaPackage","parameterTypes":[] }, 
-    {"name":"clearJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"clearObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"clearOptimizeFor","parameterTypes":[] }, 
-    {"name":"clearPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"clearPhpGenericServices","parameterTypes":[] }, 
-    {"name":"clearPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"clearPhpNamespace","parameterTypes":[] }, 
-    {"name":"clearPyGenericServices","parameterTypes":[] }, 
-    {"name":"clearRubyPackage","parameterTypes":[] }, 
-    {"name":"clearSwiftPrefix","parameterTypes":[] }, 
-    {"name":"clearUninterpretedOption","parameterTypes":[] }, 
-    {"name":"getCcEnableArenas","parameterTypes":[] }, 
-    {"name":"getCcGenericServices","parameterTypes":[] }, 
-    {"name":"getCsharpNamespace","parameterTypes":[] }, 
-    {"name":"getCsharpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getDeprecated","parameterTypes":[] }, 
-    {"name":"getGoPackage","parameterTypes":[] }, 
-    {"name":"getGoPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"getJavaGenericServices","parameterTypes":[] }, 
-    {"name":"getJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassnameBytes","parameterTypes":[] }, 
-    {"name":"getJavaPackage","parameterTypes":[] }, 
-    {"name":"getJavaPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getOptimizeFor","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getPhpGenericServices","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPhpNamespace","parameterTypes":[] }, 
-    {"name":"getPhpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPyGenericServices","parameterTypes":[] }, 
-    {"name":"getRubyPackage","parameterTypes":[] }, 
-    {"name":"getRubyPackageBytes","parameterTypes":[] }, 
-    {"name":"getSwiftPrefix","parameterTypes":[] }, 
-    {"name":"getSwiftPrefixBytes","parameterTypes":[] }, 
-    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
-    {"name":"getUninterpretedOptionBuilder","parameterTypes":["int"] }, 
-    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
-    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
-    {"name":"hasCcEnableArenas","parameterTypes":[] }, 
-    {"name":"hasCcGenericServices","parameterTypes":[] }, 
-    {"name":"hasCsharpNamespace","parameterTypes":[] }, 
-    {"name":"hasDeprecated","parameterTypes":[] }, 
-    {"name":"hasGoPackage","parameterTypes":[] }, 
-    {"name":"hasJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"hasJavaGenericServices","parameterTypes":[] }, 
-    {"name":"hasJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"hasJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"hasJavaPackage","parameterTypes":[] }, 
-    {"name":"hasJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"hasObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"hasOptimizeFor","parameterTypes":[] }, 
-    {"name":"hasPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"hasPhpGenericServices","parameterTypes":[] }, 
-    {"name":"hasPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"hasPhpNamespace","parameterTypes":[] }, 
-    {"name":"hasPyGenericServices","parameterTypes":[] }, 
-    {"name":"hasRubyPackage","parameterTypes":[] }, 
-    {"name":"hasSwiftPrefix","parameterTypes":[] }, 
-    {"name":"setCcEnableArenas","parameterTypes":["boolean"] }, 
-    {"name":"setCcGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setCsharpNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setCsharpNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setDeprecated","parameterTypes":["boolean"] }, 
-    {"name":"setGoPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setGoPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaGenerateEqualsAndHash","parameterTypes":["boolean"] }, 
-    {"name":"setJavaGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setJavaMultipleFiles","parameterTypes":["boolean"] }, 
-    {"name":"setJavaOuterClassname","parameterTypes":["java.lang.String"] }, 
-    {"name":"setJavaOuterClassnameBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setJavaPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaStringCheckUtf8","parameterTypes":["boolean"] }, 
-    {"name":"setObjcClassPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setObjcClassPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setOptimizeFor","parameterTypes":["com.google.protobuf.DescriptorProtos$FileOptions$OptimizeMode"] }, 
-    {"name":"setPhpClassPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpClassPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPhpGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setPhpMetadataNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpMetadataNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPhpNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPyGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setRubyPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setRubyPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setSwiftPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setSwiftPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setUninterpretedOption","parameterTypes":["int","com.google.protobuf.DescriptorProtos$UninterpretedOption"] }
-  ]
-},
-{
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions$OptimizeMode",
-  "methods":[
-    {"name":"getValueDescriptor","parameterTypes":[] }, 
-    {"name":"valueOf","parameterTypes":["com.google.protobuf.Descriptors$EnumValueDescriptor"] }
-  ]
-},
-{
   "name":"com.google.protobuf.DescriptorProtos$UninterpretedOption",
   "methods":[{"name":"newBuilder","parameterTypes":[] }]
 },
@@ -277,18 +114,6 @@
   "methods":[{"name":"getEmptyRegistry","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.crypto.provider.AESCipher$General",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.DHParameters",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.crypto.provider.HmacCore$HmacSHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -296,69 +121,31 @@
   "name":"com.sun.jndi.dns.DnsContextFactory"
 },
 {
-  "name":"com.sun.management.GarbageCollectorMXBean",
-  "allPublicMethods":true
-},
-{
   "name":"com.sun.management.GcInfo",
-  "allPublicMethods":true,
   "fields":[
     {"name":"builder"}, 
     {"name":"extAttributes"}
-  ]
-},
-{
-  "name":"com.sun.management.HotSpotDiagnosticMXBean",
-  "allPublicMethods":true
+  ],
+  "methods":[{"name":"getMemoryUsageBeforeGc","parameterTypes":[] }]
 },
 {
   "name":"com.sun.management.OperatingSystemMXBean",
   "methods":[{"name":"getProcessCpuTime","parameterTypes":[] }]
 },
 {
-  "name":"com.sun.management.ThreadMXBean",
-  "allPublicMethods":true
-},
-{
   "name":"com.sun.management.UnixOperatingSystemMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.VMOption",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.internal.GarbageCollectorExtImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotDiagnostic",
-  "allPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotThreadImpl",
-  "allPublicConstructors":true
+  "methods":[
+    {"name":"getMaxFileDescriptorCount","parameterTypes":[] }, 
+    {"name":"getOpenFileDescriptorCount","parameterTypes":[] }
+  ]
 },
 {
   "name":"com.sun.management.internal.OperatingSystemImpl",
-  "allPublicConstructors":true,
   "methods":[
     {"name":"getMaxFileDescriptorCount","parameterTypes":[] }, 
     {"name":"getOpenFileDescriptorCount","parameterTypes":[] }, 
     {"name":"getProcessCpuTime","parameterTypes":[] }
   ]
-},
-{
-  "name":"double[]"
-},
-{
-  "name":"float[]"
-},
-{
-  "name":"int[]"
-},
-{
-  "name":"io.grpc.Status"
 },
 {
   "name":"io.grpc.internal.DnsNameResolverProvider"
@@ -371,57 +158,7 @@
   "name":"io.grpc.internal.PickFirstLoadBalancerProvider"
 },
 {
-  "name":"io.grpc.netty.AbstractNettyHandler",
-  "methods":[
-    {"name":"channelActive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
-  ]
-},
-{
   "name":"io.grpc.netty.NettyChannelProvider"
-},
-{
-  "name":"io.grpc.netty.NettyClientHandler",
-  "methods":[
-    {"name":"channelInactive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
-  ]
-},
-{
-  "name":"io.grpc.netty.NettyServer$1"
-},
-{
-  "name":"io.grpc.netty.NettyServerHandler",
-  "methods":[
-    {"name":"channelInactive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
-  ]
-},
-{
-  "name":"io.grpc.netty.ProtocolNegotiators$GrpcNegotiationHandler",
-  "methods":[{"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }]
-},
-{
-  "name":"io.grpc.netty.ProtocolNegotiators$ProtocolNegotiationHandler",
-  "methods":[{"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }]
-},
-{
-  "name":"io.grpc.netty.ProtocolNegotiators$WaitUntilActiveHandler",
-  "methods":[{"name":"channelActive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }]
-},
-{
-  "name":"io.grpc.netty.WriteBufferingAndExceptionHandler",
-  "methods":[
-    {"name":"channelInactive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"channelRead","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
-    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"connect","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
-    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
-    {"name":"flush","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
-  ]
 },
 {
   "name":"io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider",
@@ -442,23 +179,6 @@
   "allDeclaredMethods":true
 },
 {
-  "name":"io.netty.buffer.AbstractReferenceCountedByteBuf",
-  "fields":[{"name":"refCnt", "allowUnsafeAccess":true}]
-},
-{
-  "name":"io.netty.channel.ChannelDuplexHandler",
-  "methods":[
-    {"name":"bind","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
-    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"connect","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
-    {"name":"deregister","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"disconnect","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"flush","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"read","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
-  ]
-},
-{
   "name":"io.netty.channel.ChannelInboundHandlerAdapter",
   "methods":[
     {"name":"channelActive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
@@ -468,7 +188,6 @@
     {"name":"channelRegistered","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"channelUnregistered","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"channelWritabilityChanged","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
     {"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
   ]
 },
@@ -520,32 +239,8 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"io.netty.handler.codec.ByteToMessageDecoder",
-  "methods":[
-    {"name":"channelRead","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
-    {"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
-  ]
-},
-{
-  "name":"io.netty.handler.codec.http2.Http2ConnectionHandler",
-  "methods":[
-    {"name":"bind","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
-    {"name":"channelReadComplete","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"channelWritabilityChanged","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"connect","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
-    {"name":"deregister","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"disconnect","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"flush","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"read","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }
-  ]
-},
-{
   "name":"io.netty.util.AbstractReferenceCounted",
   "fields":[{"name":"refCnt", "allowUnsafeAccess":true}]
-},
-{
-  "name":"io.netty.util.ReferenceCountUtil",
-  "allDeclaredMethods":true
 },
 {
   "name":"io.netty.util.internal.shaded.org.jctools.queues.BaseMpscLinkedArrayQueueColdProducerFields",
@@ -558,22 +253,6 @@
 {
   "name":"io.netty.util.internal.shaded.org.jctools.queues.BaseMpscLinkedArrayQueueProducerFields",
   "fields":[{"name":"producerIndex", "allowUnsafeAccess":true}]
-},
-{
-  "name":"io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueConsumerIndexField",
-  "fields":[{"name":"consumerIndex", "allowUnsafeAccess":true}]
-},
-{
-  "name":"io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueProducerIndexField",
-  "fields":[{"name":"producerIndex", "allowUnsafeAccess":true}]
-},
-{
-  "name":"io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueProducerLimitField",
-  "fields":[{"name":"producerLimit", "allowUnsafeAccess":true}]
-},
-{
-  "name":"java.io.ObjectInputStream",
-  "allPublicMethods":true
 },
 {
   "name":"java.lang.Boolean",
@@ -604,19 +283,8 @@
   "fields":[{"name":"TYPE"}]
 },
 {
-  "name":"java.lang.Object",
-  "allDeclaredFields":true
-},
-{
-  "name":"java.lang.Object[]"
-},
-{
   "name":"java.lang.Short",
   "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.StackTraceElement",
-  "allPublicMethods":true
 },
 {
   "name":"java.lang.String"
@@ -633,19 +301,12 @@
 },
 {
   "name":"java.lang.management.BufferPoolMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.ClassLoadingMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.CompilationMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.LockInfo",
-  "allPublicMethods":true
+  "methods":[
+    {"name":"getCount","parameterTypes":[] }, 
+    {"name":"getMemoryUsed","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }, 
+    {"name":"getTotalCapacity","parameterTypes":[] }
+  ]
 },
 {
   "name":"java.lang.management.ManagementFactory",
@@ -655,51 +316,21 @@
   ]
 },
 {
-  "name":"java.lang.management.ManagementPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.management.MemoryMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryManagerMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryPoolMXBean",
-  "allPublicMethods":true
-},
-{
   "name":"java.lang.management.MemoryUsage",
   "allPublicMethods":true
 },
 {
-  "name":"java.lang.management.MonitorInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.PlatformLoggingMXBean",
-  "allPublicMethods":true
-},
-{
   "name":"java.lang.management.RuntimeMXBean",
-  "allPublicMethods":true,
-  "methods":[{"name":"getInputArguments","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.management.ThreadInfo",
-  "allPublicMethods":true
+  "methods":[
+    {"name":"getInputArguments","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }
+  ]
 },
 {
   "name":"java.math.BigDecimal"
 },
 {
   "name":"java.math.BigInteger"
-},
-{
-  "name":"java.net.InetSocketAddress",
-  "methods":[{"name":"getHostString","parameterTypes":[] }]
 },
 {
   "name":"java.nio.Bits",
@@ -726,29 +357,7 @@
   "name":"java.security.SecureRandomParameters"
 },
 {
-  "name":"java.security.interfaces.ECPrivateKey"
-},
-{
-  "name":"java.security.interfaces.ECPublicKey"
-},
-{
-  "name":"java.security.interfaces.RSAPrivateKey"
-},
-{
-  "name":"java.security.interfaces.RSAPublicKey"
-},
-{
-  "name":"java.sql.Date"
-},
-{
-  "name":"java.sql.Timestamp"
-},
-{
   "name":"java.util.Date"
-},
-{
-  "name":"java.util.PropertyPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"java.util.concurrent.atomic.LongAdder",
@@ -759,42 +368,23 @@
   ]
 },
 {
-  "name":"java.util.logging.LogManager",
-  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.util.logging.LoggingMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"javax.management.MBeanOperationInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"javax.management.MBeanServerBuilder",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"javax.management.NotificationBroadcasterSupport",
-  "methods":[{"name":"getNotificationInfo","parameterTypes":[] }]
-},
-{
   "name":"javax.management.ObjectName"
 },
 {
-  "name":"javax.management.openmbean.CompositeData"
-},
-{
-  "name":"javax.management.openmbean.CompositeData[]"
-},
-{
-  "name":"javax.management.openmbean.OpenMBeanOperationInfoSupport"
-},
-{
-  "name":"javax.management.openmbean.TabularData"
-},
-{
   "name":"javax.naming.directory.InitialDirContext"
+},
+{
+  "name":"javax.net.ssl.SSLEngine",
+  "methods":[
+    {"name":"getApplicationProtocol","parameterTypes":[] }, 
+    {"name":"getHandshakeApplicationProtocol","parameterTypes":[] }, 
+    {"name":"getHandshakeApplicationProtocolSelector","parameterTypes":[] }, 
+    {"name":"setHandshakeApplicationProtocolSelector","parameterTypes":["java.util.function.BiFunction"] }
+  ]
+},
+{
+  "name":"javax.net.ssl.SSLParameters",
+  "methods":[{"name":"setApplicationProtocols","parameterTypes":["java.lang.String[]"] }]
 },
 {
   "name":"javax.security.auth.x500.X500Principal",
@@ -806,66 +396,11 @@
   "methods":[{"name":"getUnsafe","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.ConfigurationInfo",
-  "allPublicMethods":true
+  "name":"org.slf4j.impl.ZioLoggerFactory$$Lambda$1621/0x000000084084e840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.EventTypeInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.FlightRecorderMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.FlightRecorderMXBeanImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"jdk.management.jfr.RecordingInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"jdk.management.jfr.SettingDescriptorInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"long[]"
-},
-{
-  "name":"short[]"
-},
-{
-  "name":"sun.management.ClassLoadingImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.CompilationImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.ManagementFactoryHelper$1",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryManagerImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.MemoryPoolImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"sun.management.RuntimeImpl",
-  "allPublicConstructors":true
+  "name":"scala.collection.immutable.List[]"
 },
 {
   "name":"sun.misc.Unsafe",
@@ -909,11 +444,14 @@
   ]
 },
 {
-  "name":"sun.security.provider.DSA$SHA224withDSA",
+  "name":"sun.security.pkcs.SignerInfo[]"
+},
+{
+  "name":"sun.security.pkcs12.PKCS12KeyStore",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.provider.DSA$SHA256withDSA",
+  "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -933,22 +471,6 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.provider.SHA2$SHA224",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA2$SHA256",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA384",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.provider.SHA5$SHA512",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
   "name":"sun.security.provider.X509Factory",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -957,16 +479,19 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.security.rsa.RSAPSSSignature",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"sun.security.rsa.RSASignature$SHA224withRSA",
+  "name":"sun.security.ssl.SSLContextImpl$TLS12Context",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.util.ObjectIdentifier"
 },
 {
   "name":"sun.security.x509.AuthorityInfoAccessExtension",
@@ -983,6 +508,9 @@
 {
   "name":"sun.security.x509.CRLDistributionPointsExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CertificateExtensions"
 },
 {
   "name":"sun.security.x509.CertificatePoliciesExtension",
@@ -1017,9 +545,210 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
+  "name":"zio.App$$Lambda$14/0x0000000840063440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$1787/0x00000008408d2840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$719/0x00000008403d8840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$750/0x00000008403fb040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$751/0x00000008403fb840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$768/0x000000084040e840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$anon$1$$Lambda$1789/0x00000008408d3440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$1711/0x000000084089c040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$763/0x000000084040b840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$765/0x000000084040c440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.FiberRef$$Lambda$1000/0x00000008404bb840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.FiberRef$$Lambda$996/0x00000008404b8840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$20/0x0000000840087040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$21/0x0000000840086840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$33/0x00000008400be840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$756/0x00000008403ff040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$759/0x0000000840408440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$761/0x000000084040a040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$778/0x0000000840414840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$966/0x000000084049f840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$968/0x00000008404a0840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$972/0x00000008404a2440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$1007/0x00000008404c1040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$1778/0x00000008408cd840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$1782/0x00000008408cf840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$760/0x0000000840409840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$772/0x0000000840410840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$773/0x0000000840411040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$811/0x0000000840429040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$845/0x0000000840447040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$BracketRelease_$$Lambda$998/0x00000008404ba040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$BracketRelease_$$Lambda$999/0x00000008404bb040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$ZipLeftFn$$Lambda$869/0x0000000840457040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$$$Lambda$1779/0x00000008408cd440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$$$Lambda$905/0x000000084046f040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$Local$$Lambda$1777/0x00000008408cc840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
   "name":"zio.ZScope$OrderedFinalizer[]"
 },
 {
-  "name":"zio.internal.FiberContext"
+  "name":"zio.clock.package$$$Lambda$23/0x0000000840085840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.clock.package$Clock$Service$$anon$1$$Lambda$1010/0x00000008404c2440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$757/0x00000008403fe840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$770/0x000000084040f840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$771/0x000000084040fc40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$903/0x000000084046e040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$781/0x0000000840415440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$Lambda$1004/0x00000008404be840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$Lambda$1005/0x00000008404bf840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$anon$3$$Lambda$1009/0x00000008404c2840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$LoggerWithFormat$$Lambda$1003/0x00000008404be040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$LoggerWithFormat$$Lambda$993/0x00000008404b7040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$1008/0x00000008404c1840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$1620/0x000000084084f040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$244/0x00000008401be040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
 }
 ]
