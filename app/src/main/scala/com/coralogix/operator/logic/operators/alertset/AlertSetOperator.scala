@@ -29,7 +29,7 @@ object AlertSetOperator {
   ] =
     (ctx, event) =>
       event match {
-        case Reseted =>
+        case Reseted() =>
           ZIO.unit
         case Added(item) =>
           if (
