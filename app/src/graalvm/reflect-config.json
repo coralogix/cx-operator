@@ -4,19 +4,33 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"boolean[]"
-},
-{
   "name":"byte[]"
 },
 {
-  "name":"char[]"
+  "name":"com.google.protobuf.DescriptorProtos$EnumValueOptions",
+  "methods":[
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }
+  ]
 },
 {
-  "name":"com.coralogix.operator.logging.package$"
-},
-{
-  "name":"com.coralogix.operator.logic.OperatorFailure$"
+  "name":"com.google.protobuf.DescriptorProtos$EnumValueOptions$Builder",
+  "methods":[
+    {"name":"addUninterpretedOption","parameterTypes":["com.google.protobuf.DescriptorProtos$UninterpretedOption"] }, 
+    {"name":"clearDeprecated","parameterTypes":[] }, 
+    {"name":"clearUninterpretedOption","parameterTypes":[] }, 
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionBuilder","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }, 
+    {"name":"setDeprecated","parameterTypes":["boolean"] }, 
+    {"name":"setUninterpretedOption","parameterTypes":["int","com.google.protobuf.DescriptorProtos$UninterpretedOption"] }
+  ]
 },
 {
   "name":"com.google.protobuf.DescriptorProtos$FieldOptions",
@@ -89,177 +103,39 @@
   ]
 },
 {
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions",
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions",
   "methods":[
-    {"name":"getCcEnableArenas","parameterTypes":[] }, 
-    {"name":"getCcGenericServices","parameterTypes":[] }, 
-    {"name":"getCsharpNamespace","parameterTypes":[] }, 
-    {"name":"getCsharpNamespaceBytes","parameterTypes":[] }, 
     {"name":"getDeprecated","parameterTypes":[] }, 
-    {"name":"getGoPackage","parameterTypes":[] }, 
-    {"name":"getGoPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"getJavaGenericServices","parameterTypes":[] }, 
-    {"name":"getJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassnameBytes","parameterTypes":[] }, 
-    {"name":"getJavaPackage","parameterTypes":[] }, 
-    {"name":"getJavaPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getOptimizeFor","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getPhpGenericServices","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPhpNamespace","parameterTypes":[] }, 
-    {"name":"getPhpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPyGenericServices","parameterTypes":[] }, 
-    {"name":"getRubyPackage","parameterTypes":[] }, 
-    {"name":"getRubyPackageBytes","parameterTypes":[] }, 
-    {"name":"getSwiftPrefix","parameterTypes":[] }, 
-    {"name":"getSwiftPrefixBytes","parameterTypes":[] }, 
+    {"name":"getIdempotencyLevel","parameterTypes":[] }, 
     {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
     {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
     {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
-    {"name":"hasCcEnableArenas","parameterTypes":[] }, 
-    {"name":"hasCcGenericServices","parameterTypes":[] }, 
-    {"name":"hasCsharpNamespace","parameterTypes":[] }, 
     {"name":"hasDeprecated","parameterTypes":[] }, 
-    {"name":"hasGoPackage","parameterTypes":[] }, 
-    {"name":"hasJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"hasJavaGenericServices","parameterTypes":[] }, 
-    {"name":"hasJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"hasJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"hasJavaPackage","parameterTypes":[] }, 
-    {"name":"hasJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"hasObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"hasOptimizeFor","parameterTypes":[] }, 
-    {"name":"hasPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"hasPhpGenericServices","parameterTypes":[] }, 
-    {"name":"hasPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"hasPhpNamespace","parameterTypes":[] }, 
-    {"name":"hasPyGenericServices","parameterTypes":[] }, 
-    {"name":"hasRubyPackage","parameterTypes":[] }, 
-    {"name":"hasSwiftPrefix","parameterTypes":[] }
+    {"name":"hasIdempotencyLevel","parameterTypes":[] }
   ]
 },
 {
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions$Builder",
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions$Builder",
   "methods":[
     {"name":"addUninterpretedOption","parameterTypes":["com.google.protobuf.DescriptorProtos$UninterpretedOption"] }, 
-    {"name":"clearCcEnableArenas","parameterTypes":[] }, 
-    {"name":"clearCcGenericServices","parameterTypes":[] }, 
-    {"name":"clearCsharpNamespace","parameterTypes":[] }, 
     {"name":"clearDeprecated","parameterTypes":[] }, 
-    {"name":"clearGoPackage","parameterTypes":[] }, 
-    {"name":"clearJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"clearJavaGenericServices","parameterTypes":[] }, 
-    {"name":"clearJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"clearJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"clearJavaPackage","parameterTypes":[] }, 
-    {"name":"clearJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"clearObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"clearOptimizeFor","parameterTypes":[] }, 
-    {"name":"clearPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"clearPhpGenericServices","parameterTypes":[] }, 
-    {"name":"clearPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"clearPhpNamespace","parameterTypes":[] }, 
-    {"name":"clearPyGenericServices","parameterTypes":[] }, 
-    {"name":"clearRubyPackage","parameterTypes":[] }, 
-    {"name":"clearSwiftPrefix","parameterTypes":[] }, 
+    {"name":"clearIdempotencyLevel","parameterTypes":[] }, 
     {"name":"clearUninterpretedOption","parameterTypes":[] }, 
-    {"name":"getCcEnableArenas","parameterTypes":[] }, 
-    {"name":"getCcGenericServices","parameterTypes":[] }, 
-    {"name":"getCsharpNamespace","parameterTypes":[] }, 
-    {"name":"getCsharpNamespaceBytes","parameterTypes":[] }, 
     {"name":"getDeprecated","parameterTypes":[] }, 
-    {"name":"getGoPackage","parameterTypes":[] }, 
-    {"name":"getGoPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"getJavaGenericServices","parameterTypes":[] }, 
-    {"name":"getJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"getJavaOuterClassnameBytes","parameterTypes":[] }, 
-    {"name":"getJavaPackage","parameterTypes":[] }, 
-    {"name":"getJavaPackageBytes","parameterTypes":[] }, 
-    {"name":"getJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"getObjcClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getOptimizeFor","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"getPhpClassPrefixBytes","parameterTypes":[] }, 
-    {"name":"getPhpGenericServices","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"getPhpMetadataNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPhpNamespace","parameterTypes":[] }, 
-    {"name":"getPhpNamespaceBytes","parameterTypes":[] }, 
-    {"name":"getPyGenericServices","parameterTypes":[] }, 
-    {"name":"getRubyPackage","parameterTypes":[] }, 
-    {"name":"getRubyPackageBytes","parameterTypes":[] }, 
-    {"name":"getSwiftPrefix","parameterTypes":[] }, 
-    {"name":"getSwiftPrefixBytes","parameterTypes":[] }, 
+    {"name":"getIdempotencyLevel","parameterTypes":[] }, 
     {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
     {"name":"getUninterpretedOptionBuilder","parameterTypes":["int"] }, 
     {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
     {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
-    {"name":"hasCcEnableArenas","parameterTypes":[] }, 
-    {"name":"hasCcGenericServices","parameterTypes":[] }, 
-    {"name":"hasCsharpNamespace","parameterTypes":[] }, 
     {"name":"hasDeprecated","parameterTypes":[] }, 
-    {"name":"hasGoPackage","parameterTypes":[] }, 
-    {"name":"hasJavaGenerateEqualsAndHash","parameterTypes":[] }, 
-    {"name":"hasJavaGenericServices","parameterTypes":[] }, 
-    {"name":"hasJavaMultipleFiles","parameterTypes":[] }, 
-    {"name":"hasJavaOuterClassname","parameterTypes":[] }, 
-    {"name":"hasJavaPackage","parameterTypes":[] }, 
-    {"name":"hasJavaStringCheckUtf8","parameterTypes":[] }, 
-    {"name":"hasObjcClassPrefix","parameterTypes":[] }, 
-    {"name":"hasOptimizeFor","parameterTypes":[] }, 
-    {"name":"hasPhpClassPrefix","parameterTypes":[] }, 
-    {"name":"hasPhpGenericServices","parameterTypes":[] }, 
-    {"name":"hasPhpMetadataNamespace","parameterTypes":[] }, 
-    {"name":"hasPhpNamespace","parameterTypes":[] }, 
-    {"name":"hasPyGenericServices","parameterTypes":[] }, 
-    {"name":"hasRubyPackage","parameterTypes":[] }, 
-    {"name":"hasSwiftPrefix","parameterTypes":[] }, 
-    {"name":"setCcEnableArenas","parameterTypes":["boolean"] }, 
-    {"name":"setCcGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setCsharpNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setCsharpNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
+    {"name":"hasIdempotencyLevel","parameterTypes":[] }, 
     {"name":"setDeprecated","parameterTypes":["boolean"] }, 
-    {"name":"setGoPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setGoPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaGenerateEqualsAndHash","parameterTypes":["boolean"] }, 
-    {"name":"setJavaGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setJavaMultipleFiles","parameterTypes":["boolean"] }, 
-    {"name":"setJavaOuterClassname","parameterTypes":["java.lang.String"] }, 
-    {"name":"setJavaOuterClassnameBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setJavaPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setJavaStringCheckUtf8","parameterTypes":["boolean"] }, 
-    {"name":"setObjcClassPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setObjcClassPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setOptimizeFor","parameterTypes":["com.google.protobuf.DescriptorProtos$FileOptions$OptimizeMode"] }, 
-    {"name":"setPhpClassPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpClassPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPhpGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setPhpMetadataNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpMetadataNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPhpNamespace","parameterTypes":["java.lang.String"] }, 
-    {"name":"setPhpNamespaceBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setPyGenericServices","parameterTypes":["boolean"] }, 
-    {"name":"setRubyPackage","parameterTypes":["java.lang.String"] }, 
-    {"name":"setRubyPackageBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
-    {"name":"setSwiftPrefix","parameterTypes":["java.lang.String"] }, 
-    {"name":"setSwiftPrefixBytes","parameterTypes":["com.google.protobuf.ByteString"] }, 
+    {"name":"setIdempotencyLevel","parameterTypes":["com.google.protobuf.DescriptorProtos$MethodOptions$IdempotencyLevel"] }, 
     {"name":"setUninterpretedOption","parameterTypes":["int","com.google.protobuf.DescriptorProtos$UninterpretedOption"] }
   ]
 },
 {
-  "name":"com.google.protobuf.DescriptorProtos$FileOptions$OptimizeMode",
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions$IdempotencyLevel",
   "methods":[
     {"name":"getValueDescriptor","parameterTypes":[] }, 
     {"name":"valueOf","parameterTypes":["com.google.protobuf.Descriptors$EnumValueDescriptor"] }
@@ -268,9 +144,6 @@
 {
   "name":"com.google.protobuf.DescriptorProtos$UninterpretedOption",
   "methods":[{"name":"newBuilder","parameterTypes":[] }]
-},
-{
-  "name":"com.google.protobuf.Descriptors$FileDescriptor[]"
 },
 {
   "name":"com.google.protobuf.ExtensionRegistry",
@@ -289,76 +162,19 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.jndi.dns.DnsContextFactory"
-},
-{
-  "name":"com.sun.management.GarbageCollectorMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.GcInfo",
-  "allPublicMethods":true,
-  "fields":[
-    {"name":"builder"}, 
-    {"name":"extAttributes"}
-  ]
-},
-{
-  "name":"com.sun.management.HotSpotDiagnosticMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.OperatingSystemMXBean",
-  "methods":[{"name":"getProcessCpuTime","parameterTypes":[] }]
-},
-{
-  "name":"com.sun.management.ThreadMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.UnixOperatingSystemMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.VMOption",
-  "allPublicMethods":true
-},
-{
-  "name":"com.sun.management.internal.GarbageCollectorExtImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotDiagnostic",
-  "allPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.HotSpotThreadImpl",
-  "allPublicConstructors":true
-},
-{
-  "name":"com.sun.management.internal.OperatingSystemImpl",
-  "allPublicConstructors":true,
-  "methods":[
-    {"name":"getMaxFileDescriptorCount","parameterTypes":[] }, 
-    {"name":"getOpenFileDescriptorCount","parameterTypes":[] }, 
-    {"name":"getProcessCpuTime","parameterTypes":[] }
-  ]
-},
-{
-  "name":"double[]"
-},
-{
-  "name":"float[]"
-},
-{
-  "name":"int[]"
-},
-{
-  "name":"io.grpc.Status"
 },
 {
   "name":"io.grpc.internal.DnsNameResolverProvider"
@@ -389,15 +205,7 @@
   ]
 },
 {
-  "name":"io.grpc.netty.NettyServer$1"
-},
-{
-  "name":"io.grpc.netty.NettyServerHandler",
-  "methods":[
-    {"name":"channelInactive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
-    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
-  ]
+  "name":"io.grpc.netty.ProtocolNegotiators$ClientTlsHandler"
 },
 {
   "name":"io.grpc.netty.ProtocolNegotiators$GrpcNegotiationHandler",
@@ -426,16 +234,6 @@
 {
   "name":"io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider",
   "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"io.netty.bootstrap.ServerBootstrap$1"
-},
-{
-  "name":"io.netty.bootstrap.ServerBootstrap$ServerBootstrapAcceptor",
-  "methods":[
-    {"name":"channelRead","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
-    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
-  ]
 },
 {
   "name":"io.netty.buffer.AbstractByteBufAllocator",
@@ -470,13 +268,6 @@
     {"name":"channelWritabilityChanged","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
     {"name":"userEventTriggered","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
-  ]
-},
-{
-  "name":"io.netty.channel.ChannelInitializer",
-  "methods":[
-    {"name":"channelRegistered","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
-    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
   ]
 },
 {
@@ -540,8 +331,21 @@
   ]
 },
 {
-  "name":"io.netty.util.AbstractReferenceCounted",
-  "fields":[{"name":"refCnt", "allowUnsafeAccess":true}]
+  "name":"io.netty.handler.ssl.SslHandler",
+  "methods":[
+    {"name":"bind","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
+    {"name":"channelActive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelInactive","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelReadComplete","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"close","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
+    {"name":"connect","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.netty.channel.ChannelPromise"] }, 
+    {"name":"deregister","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
+    {"name":"disconnect","parameterTypes":["io.netty.channel.ChannelHandlerContext","io.netty.channel.ChannelPromise"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
+    {"name":"flush","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"read","parameterTypes":["io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"write","parameterTypes":["io.netty.channel.ChannelHandlerContext","java.lang.Object","io.netty.channel.ChannelPromise"] }
+  ]
 },
 {
   "name":"io.netty.util.ReferenceCountUtil",
@@ -572,130 +376,24 @@
   "fields":[{"name":"producerLimit", "allowUnsafeAccess":true}]
 },
 {
-  "name":"java.io.ObjectInputStream",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.Boolean",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Byte",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Character",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Double",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Float",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Integer",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Long",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.Object",
-  "allDeclaredFields":true
-},
-{
-  "name":"java.lang.Object[]"
-},
-{
-  "name":"java.lang.Short",
-  "fields":[{"name":"TYPE"}]
-},
-{
-  "name":"java.lang.StackTraceElement",
-  "allPublicMethods":true
-},
-{
   "name":"java.lang.String"
 },
 {
   "name":"java.lang.String[]"
 },
 {
-  "name":"java.lang.Void",
-  "fields":[{"name":"TYPE"}]
-},
-{
   "name":"java.lang.invoke.VarHandle"
 },
 {
-  "name":"java.lang.management.BufferPoolMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.ClassLoadingMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.CompilationMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.LockInfo",
-  "allPublicMethods":true
-},
-{
   "name":"java.lang.management.ManagementFactory",
-  "methods":[
-    {"name":"getPlatformMXBeans","parameterTypes":["java.lang.Class"] }, 
-    {"name":"getRuntimeMXBean","parameterTypes":[] }
-  ]
-},
-{
-  "name":"java.lang.management.ManagementPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
-},
-{
-  "name":"java.lang.management.MemoryMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryManagerMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryPoolMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MemoryUsage",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.MonitorInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"java.lang.management.PlatformLoggingMXBean",
-  "allPublicMethods":true
+  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]
 },
 {
   "name":"java.lang.management.RuntimeMXBean",
-  "allPublicMethods":true,
-  "methods":[{"name":"getInputArguments","parameterTypes":[] }]
-},
-{
-  "name":"java.lang.management.ThreadInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"java.math.BigDecimal"
-},
-{
-  "name":"java.math.BigInteger"
+  "methods":[
+    {"name":"getInputArguments","parameterTypes":[] }, 
+    {"name":"getName","parameterTypes":[] }
+  ]
 },
 {
   "name":"java.net.InetSocketAddress",
@@ -714,6 +412,9 @@
   "methods":[{"name":"<init>","parameterTypes":["long","int"] }]
 },
 {
+  "name":"java.nio.file.LinkOption[]"
+},
+{
   "name":"java.security.AlgorithmParametersSpi"
 },
 {
@@ -724,6 +425,15 @@
 },
 {
   "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.cert.PKIXRevocationChecker"
+},
+{
+  "name":"java.security.interfaces.DSAPrivateKey"
+},
+{
+  "name":"java.security.interfaces.DSAPublicKey"
 },
 {
   "name":"java.security.interfaces.ECPrivateKey"
@@ -738,6 +448,9 @@
   "name":"java.security.interfaces.RSAPublicKey"
 },
 {
+  "name":"java.security.spec.DSAParameterSpec"
+},
+{
   "name":"java.sql.Date"
 },
 {
@@ -745,10 +458,6 @@
 },
 {
   "name":"java.util.Date"
-},
-{
-  "name":"java.util.PropertyPermission",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
 },
 {
   "name":"java.util.concurrent.atomic.LongAdder",
@@ -759,42 +468,20 @@
   ]
 },
 {
-  "name":"java.util.logging.LogManager",
-  "methods":[{"name":"getLoggingMXBean","parameterTypes":[] }]
-},
-{
-  "name":"java.util.logging.LoggingMXBean",
-  "allPublicMethods":true
-},
-{
-  "name":"javax.management.MBeanOperationInfo",
-  "allPublicMethods":true
-},
-{
-  "name":"javax.management.MBeanServerBuilder",
-  "methods":[{"name":"<init>","parameterTypes":[] }]
-},
-{
-  "name":"javax.management.NotificationBroadcasterSupport",
-  "methods":[{"name":"getNotificationInfo","parameterTypes":[] }]
-},
-{
-  "name":"javax.management.ObjectName"
-},
-{
-  "name":"javax.management.openmbean.CompositeData"
-},
-{
-  "name":"javax.management.openmbean.CompositeData[]"
-},
-{
-  "name":"javax.management.openmbean.OpenMBeanOperationInfoSupport"
-},
-{
-  "name":"javax.management.openmbean.TabularData"
-},
-{
   "name":"javax.naming.directory.InitialDirContext"
+},
+{
+  "name":"javax.net.ssl.SSLEngine",
+  "methods":[
+    {"name":"getApplicationProtocol","parameterTypes":[] }, 
+    {"name":"getHandshakeApplicationProtocol","parameterTypes":[] }, 
+    {"name":"getHandshakeApplicationProtocolSelector","parameterTypes":[] }, 
+    {"name":"setHandshakeApplicationProtocolSelector","parameterTypes":["java.util.function.BiFunction"] }
+  ]
+},
+{
+  "name":"javax.net.ssl.SSLParameters",
+  "methods":[{"name":"setApplicationProtocols","parameterTypes":["java.lang.String[]"] }]
 },
 {
   "name":"javax.security.auth.x500.X500Principal",
@@ -806,66 +493,378 @@
   "methods":[{"name":"getUnsafe","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.ConfigurationInfo",
-  "allPublicMethods":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.COMPOSITE$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.EventTypeInfo",
-  "allPublicMethods":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.DH$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.FlightRecorderMXBean",
-  "allPublicMethods":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.DSA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.FlightRecorderMXBeanImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.DSTU4145$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.RecordingInfo",
-  "allPublicMethods":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.EC$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"jdk.management.jfr.SettingDescriptorInfo",
-  "allPublicMethods":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.ECGOST$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"long[]"
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.EdEC$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"short[]"
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.ElGamal$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.ClassLoadingImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.GM$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.CompilationImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.GOST$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.ManagementFactoryHelper$1",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.IES$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.RSA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.MemoryImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.X509$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.MemoryManagerImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyFactorySpi",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.MemoryPoolImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.digest.Blake2b$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "name":"sun.management.RuntimeImpl",
-  "allPublicConstructors":true
+  "name":"org.bouncycastle.jcajce.provider.digest.Blake2s$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.DSTU7564$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.GOST3411$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.Haraka$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.Keccak$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.MD2$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.MD4$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.MD5$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.RIPEMD128$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.RIPEMD160$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.RIPEMD256$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.RIPEMD320$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA1$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA224$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA256$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA3$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA384$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SHA512$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.SM3$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.Skein$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.Tiger$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.digest.Whirlpool$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.drbg.DRBG$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.keystore.BC$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.keystore.BCFKS$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.keystore.PKCS12$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.AES$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.ARC4$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.ARIA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Blowfish$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.CAST5$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.CAST6$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Camellia$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.ChaCha$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.DES$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.DESede$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.DSTU7624$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.GOST28147$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.GOST3412_2015$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Grain128$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Grainv1$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.HC128$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.HC256$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.IDEA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Noekeon$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.OpenSSLPBKDF$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF1$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Poly1305$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.RC2$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.RC5$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.RC6$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Rijndael$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.SCRYPT$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.SEED$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.SM4$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Salsa20$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Serpent$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Shacal2$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.SipHash$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.SipHash128$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Skipjack$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.TEA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.TLSKDF$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Threefish$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Twofish$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.VMPC$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.VMPCKSA3$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.XSalsa20$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.XTEA$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.bouncycastle.jcajce.provider.symmetric.Zuc$Mappings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.slf4j.impl.ZioLoggerFactory$$Lambda$1807/0x00000008408ed840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scala.Symbol"
+},
+{
+  "name":"scala.collection.immutable.List[]"
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3003/0x0000000840d8cc40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3005/0x0000000840d8b440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3006/0x0000000840d89840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3008/0x0000000840d88840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
   "name":"sun.misc.Unsafe",
@@ -909,11 +908,34 @@
   ]
 },
 {
+  "name":"sun.security.pkcs.SignerInfo[]"
+},
+{
+  "name":"sun.security.pkcs12.PKCS12KeyStore",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSA$SHA1withDSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"sun.security.provider.DSA$SHA224withDSA",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"sun.security.provider.DSA$SHA256withDSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSAKeyFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSAParameters",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -953,6 +975,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"sun.security.provider.certpath.PKIXCertPathValidator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"sun.security.rsa.RSAKeyFactory$Legacy",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -965,8 +991,31 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"sun.security.rsa.RSASignature$SHA256withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSASignature$SHA512withRSA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.KeyManagerFactoryImpl$SunX509",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.SSLContextImpl$TLS12Context",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"sun.security.ssl.SSLContextImpl$TLSContext",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.util.ObjectIdentifier"
 },
 {
   "name":"sun.security.x509.AuthorityInfoAccessExtension",
@@ -983,6 +1032,9 @@
 {
   "name":"sun.security.x509.CRLDistributionPointsExtension",
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CertificateExtensions"
 },
 {
   "name":"sun.security.x509.CertificatePoliciesExtension",
@@ -1017,9 +1069,233 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
+  "name":"zio.App$$Lambda$14/0x0000000840063440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$764/0x0000000840469040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$795/0x0000000840482840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$796/0x0000000840483040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$Lambda$813/0x000000084048e040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.App$$anon$1$$Lambda$3094/0x0000000840e14040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$3025/0x0000000840dc9840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$808/0x000000084048b040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Fiber$$Lambda$810/0x000000084048b840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.FiberRef$$Lambda$1082/0x0000000840560840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.FiberRef$$Lambda$1086/0x0000000840563840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.Promise$$Lambda$913/0x00000008404d3440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$20/0x0000000840087040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$21/0x0000000840086840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$33/0x00000008400be840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$801/0x0000000840486840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$804/0x0000000840487c40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$806/0x0000000840489840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$$Lambda$823/0x0000000840494840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$1093/0x0000000840569040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$1101/0x000000084056fc40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$3142/0x0000000840e38040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$3146/0x0000000840e3a040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$805/0x0000000840489040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$817/0x0000000840490040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$818/0x0000000840490840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$856/0x00000008404b0840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$$Lambda$891/0x00000008404c7840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$BracketRelease_$$Lambda$1084/0x0000000840562040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$BracketRelease_$$Lambda$1085/0x0000000840563040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZIO$WhenM$$$Lambda$1987/0x00000008409b4040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZQueue$$anon$5$$Lambda$1022/0x000000084052f840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZRef$Atomic$$Lambda$833/0x00000008404a0840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZRef$Atomic$$Lambda$944/0x00000008404f3840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$$$Lambda$3143/0x0000000840e2b440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$$$Lambda$961/0x00000008404fcc40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$Local$$Lambda$3141/0x0000000840e2b840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
   "name":"zio.ZScope$OrderedFinalizer[]"
 },
 {
-  "name":"zio.internal.FiberContext"
+  "name":"zio.clock.package$$$Lambda$23/0x0000000840085840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.clock.package$Clock$Service$$anon$1$$Lambda$1096/0x000000084056a440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$802/0x0000000840487040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$815/0x000000084048f040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$816/0x000000084048f440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$959/0x00000008404fc040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$826/0x0000000840494440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$1983/0x00000008409b2040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$1984/0x00000008409b2840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$1993/0x00000008409b7440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$1995/0x00000008409b8440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$Lambda$1090/0x0000000840566840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$Lambda$1091/0x0000000840567840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$$anon$3$$Lambda$1095/0x000000084056a840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$LoggerWithFormat$$Lambda$1079/0x0000000840556840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logger$LoggerWithFormat$$Lambda$1089/0x0000000840566040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$1094/0x0000000840569840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$1806/0x00000008408ed040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.logging.Logging$$$Lambda$222/0x00000008401b6040",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.stm.ZTRef[]"
 }
 ]

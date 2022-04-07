@@ -1,16 +1,14 @@
 package com.coralogix.operator.config
 
-import com.coralogix.zio.k8s.client.config._
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.typesafe.config.ConfigFactory
 import zio._
 import zio.config._
-import zio.config.derivation.name
 import zio.config.magnolia.DeriveConfigDescriptor.{ descriptor, Descriptor }
 import zio.config.typesafe.TypesafeConfigSource
 import zio.duration.Duration
 import zio.logging.{ log, LogAnnotation, Logging }
-import zio.nio.core.file.Path
+import zio.nio.file.Path
 
 case class PrometheusConfig(
   port: Int
@@ -49,8 +47,6 @@ case class GrpcClientsConfig(rulegroups: GrpcClientConfig, alerts: GrpcClientCon
 case class GrpcConfig(port: Int, clients: GrpcClientsConfig)
 
 case class OperatorConfig(
-  cluster: K8sClusterConfig,
-  @name("k8s-client") k8sClient: K8sClientConfig,
   prometheus: PrometheusConfig,
   grpc: GrpcConfig,
   resources: OperatorResources

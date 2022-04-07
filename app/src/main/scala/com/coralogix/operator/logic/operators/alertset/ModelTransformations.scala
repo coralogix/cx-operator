@@ -128,7 +128,8 @@ object ModelTransformations {
     ConditionParameters(
       threshold = condition.threshold,
       timeframe = toTimeframe(condition.timeframe),
-      groupBy = condition.groupBy
+      groupBy = condition.groupBy,
+      notifyOnResolved = condition.notifyOnResolved
     )
 
   private def toTimeframe(timeframe: Alerts.Condition.Parameters.Timeframe): Timeframe =
