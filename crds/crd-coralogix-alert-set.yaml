@@ -77,7 +77,7 @@ spec:
                               notifyOnResolved:
                                 descprition: Sends resolve notification when the alert criteria that you defined is no longer met
                                 type: boolean
-                                default: false
+                                default: true
                       notifications:
                         type: object
                         properties:
