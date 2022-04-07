@@ -1,12 +1,12 @@
 package com.coralogix.operator
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.operator.config.{BaseOperatorConfig, OperatorConfig, OperatorResources}
+import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
-import com.coralogix.operator.monitoring.{OperatorMetrics, clientMetrics}
+import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
@@ -19,28 +19,39 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixl
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.{alertsets, rulegroupsets}
+import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{defaultConfigChain, k8sCluster, kubeconfig, serviceAccount}
+import com.coralogix.zio.k8s.client.config.{
+  defaultConfigChain,
+  k8sCluster,
+  kubeconfig,
+  serviceAccount
+}
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
 import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
 import com.coralogix.zio.k8s.model.pkg.apis.apiextensions.v1.CustomResourceDefinition
-import com.coralogix.zio.k8s.client.apiextensions.v1.{customresourcedefinitions => crd}
+import com.coralogix.zio.k8s.client.apiextensions.v1.{ customresourcedefinitions => crd }
 import com.coralogix.zio.k8s.operator.contextinfo.ContextInfoFailure._
-import com.coralogix.zio.k8s.operator.leader.{LeaderElection, runAsLeader}
-import com.coralogix.zio.k8s.operator.{KubernetesFailure, Operator, OperatorFailure, Registration, contextinfo}
+import com.coralogix.zio.k8s.operator.leader.{ runAsLeader, LeaderElection }
+import com.coralogix.zio.k8s.operator.{
+  contextinfo,
+  KubernetesFailure,
+  Operator,
+  OperatorFailure,
+  Registration
+}
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import zio.logging.{LogAnnotation, Logging, log}
+import zio.logging.{ log, LogAnnotation, Logging }
 import zio.magic._
 import zio.system.System
-import zio.{App, ExitCode, Fiber, URIO, ZIO, console}
+import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
 
 import java.time.Duration
 
@@ -84,7 +95,8 @@ object Main extends App {
         }
       }
 
-    service.timeout(Duration.ofMinutes(1))
+    service
+      .timeout(Duration.ofMinutes(1))
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
         monitoring.live,
