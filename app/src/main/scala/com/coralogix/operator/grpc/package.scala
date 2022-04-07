@@ -26,7 +26,7 @@ import scalapb.zio_grpc.{
   ZManagedChannel
 }
 import zio.clock.Clock
-import zio.{ Has, Managed, Schedule, UIO, ZIO, ZLayer }
+import zio.{ Has, Managed, Schedule, UIO, ZIO, ZLayer, ZManaged }
 import zio.config.ZConfig
 import zio.duration._
 import zio.logging.{ log, LogAnnotation, Logging }
@@ -35,24 +35,23 @@ import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 
 package object grpc {
-  val live: ZLayer[Logging with Has[GrpcConfig], Throwable, Server] =
-    ZLayer.fromServiceManaged[GrpcConfig, Logging, Throwable, Server.Service] { config =>
-      for {
-        server <- ManagedServer
-                    .fromServiceList(
-                      ServerBuilder
-                        .forPort(config.port)
-                        .addService(ProtoReflectionService.newInstance()),
-                      ServiceList
-                        .addM(Health.make)
-                    )
-        _ <- log
-               .locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: "grpc" :: Nil)) {
-                 log.info(s"gRPC listening on ${config.port}")
-               }
-               .toManaged_
-      } yield server
-    }
+  val server: ZManaged[Logging with Has[GrpcConfig], Throwable, Unit] =
+    for {
+      config <- ZManaged.service[GrpcConfig]
+      _ <- ManagedServer
+             .fromServiceList(
+               ServerBuilder
+                 .forPort(config.port)
+                 .addService(ProtoReflectionService.newInstance()),
+               ServiceList
+                 .addM(Health.make)
+             )
+      _ <- log
+             .locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: "grpc" :: Nil)) {
+               log.info(s"gRPC listening on ${config.port}")
+             }
+             .toManaged_
+    } yield ()
 
   object clients {
     private val AuthorizationKey: Metadata.Key[String] =
