@@ -1,13 +1,14 @@
 package com.coralogix.operator
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
+import com.coralogix.operator.config.{BaseOperatorConfig, OperatorConfig, OperatorResources}
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
-import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
+import com.coralogix.operator.monitoring.{OperatorMetrics, clientMetrics}
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
 import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
@@ -18,31 +19,30 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixl
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
+import com.coralogix.zio.k8s.client.com.coralogix.v1.{alertsets, rulegroupsets}
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{
-  defaultConfigChain,
-  k8sCluster,
-  kubeconfig,
-  serviceAccount
-}
+import com.coralogix.zio.k8s.client.config.{defaultConfigChain, k8sCluster, kubeconfig, serviceAccount}
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
 import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
+import com.coralogix.zio.k8s.model.pkg.apis.apiextensions.v1.CustomResourceDefinition
+import com.coralogix.zio.k8s.client.apiextensions.v1.{customresourcedefinitions => crd}
 import com.coralogix.zio.k8s.operator.contextinfo.ContextInfoFailure._
-import com.coralogix.zio.k8s.operator.leader.{ runAsLeader, LeaderElection }
-import com.coralogix.zio.k8s.operator.{ contextinfo, Operator, Registration }
+import com.coralogix.zio.k8s.operator.leader.{LeaderElection, runAsLeader}
+import com.coralogix.zio.k8s.operator.{KubernetesFailure, Operator, OperatorFailure, Registration, contextinfo}
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
 import zio.config.syntax._
 import zio.console.Console
-import zio.logging.{ log, LogAnnotation, Logging }
+import zio.logging.{LogAnnotation, Logging, log}
 import zio.magic._
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
+import zio.{App, ExitCode, Fiber, URIO, ZIO, console}
+
+import java.time.Duration
 
 object Main extends App {
 
@@ -66,13 +66,13 @@ object Main extends App {
             config  <- getConfig[OperatorConfig]
             metrics <- OperatorMetrics.make
 
-            _ <- Registration.registerIfMissing[RuleGroupSet](
+            _ <- register(
                    rulegroupsets.customResourceDefinition
                  ) <&>
-                   Registration.registerIfMissing[CoralogixLogger](
+                   register(
                      coralogixloggers.customResourceDefinition
                    ) <&>
-                   Registration.registerIfMissing[AlertSet](
+                   register(
                      alertsets.customResourceDefinition
                    )
             rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
@@ -84,7 +84,7 @@ object Main extends App {
         }
       }
 
-    service
+    service.timeout(Duration.ofMinutes(1))
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
         monitoring.live,
@@ -221,4 +221,33 @@ object Main extends App {
       AlertSetOperator.forNamespace
     )
 
+  private def register(
+    customResourceDefinition: ZIO[Logging with Blocking, Throwable, CustomResourceDefinition]
+  ): ZIO[CustomResourceDefinitions with Logging with Blocking, Throwable, Unit] =
+    for {
+      definition <- customResourceDefinition
+      name       <- definition.getName.mapError(registrationFailure)
+      _ <- crd
+             .create(definition)
+             .orElse(
+               for {
+                 current <- crd.get(name)
+                 _ <- crd.replace(
+                        name,
+                        definition.mapMetadata(
+                          _.copy(resourceVersion = current.metadata.flatMap(_.resourceVersion))
+                        )
+                      )
+               } yield ()
+             )
+             .mapError(registrationFailure)
+      name <- definition.getName.mapError(registrationFailure)
+      _    <- log.info(s"Registered $name CRD")
+    } yield ()
+
+  private def registrationFailure(failure: K8sFailure): Throwable =
+    new RuntimeException(
+      s"CRD registration failed",
+      OperatorFailure.toThrowable[Nothing].toThrowable(KubernetesFailure(failure))
+    )
 }
