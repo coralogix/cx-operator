@@ -4,39 +4,23 @@ import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ GrpcClientConfig, GrpcConfig }
 import com.coralogix.operator.monitoring.ClientMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
-import io.grpc.{
-  CallOptions,
-  ManagedChannelBuilder,
-  Metadata,
-  MethodDescriptor,
-  ServerBuilder,
-  Status
-}
 import io.grpc.protobuf.services.ProtoReflectionService
+import io.grpc._
 import izumi.reflect.Tag
 import nl.vroste.rezilience.Bulkhead
 import nl.vroste.rezilience.Bulkhead.BulkheadError
 import scalapb.zio_grpc.client.ZClientCall
-import scalapb.zio_grpc.{
-  ManagedServer,
-  SafeMetadata,
-  Server,
-  ServiceList,
-  ZClientInterceptor,
-  ZManagedChannel
-}
+import scalapb.zio_grpc._
 import zio.clock.Clock
-import zio.{ Has, Managed, Schedule, UIO, ZIO, ZLayer, ZManaged }
-import zio.config.ZConfig
 import zio.duration._
-import zio.logging.{ log, LogAnnotation, Logging }
+import zio.logging.{ log, LogAnnotation }
+import zio.{ Has, Managed, Schedule, UIO, ZIO, ZLayer, ZManaged }
 
 import java.util.concurrent.TimeUnit
-import scala.reflect.ClassTag
 
 package object grpc {
-  val server: ZManaged[Logging with Has[GrpcConfig], Throwable, Unit] =
-    for {
+  val server =
+    ZLayer.fromManaged(for {
       config <- ZManaged.service[GrpcConfig]
       _ <- ManagedServer
              .fromServiceList(
@@ -51,7 +35,7 @@ package object grpc {
                log.info(s"gRPC listening on ${config.port}")
              }
              .toManaged_
-    } yield ()
+    } yield ())
 
   object clients {
     private val AuthorizationKey: Metadata.Key[String] =

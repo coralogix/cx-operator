@@ -73,7 +73,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
-    nativeImageVersion  := "20.3.0",
+    nativeImageVersion  := "20.3.5",
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.slf4j",
       "--initialize-at-build-time=scala.Predef$",
@@ -87,7 +87,6 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "--enable-https",
       "--no-fallback",
       "--allow-incomplete-classpath",
-      "--report-unsupported-elements-at-runtime",
       "--install-exit-handlers",
       "-H:+ReportExceptionStackTraces",
       "-H:+AllowVMInspection",

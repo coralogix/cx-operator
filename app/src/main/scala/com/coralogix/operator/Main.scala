@@ -10,6 +10,7 @@ import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
+import com.coralogix.zio.k8s.client.apiextensions.v1.{ customresourcedefinitions => crd }
 import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
@@ -19,8 +20,8 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixl
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
+import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.config.{ k8sCluster, kubeconfig, serviceAccount }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
@@ -28,16 +29,9 @@ import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
 import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
 import com.coralogix.zio.k8s.model.pkg.apis.apiextensions.v1.CustomResourceDefinition
-import com.coralogix.zio.k8s.client.apiextensions.v1.{ customresourcedefinitions => crd }
 import com.coralogix.zio.k8s.operator.contextinfo.ContextInfoFailure._
 import com.coralogix.zio.k8s.operator.leader.{ runAsLeader, LeaderElection }
-import com.coralogix.zio.k8s.operator.{
-  contextinfo,
-  KubernetesFailure,
-  Operator,
-  OperatorFailure,
-  Registration
-}
+import com.coralogix.zio.k8s.operator.{ contextinfo, KubernetesFailure, Operator, OperatorFailure }
 import zio.blocking.Blocking
 import zio.clock.Clock
 import zio.config._
@@ -47,8 +41,6 @@ import zio.logging.{ log, LogAnnotation, Logging }
 import zio.magic._
 import zio.system.System
 import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
-
-import java.time.Duration
 
 object Main extends App {
 
@@ -90,10 +82,9 @@ object Main extends App {
         }
       }
 
-    (service <&> grpc.server.useForever)
+    service
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
-        config.narrow(_.grpc),
         monitoring.live,
         logging.live,
         kubeconfig(disableHostnameVerification = true)
@@ -117,6 +108,9 @@ object Main extends App {
           contextInfoFailureToThrowable.toThrowable(error)
         ),
         LeaderElection.configMapLock("cx-operator-lock")
+      )
+      .provideSomeLayer[Blocking with System with Clock with Console](
+        (config.narrow(_.grpc) ++ logging.live) >>> grpc.server
       )
       .tapCause { cause =>
         console.putStrLnErr(s"Critical failure\n${cause.squash}")
