@@ -30,10 +30,10 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "com.coralogix"                 %% "zio-k8s-client"           % "1.4.3",
       "com.coralogix"                 %% "zio-k8s-operator"         % "1.4.3",
       "com.coralogix"                 %% "zio-k8s-client-quicklens" % "1.4.3",
-      "com.softwaremill.quicklens"    %% "quicklens"                % "1.6.1",
-      "nl.vroste"                     %% "rezilience"               % "0.5.1",
-      "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.1.1",
-      "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.1.1",
+      "com.softwaremill.quicklens"    %% "quicklens"                % "1.8.4",
+      "nl.vroste"                     %% "rezilience"               % "0.7.0",
+      "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.3.18",
+      "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.3.18",
       "io.github.kitlangton"          %% "zio-magic"                % "0.3.11",
       // Config
       "dev.zio" %% "zio-config"          % "1.0.10",
@@ -73,7 +73,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
-    nativeImageVersion  := "20.3.0",
+    nativeImageVersion  := "20.3.5",
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.slf4j",
       "--initialize-at-build-time=scala.Predef$",
@@ -87,7 +87,6 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "--enable-https",
       "--no-fallback",
       "--allow-incomplete-classpath",
-      "--report-unsupported-elements-at-runtime",
       "--install-exit-handlers",
       "-H:+ReportExceptionStackTraces",
       "-H:+AllowVMInspection",
