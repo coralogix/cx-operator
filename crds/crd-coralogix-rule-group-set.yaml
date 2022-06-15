@@ -207,6 +207,24 @@ spec:
                                        delete-source:
                                          type: boolean
 
+                                   json-parse:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                       - delete-source
+                                       - override-dest
+                                       - escaped-value
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         x-scala-type: FieldName
+                                       delete-source:
+                                         type: boolean
+                                       override-dest:
+                                         type: boolean
+                                       escaped-value:
+                                         type: boolean
+
 
             status:
               type: object
