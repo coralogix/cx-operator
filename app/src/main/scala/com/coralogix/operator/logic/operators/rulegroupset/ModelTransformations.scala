@@ -10,7 +10,23 @@ import com.coralogix.rules.v1.CreateRuleGroupRequest
 import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup
 import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
 import com.coralogix.rules.v1.RuleMatcher.Constraint
-import com.coralogix.rules.v1.{AllowParameters, ApplicationNameConstraint, BlockParameters, ExtractParameters, ExtractTimestampParameters, JsonExtractParameters, JsonParseParameters, JsonStringifyParameters, ParseParameters, RemoveFieldsParameters, ReplaceParameters, RuleMatcher, RuleParameters, SeverityConstraint, SubsystemNameConstraint}
+import com.coralogix.rules.v1.{
+  AllowParameters,
+  ApplicationNameConstraint,
+  BlockParameters,
+  ExtractParameters,
+  ExtractTimestampParameters,
+  JsonExtractParameters,
+  JsonParseParameters,
+  JsonStringifyParameters,
+  ParseParameters,
+  RemoveFieldsParameters,
+  ReplaceParameters,
+  RuleMatcher,
+  RuleParameters,
+  SeverityConstraint,
+  SubsystemNameConstraint
+}
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard.members
 import com.coralogix.zio.k8s.client.model.Optional
@@ -144,7 +160,7 @@ object ModelTransformations {
           RuleParameters.RuleParameters.JsonStringifyParameters(
             JsonStringifyParameters(
               destinationField = Some(p.destField.value),
-              deleteSource = Some(p.deleteSource),
+              deleteSource = Some(p.deleteSource)
             )
           )
         ) orElse
@@ -154,7 +170,7 @@ object ModelTransformations {
               destinationField = Some(p.destField.value),
               deleteSource = Some(p.deleteSource),
               overrideDest = Some(p.overrideDest),
-              escapedValue = Some(p.escapedValue),
+              escapedValue = Some(p.escapedValue)
             )
           )
         )
