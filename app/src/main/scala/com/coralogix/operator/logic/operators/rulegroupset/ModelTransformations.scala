@@ -10,21 +10,7 @@ import com.coralogix.rules.v1.CreateRuleGroupRequest
 import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup
 import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
 import com.coralogix.rules.v1.RuleMatcher.Constraint
-import com.coralogix.rules.v1.{
-  AllowParameters,
-  ApplicationNameConstraint,
-  BlockParameters,
-  ExtractParameters,
-  ExtractTimestampParameters,
-  JsonExtractParameters,
-  ParseParameters,
-  RemoveFieldsParameters,
-  ReplaceParameters,
-  RuleMatcher,
-  RuleParameters,
-  SeverityConstraint,
-  SubsystemNameConstraint
-}
+import com.coralogix.rules.v1.{AllowParameters, ApplicationNameConstraint, BlockParameters, ExtractParameters, ExtractTimestampParameters, JsonExtractParameters, JsonStringifyParameters, ParseParameters, RemoveFieldsParameters, ReplaceParameters, RuleMatcher, RuleParameters, SeverityConstraint, SubsystemNameConstraint}
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.ExtractTimestamp.Standard.members
 import com.coralogix.zio.k8s.client.model.Optional
@@ -151,6 +137,14 @@ object ModelTransformations {
           RuleParameters.RuleParameters.RemoveFieldsParameters(
             RemoveFieldsParameters(
               fields = p.fields
+            )
+          )
+        ) orElse
+        rule.jsonStringify.map(p =>
+          RuleParameters.RuleParameters.JsonStringifyParameters(
+            JsonStringifyParameters(
+              destinationField = Some(p.destField.value),
+              deleteSource = Some(p.deleteSource),
             )
           )
         )

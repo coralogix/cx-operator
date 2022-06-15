@@ -195,6 +195,17 @@ spec:
                                          items:
                                            type: string
 
+                                   json-stringify:
+                                     type: object
+                                     required:
+                                       - dest-field
+                                       - delete-source
+                                     properties:
+                                       dest-field:
+                                         type: string
+                                         x-scala-type: FieldName
+                                       delete-source:
+                                         type: boolean
 
 
             status:
