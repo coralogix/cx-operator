@@ -5,6 +5,15 @@ Global / protodepUseHttps := true
 
 ThisBuild / scalaVersion := ScalaVer
 
+val sonatypeDomain = "sonatype-nexus.default.svc.cluster.local"
+val sonatypeBaseUrl = s"http://$sonatypeDomain:8080/"
+
+val sonatypeUser = sys.env.getOrElse("NEXUS_USER", "")
+val sonatypePass = sys.env.getOrElse("NEXUS_PASSWORD", "")
+
+lazy val privateNexus = ("Private Nexus" at sonatypeBaseUrl + "repository/maven-public/")
+  .withAllowInsecureProtocol(true)
+
 val commonSettings = Seq(
   organization := "com.coralogix",
   version      := "0.1"
@@ -25,7 +34,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)
   .settings(
     scalaVersion := ScalaVer,
-    resolvers += Resolver.jcenterRepo,
+    resolvers += privateNexus,
     libraryDependencies ++= Seq(
       "com.coralogix"                 %% "zio-k8s-client"           % "1.4.3",
       "com.coralogix"                 %% "zio-k8s-operator"         % "1.4.3",
