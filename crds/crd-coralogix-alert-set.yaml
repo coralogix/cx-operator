@@ -78,6 +78,37 @@ spec:
                                 descprition: Sends resolve notification when the alert criteria that you defined is no longer met
                                 type: boolean
                                 default: true
+                              metricAlertParameters:
+                                description: Data for defining metric
+                                type: object
+                                properties:
+                                  metricField:
+                                    type: string
+                                  metricSource:
+                                    type: string
+                                    enum:
+                                      - LOGS2METRICS
+                                      - PROMETHEUS
+                                  arithmeticOperator:
+                                    type: string
+                                    enum:
+                                      - AVG
+                                      - MIN
+                                      - MAX
+                                      - SUM
+                                      - COUNT
+                                      - PERCENTILE
+                                  arithmeticOperatorModifier:
+                                    type: integer
+                                    format: int32
+                                  sampleThresholdPercentage:
+                                    type: integer
+                                    format: int32
+                                  nonNullPercentage:
+                                    type: integer
+                                    format: int32
+                                  swapNullValues:
+                                    type: boolean
                               metricAlertPromqlParameters:
                                 description: Data for defining promql metric
                                 type: object
