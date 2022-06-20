@@ -15,6 +15,7 @@ import com.coralogix.alerts.v1.{
   DayOfWeek,
   ImmediateCondition,
   LessThanCondition,
+  MetricAlertPromqlConditionParameters,
   MoreThanCondition,
   MoreThanUsualCondition,
   NewValueCondition,
@@ -128,8 +129,21 @@ object ModelTransformations {
     ConditionParameters(
       threshold = condition.threshold,
       timeframe = toTimeframe(condition.timeframe),
-      groupBy = condition.groupBy,
-      notifyOnResolved = condition.notifyOnResolved
+      groupBy = condition.groupBy.toList,
+      notifyOnResolved = condition.notifyOnResolved,
+      metricAlertPromqlParameters =
+        condition.metricAlertPromqlParameters.map(toMetricAlertPromqlParameters).toOption
+    )
+
+  private def toMetricAlertPromqlParameters(
+    parameters: Alerts.Condition.Parameters.MetricAlertPromqlParameters
+  ): MetricAlertPromqlConditionParameters =
+    MetricAlertPromqlConditionParameters(
+      promqlText = parameters.promqlText,
+      arithmeticOperatorModifier = parameters.arithmeticOperatorModifier,
+      sampleThresholdPercentage = parameters.sampleThresholdPercentage,
+      nonNullPercentage = parameters.nonNullPercentage,
+      swapNullValues = parameters.swapNullValues
     )
 
   private def toTimeframe(timeframe: Alerts.Condition.Parameters.Timeframe): Timeframe =
@@ -217,6 +231,7 @@ object ModelTransformations {
       case FilterType.members.Text     => AlertFilters.FilterType.FILTER_TYPE_TEXT_OR_UNSPECIFIED
       case FilterType.members.Template => AlertFilters.FilterType.FILTER_TYPE_TEMPLATE
       case FilterType.members.Ratio    => AlertFilters.FilterType.FILTER_TYPE_RATIO
+      case FilterType.members.Metric   => AlertFilters.FilterType.FILTER_TYPE_METRIC
     }
 
   private def toActiveWhen(activeWhen: Alerts.ActiveWhen): Either[String, AlertActiveWhen] =
