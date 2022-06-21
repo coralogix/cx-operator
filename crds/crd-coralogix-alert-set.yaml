@@ -119,7 +119,7 @@ spec:
                                 description: Prometheus query for metric alerts
                                 type: object
                                 properties:
-                                  promqlText:
+                                  promQLText:
                                     description: The promql expression to use for the metric alert
                                     type: string
                                   forOver:

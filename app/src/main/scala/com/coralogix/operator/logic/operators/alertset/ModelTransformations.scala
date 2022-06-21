@@ -189,7 +189,7 @@ object ModelTransformations {
     parameters: Alerts.Condition.Parameters.MetricAlertPromqlParameters
   ): MetricAlertPromqlConditionParameters =
     MetricAlertPromqlConditionParameters(
-      promqlText = parameters.promqlText,
+      promqlText = parameters.promQlText,
       sampleThresholdPercentage = parameters.forOver,
       nonNullPercentage = parameters.atLeast,
       swapNullValues = parameters.swapNullValues
