@@ -50,6 +50,7 @@ spec:
                           - type
                         properties:
                           type:
+                            description: The type of condition. Metric alert is using only MORE_THAN and LESS_THAN condition.
                             type: string
                             enum:
                               - IMMEDIATE
