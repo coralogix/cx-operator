@@ -79,17 +79,20 @@ spec:
                                 type: boolean
                                 default: true
                               metricAlertParameters:
-                                description: Data for defining metric
+                                description: Lucene query for metric alerts
                                 type: object
                                 properties:
                                   metricField:
+                                    description: The field to be used for the metric
                                     type: string
                                   metricSource:
+                                    description: The source of the metric
                                     type: string
                                     enum:
                                       - LOGS2METRICS
                                       - PROMETHEUS
                                   arithmeticOperator:
+                                    description: The arithmetic operator to use for the metric alert.
                                     type: string
                                     enum:
                                       - AVG
@@ -101,30 +104,34 @@ spec:
                                   arithmeticOperatorModifier:
                                     type: integer
                                     format: int32
-                                  sampleThresholdPercentage:
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
                                     type: integer
                                     format: int32
-                                  nonNullPercentage:
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
                                     type: integer
                                     format: int32
                                   swapNullValues:
+                                    description: Swap null values with 0
                                     type: boolean
                               metricAlertPromqlParameters:
-                                description: Data for defining promql metric
+                                description: Prometheus query for metric alerts
                                 type: object
                                 properties:
                                   promqlText:
+                                    description: The promql expression to use for the metric alert
                                     type: string
-                                  arithmeticOperatorModifier:
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
                                     type: integer
                                     format: int32
-                                  sampleThresholdPercentage:
-                                    type: integer
-                                    format: int32
-                                  nonNullPercentage:
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
                                     type: integer
                                     format: int32
                                   swapNullValues:
+                                    description: Swap null values with 0
                                     type: boolean
                       notifications:
                         type: object

@@ -152,8 +152,8 @@ object ModelTransformations {
           MetricAlertConditionParameters.ArithmeticOperator.ARITHMETIC_OPERATOR_AVG_OR_UNSPECIFIED
         ),
       arithmeticOperatorModifier = parameters.arithmeticOperatorModifier,
-      sampleThresholdPercentage = parameters.sampleThresholdPercentage,
-      nonNullPercentage = parameters.nonNullPercentage,
+      sampleThresholdPercentage = parameters.forOver,
+      nonNullPercentage = parameters.atLeast,
       swapNullValues = parameters.swapNullValues
     )
 
@@ -190,9 +190,8 @@ object ModelTransformations {
   ): MetricAlertPromqlConditionParameters =
     MetricAlertPromqlConditionParameters(
       promqlText = parameters.promqlText,
-      arithmeticOperatorModifier = parameters.arithmeticOperatorModifier,
-      sampleThresholdPercentage = parameters.sampleThresholdPercentage,
-      nonNullPercentage = parameters.nonNullPercentage,
+      sampleThresholdPercentage = parameters.forOver,
+      nonNullPercentage = parameters.atLeast,
       swapNullValues = parameters.swapNullValues
     )
 
