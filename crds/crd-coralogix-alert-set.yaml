@@ -50,6 +50,7 @@ spec:
                           - type
                         properties:
                           type:
+                            description: The type of condition. Metric alert is using only MORE_THAN and LESS_THAN condition.
                             type: string
                             enum:
                               - IMMEDIATE
@@ -78,6 +79,61 @@ spec:
                                 descprition: Sends resolve notification when the alert criteria that you defined is no longer met
                                 type: boolean
                                 default: true
+                              metricAlertParameters:
+                                description: Lucene query for metric alerts
+                                type: object
+                                properties:
+                                  metricField:
+                                    description: The field to be used for the metric
+                                    type: string
+                                  metricSource:
+                                    description: The source of the metric
+                                    type: string
+                                    enum:
+                                      - LOGS2METRICS
+                                      - PROMETHEUS
+                                  arithmeticOperator:
+                                    description: The arithmetic operator to use for the metric alert.
+                                    type: string
+                                    enum:
+                                      - AVG
+                                      - MIN
+                                      - MAX
+                                      - SUM
+                                      - COUNT
+                                      - PERCENTILE
+                                  arithmeticOperatorModifier:
+                                    type: integer
+                                    format: int32
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  swapNullValues:
+                                    description: Swap null values with 0
+                                    type: boolean
+                              metricAlertPromqlParameters:
+                                description: Prometheus query for metric alerts
+                                type: object
+                                properties:
+                                  promQLText:
+                                    description: The promql expression to use for the metric alert
+                                    type: string
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  swapNullValues:
+                                    description: Swap null values with 0
+                                    type: boolean
                       notifications:
                         type: object
                         properties:
@@ -103,6 +159,7 @@ spec:
                               - TEXT
                               - TEMPLATE
                               - RATIO
+                              - METRIC
                           severities:
                             type: array
                             items:
@@ -191,7 +248,6 @@ spec:
                                   items:
                                     type: string
                                     x-scala-type: SubsystemName
-
                       notifyEvery:
                         description: The suppress time for an alert in seconds
                         type: number

@@ -1,6 +1,7 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import cats.implicits._
+import com.coralogix.alerts.v1.MetricAlertConditionParameters.{ ArithmeticOperator, MetricSource }
 import com.coralogix.alerts.v1.{
   Alert,
   AlertActiveTimeframe,
@@ -15,6 +16,8 @@ import com.coralogix.alerts.v1.{
   DayOfWeek,
   ImmediateCondition,
   LessThanCondition,
+  MetricAlertConditionParameters,
+  MetricAlertPromqlConditionParameters,
   MoreThanCondition,
   MoreThanUsualCondition,
   NewValueCondition,
@@ -128,8 +131,68 @@ object ModelTransformations {
     ConditionParameters(
       threshold = condition.threshold,
       timeframe = toTimeframe(condition.timeframe),
-      groupBy = condition.groupBy,
-      notifyOnResolved = condition.notifyOnResolved
+      groupBy = condition.groupBy.toList,
+      notifyOnResolved = condition.notifyOnResolved,
+      metricAlertParameters = condition.metricAlertParameters.map(toMetricAlertParameters).toOption,
+      metricAlertPromqlParameters =
+        condition.metricAlertPromqlParameters.map(toMetricAlertPromqlParameters).toOption
+    )
+
+  private def toMetricAlertParameters(
+    parameters: Alerts.Condition.Parameters.MetricAlertParameters
+  ): MetricAlertConditionParameters =
+    MetricAlertConditionParameters(
+      metricField = parameters.metricField,
+      metricSource = parameters.metricSource
+        .map(toMetricSource)
+        .getOrElse(MetricSource.METRIC_SOURCE_LOGS2METRICS_OR_UNSPECIFIED),
+      arithmeticOperator = parameters.arithmeticOperator
+        .map(toArithmeticOperator)
+        .getOrElse(
+          MetricAlertConditionParameters.ArithmeticOperator.ARITHMETIC_OPERATOR_AVG_OR_UNSPECIFIED
+        ),
+      arithmeticOperatorModifier = parameters.arithmeticOperatorModifier,
+      sampleThresholdPercentage = parameters.forOver,
+      nonNullPercentage = parameters.atLeast,
+      swapNullValues = parameters.swapNullValues
+    )
+
+  private def toMetricSource(
+    source: Alerts.Condition.Parameters.MetricAlertParameters.MetricSource
+  ): MetricSource =
+    source match {
+      case Alerts.Condition.Parameters.MetricAlertParameters.MetricSource.members.Logs2Metrics =>
+        MetricSource.METRIC_SOURCE_LOGS2METRICS_OR_UNSPECIFIED
+      case Alerts.Condition.Parameters.MetricAlertParameters.MetricSource.members.Prometheus =>
+        MetricSource.METRIC_SOURCE_PROMETHEUS
+    }
+
+  private def toArithmeticOperator(
+    operator: Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator
+  ): ArithmeticOperator =
+    operator match {
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Avg =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_AVG_OR_UNSPECIFIED
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Count =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_COUNT
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Max =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_MAX
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Min =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_MIN
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Sum =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_SUM
+      case Alerts.Condition.Parameters.MetricAlertParameters.ArithmeticOperator.members.Percentile =>
+        ArithmeticOperator.ARITHMETIC_OPERATOR_PERCENTILE
+    }
+
+  private def toMetricAlertPromqlParameters(
+    parameters: Alerts.Condition.Parameters.MetricAlertPromqlParameters
+  ): MetricAlertPromqlConditionParameters =
+    MetricAlertPromqlConditionParameters(
+      promqlText = parameters.promQlText,
+      sampleThresholdPercentage = parameters.forOver,
+      nonNullPercentage = parameters.atLeast,
+      swapNullValues = parameters.swapNullValues
     )
 
   private def toTimeframe(timeframe: Alerts.Condition.Parameters.Timeframe): Timeframe =
@@ -217,6 +280,7 @@ object ModelTransformations {
       case FilterType.members.Text     => AlertFilters.FilterType.FILTER_TYPE_TEXT_OR_UNSPECIFIED
       case FilterType.members.Template => AlertFilters.FilterType.FILTER_TYPE_TEMPLATE
       case FilterType.members.Ratio    => AlertFilters.FilterType.FILTER_TYPE_RATIO
+      case FilterType.members.Metric   => AlertFilters.FilterType.FILTER_TYPE_METRIC
     }
 
   private def toActiveWhen(activeWhen: Alerts.ActiveWhen): Either[String, AlertActiveWhen] =
