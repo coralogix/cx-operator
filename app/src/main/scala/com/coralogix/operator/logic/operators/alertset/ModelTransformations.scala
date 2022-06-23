@@ -16,6 +16,7 @@ import com.coralogix.alerts.v1.{
   DayOfWeek,
   ImmediateCondition,
   LessThanCondition,
+  MetaLabel,
   MetricAlertConditionParameters,
   MetricAlertPromqlConditionParameters,
   MoreThanCondition,
@@ -90,7 +91,8 @@ object ModelTransformations {
           notifyEvery = alert.notifyEvery.map(_.value),
           activeWhen = activeWhen,
           notificationPayloadFilters =
-            alert.notificationPayloadFilters.map(_.map(_.value)).getOrElse(Seq.empty)
+            alert.notificationPayloadFilters.map(_.map(_.value)).getOrElse(Seq.empty),
+          metaLabels = alert.labels.map(_.map(toMetaLabel)).getOrElse(Seq.empty)
         )
     }
 
@@ -103,6 +105,9 @@ object ModelTransformations {
 
   private def toDate(localDate: LocalDate): Date =
     Date(localDate.getYear, localDate.getMonthValue, localDate.getDayOfMonth)
+
+  private def toMetaLabel(label: AlertSet.Spec.Alerts.Labels): MetaLabel =
+    MetaLabel(key = Some(label.key), value = label.value)
 
   private def toCondition(condition: AlertSet.Spec.Alerts.Condition): AlertCondition =
     AlertCondition(
