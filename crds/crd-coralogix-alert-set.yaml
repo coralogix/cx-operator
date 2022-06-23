@@ -41,6 +41,18 @@ spec:
                           - INFO
                           - WARNING
                           - CRITICAL
+                      labels:
+                        description: Labels attached to the alert
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - key
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
                       expiration:
                         type: string
                         format: date
@@ -147,7 +159,6 @@ spec:
                             items:
                               type: string
                               x-scala-type: IntegrationAlias
-
                       filters:
                         type: object
                         required:
@@ -253,7 +264,6 @@ spec:
                         type: number
                         format: double
                         x-scala-type: Seconds
-
                       activeWhen:
                         type: object
                         required:
@@ -288,13 +298,11 @@ spec:
                                     end:
                                       type: string
                                       x-scala-type: Time
-
                       notificationPayloadFilters:
                         type: array
                         items:
                           type: string
                           x-scala-type: PayloadFilter
-
             status:
               type: object
               properties:
