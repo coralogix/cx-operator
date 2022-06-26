@@ -213,7 +213,6 @@ spec:
                                        - dest-field
                                        - delete-source
                                        - override-dest
-                                       - escaped-value
                                      properties:
                                        dest-field:
                                          type: string
@@ -221,8 +220,6 @@ spec:
                                        delete-source:
                                          type: boolean
                                        override-dest:
-                                         type: boolean
-                                       escaped-value:
                                          type: boolean
 
 

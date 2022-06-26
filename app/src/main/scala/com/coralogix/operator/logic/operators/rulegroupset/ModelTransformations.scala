@@ -169,8 +169,7 @@ object ModelTransformations {
             JsonParseParameters(
               destinationField = Some(p.destField.value),
               deleteSource = Some(p.deleteSource),
-              overrideDest = Some(p.overrideDest),
-              escapedValue = Some(p.escapedValue)
+              overrideDest = Some(p.overrideDest)
             )
           )
         )
