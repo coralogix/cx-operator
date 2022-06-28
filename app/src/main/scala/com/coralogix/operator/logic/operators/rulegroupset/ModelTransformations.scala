@@ -17,6 +17,8 @@ import com.coralogix.rules.v1.{
   ExtractParameters,
   ExtractTimestampParameters,
   JsonExtractParameters,
+  JsonParseParameters,
+  JsonStringifyParameters,
   ParseParameters,
   RemoveFieldsParameters,
   ReplaceParameters,
@@ -151,6 +153,23 @@ object ModelTransformations {
           RuleParameters.RuleParameters.RemoveFieldsParameters(
             RemoveFieldsParameters(
               fields = p.fields
+            )
+          )
+        ) orElse
+        rule.jsonStringify.map(p =>
+          RuleParameters.RuleParameters.JsonStringifyParameters(
+            JsonStringifyParameters(
+              destinationField = Some(p.destField.value),
+              deleteSource = Some(p.deleteSource)
+            )
+          )
+        ) orElse
+        rule.jsonParse.map(p =>
+          RuleParameters.RuleParameters.JsonParseParameters(
+            JsonParseParameters(
+              destinationField = Some(p.destField.value),
+              deleteSource = Some(p.deleteSource),
+              overrideDest = Some(p.overrideDest)
             )
           )
         )
