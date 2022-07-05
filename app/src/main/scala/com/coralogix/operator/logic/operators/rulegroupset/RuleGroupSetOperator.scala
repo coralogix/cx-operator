@@ -1,5 +1,7 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic.aspects._
 import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.{
   toCreateRuleGroup,
@@ -16,12 +18,10 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.coralogix.zio.k8s.operator.Operator._
-import com.coralogix.zio.k8s.operator.OperatorLogging.logFailure
 import com.coralogix.zio.k8s.operator._
-import com.coralogix.zio.k8s.operator.aspects._
+import zio.ZIO
 import zio.clock.Clock
-import zio.logging.{ log, Logging }
-import zio.{ Cause, Has, ZIO }
+import zio.logging.Logging
 
 object RuleGroupSetOperator {
 
@@ -66,8 +66,10 @@ object RuleGroupSetOperator {
                    )
             } yield ()
           else
-            log.debug(
-              s"Rule group set '${item.metadata.flatMap(_.name).getOrElse("")}' with generation ${item.generation} is already added"
+            Log.debug(
+              "AlreadyAdded",
+              "name"       := item.metadata.flatMap(_.name),
+              "generation" := item.generation
             )
         case Modified(item) =>
           withExpectedStatus(item) { status =>
@@ -109,8 +111,10 @@ object RuleGroupSetOperator {
                      )
               } yield ()
             } else
-              log.debug(
-                s"Skipping modification of rule group set '${item.metadata.flatMap(_.name).getOrElse("")}' with generation ${item.generation}"
+              Log.debug(
+                "SkippingModification",
+                "name"       := item.metadata.flatMap(_.name),
+                "generation" := item.generation
               )
           }
         case Deleted(item) =>
@@ -127,9 +131,7 @@ object RuleGroupSetOperator {
       case Optional.Present(status) =>
         f(status)
       case Optional.Absent =>
-        log.warn(
-          s"Rule group set '${ruleGroupSet.metadata.flatMap(_.name).getOrElse("")}' has no status information"
-        )
+        Log.warn("StatusIsMissing", "name" := ruleGroupSet.metadata.flatMap(_.name))
     }
 
   private def modifyExistingRuleGroups(
@@ -142,7 +144,7 @@ object RuleGroupSetOperator {
       .foreachPar(mappings.toVector) {
         case (ruleGroupName, (id, data)) =>
           (for {
-            _ <- log.info(s"Modifying rule group '${ruleGroupName.value}' (${id.value})")
+            _ <- Log.info("Modifying", "name" := ruleGroupName.value, "id" := id.value)
             response <- RuleGroupsServiceClient
                           .updateRuleGroup(
                             UpdateRuleGroupRequest(
@@ -151,10 +153,12 @@ object RuleGroupSetOperator {
                             )
                           )
                           .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Rules API response for modifying rule group '${ruleGroupName.value}' (${id.value}): $response"
-              )
+            _ <- Log.trace(
+                   "ModifyApiResponse",
+                   "name"     := ruleGroupName.value,
+                   "id"       := id,
+                   "response" := response.toString
+                 )
             groupId <- ZIO.fromEither(
                          response.ruleGroup
                            .flatMap(_.id)
@@ -163,13 +167,16 @@ object RuleGroupSetOperator {
                        )
           } yield StatusUpdate.AddRuleGroupMapping(ruleGroupName, groupId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              logFailure(
-                s"Failed to modify rule group '${ruleGroupName.value}'",
-                Cause.fail(failure)
-              ).as(
-                StatusUpdate
-                  .RecordFailure(ruleGroupName, CoralogixOperatorFailure.toFailureString(failure))
-              )
+              Log
+                .error(
+                  CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                  "CannotModify",
+                  "name" := ruleGroupName.value
+                )
+                .as(
+                  StatusUpdate
+                    .RecordFailure(ruleGroupName, CoralogixOperatorFailure.toFailureString(failure))
+                )
           }
       }
 
@@ -184,14 +191,15 @@ object RuleGroupSetOperator {
     ZIO
       .foreachPar(ruleGroups) { item =>
         (for {
-          _ <- log.info(s"Creating rule group '${item.ruleGroup.name.value}'")
+          _ <- Log.info("Create", "name" := item.ruleGroup.name.value)
           groupResponse <- RuleGroupsServiceClient
                              .createRuleGroup(toCreateRuleGroup(item, startOrder, ctx, setName))
                              .mapError(GrpcFailure.apply)
-          _ <-
-            log.trace(
-              s"Rules API response for creating rules group '${item.ruleGroup.name.value}': $groupResponse"
-            )
+          _ <- Log.trace(
+                 "CreateApiResponse",
+                 "name"     := item.ruleGroup.name.value,
+                 "response" := groupResponse.toString
+               )
           groupId <- ZIO.fromEither(
                        groupResponse.ruleGroup
                          .flatMap(_.id)
@@ -200,15 +208,18 @@ object RuleGroupSetOperator {
                      )
         } yield StatusUpdate.AddRuleGroupMapping(item.ruleGroup.name, groupId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
-            logFailure(
-              s"Failed to create rule group '${item.ruleGroup.name.value}'",
-              Cause.fail(failure)
-            ).as(
-              StatusUpdate.RecordFailure(
-                item.ruleGroup.name,
-                CoralogixOperatorFailure.toFailureString(failure)
+            Log
+              .error(
+                CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                "CannotCreate",
+                "name" := item.ruleGroup.name.value
               )
-            )
+              .as(
+                StatusUpdate.RecordFailure(
+                  item.ruleGroup.name,
+                  CoralogixOperatorFailure.toFailureString(failure)
+                )
+              )
         }
       }
 
@@ -221,19 +232,29 @@ object RuleGroupSetOperator {
       .foreachPar(mappings.toVector) {
         case (name, id) =>
           (for {
-            _ <- log.info(s"Deleting rule group '${name.value}' (${id.value})'")
+            _ <- Log.info("Delete", "name" := name.value, "id" := id.value)
             response <- RuleGroupsServiceClient
                           .deleteRuleGroup(DeleteRuleGroupRequest(id.value))
                           .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Rules API response for deleting rule group '${name.value}' (${id.value}): $response"
-              )
+            _ <- Log.trace(
+                   "DeleteApiResponse",
+                   "name"     := name,
+                   "id"       := id,
+                   "response" := response.toString
+                 )
           } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to delete rule group '${name.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
-              )
+              Log
+                .error(
+                  CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                  "CannotDelete",
+                  "name" := name.value,
+                  "id"   := id.value
+                )
+                .as(
+                  StatusUpdate
+                    .RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
+                )
           }
       }
 
@@ -278,7 +299,7 @@ object RuleGroupSetOperator {
     ZIO.service[RuleGroupSets.Service].flatMap { ruleGroupSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ logEvents @@ metered(metrics)
+          eventProcessor() @@ metered(metrics)
         )(Some(namespace), buffer)
         .provide(ruleGroupSets.asGeneric)
     }
@@ -294,7 +315,7 @@ object RuleGroupSetOperator {
     ZIO.service[RuleGroupSets.Service].flatMap { ruleGroupSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ logEvents @@ metered(metrics)
+          eventProcessor() @@ metered(metrics)
         )(None, buffer)
         .provide(ruleGroupSets.asGeneric)
     }

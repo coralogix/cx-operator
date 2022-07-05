@@ -2,24 +2,24 @@ package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.alerts.v1.{ DeleteAlertRequest, UpdateAlertRequest }
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax.FieldBuilder
+import com.coralogix.operator.logic._
 import com.coralogix.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.alertset.ModelTransformations._
 import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpdates
-import com.coralogix.operator.logic._
 import com.coralogix.operator.monitoring.OperatorMetrics
-import com.coralogix.zio.k8s.client.NamespacedResourceStatus
-import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
-import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
 import com.coralogix.zio.k8s.client.model._
+import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
-import com.coralogix.zio.k8s.operator.OperatorLogging.logFailure
 import com.coralogix.zio.k8s.operator.aspects.logEvents
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
+import zio.ZIO
 import zio.clock.Clock
-import zio.logging.{ log, Logging }
-import zio.{ Cause, Has, ZIO }
+import zio.logging.Logging
 
 object AlertSetOperator {
   private def eventProcessor(): EventProcessor[
@@ -49,8 +49,10 @@ object AlertSetOperator {
                  )
           } yield ()
           else
-            log.debug(
-              s"Alert set '${item.metadata.flatMap(_.name).getOrElse("")}' with generation ${item.generation} is already added"
+            Log.debug(
+              "AlreadyAdded",
+              "name"       := item.metadata.flatMap(_.name),
+              "generation" := item.generation
             )
         case Modified(item) =>
           withExpectedStatus(item) { status =>
@@ -79,8 +81,10 @@ object AlertSetOperator {
                      )
               } yield ()
             } else
-              log.debug(
-                s"Skipping modification of alert set '${item.metadata.flatMap(_.name).getOrElse("")}' with generation ${item.generation}"
+              Log.debug(
+                "SkippingModification",
+                "name"       := item.metadata.flatMap(_.name),
+                "generation" := item.generation
               )
           }
         case Deleted(item) =>
@@ -98,14 +102,16 @@ object AlertSetOperator {
     ZIO
       .foreachPar(alerts.toVector) { alert =>
         (for {
-          _ <- log.info(s"Creating alert '${alert.name.value}'")
+          _ <- Log.info("Create", "name" := alert.name.value)
           createAlert <-
             ZIO.fromEither(toCreateAlert(alert, ctx, name)).mapError(CustomResourceError.apply)
           response <- AlertServiceClient
                         .createAlert(createAlert)
                         .mapError(GrpcFailure.apply)
-          _ <- log.trace(
-                 s"Alerts API response for creating alert '${alert.name.value}': $response"
+          _ <- Log.trace(
+                 "CreateApiResponse",
+                 "name"     := alert.name.value,
+                 "response" := response.toString
                )
           alertId <- ZIO.fromEither(
                        response.alert
@@ -115,12 +121,18 @@ object AlertSetOperator {
                      )
         } yield StatusUpdate.AddRuleGroupMapping(alert.name, alertId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
-            logFailure(s"Failed to create alert '${alert.name.value}'", Cause.fail(failure)).as(
-              StatusUpdate.RecordFailure(
-                alert.name,
-                CoralogixOperatorFailure.toFailureString(failure)
+            Log
+              .error(
+                CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                "CannotCreate",
+                "name" := alert.name.value
               )
-            )
+              .as(
+                StatusUpdate.RecordFailure(
+                  alert.name,
+                  CoralogixOperatorFailure.toFailureString(failure)
+                )
+              )
         }
       }
 
@@ -133,7 +145,7 @@ object AlertSetOperator {
       .foreachPar(mappings.toVector) {
         case (alertName, (id, data)) =>
           (for {
-            _ <- log.info(s"Modifying alert '${alertName.value}' (${id.value})")
+            _ <- Log.info("Modifying", "name" := alertName.value, "id" := id.value)
             alert <-
               ZIO.fromEither(toAlert(data, id, ctx, name)).mapError(CustomResourceError.apply)
             response <- AlertServiceClient
@@ -143,10 +155,12 @@ object AlertSetOperator {
                             )
                           )
                           .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Alerts API response for modifying alert '${alertName.value}' (${id.value}): $response"
-              )
+            _ <- Log.trace(
+                   "ModifyApiResponse",
+                   "name"     := alertName.value,
+                   "id"       := id,
+                   "response" := response.toString
+                 )
             alertId <- ZIO.fromEither(
                          response.alert
                            .flatMap(_.id)
@@ -155,12 +169,18 @@ object AlertSetOperator {
                        )
           } yield StatusUpdate.AddRuleGroupMapping(alertName, alertId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to modify alert '${alertName.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(
-                  alertName,
-                  CoralogixOperatorFailure.toFailureString(failure)
+              Log
+                .error(
+                  CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                  "CannotModify",
+                  "name" := alertName.value
                 )
-              )
+                .as(
+                  StatusUpdate.RecordFailure(
+                    alertName,
+                    CoralogixOperatorFailure.toFailureString(failure)
+                  )
+                )
           }
       }
 
@@ -171,19 +191,29 @@ object AlertSetOperator {
       .foreachPar(mappings.toVector) {
         case (name, id) =>
           (for {
-            _ <- log.info(s"Deleting alert '${name.value}' (${id.value})'")
+            _ <- Log.info("Delete", "name" := name.value, "id" := id.value)
             response <- AlertServiceClient
                           .deleteAlert(DeleteAlertRequest(Some(id.value)))
                           .mapError(GrpcFailure.apply)
-            _ <-
-              log.trace(
-                s"Alerts API response for deleting alert '${name.value}' (${id.value}): $response"
-              )
+            _ <- Log.trace(
+                   "DeleteApiResponse",
+                   "name"     := name,
+                   "id"       := id,
+                   "response" := response.toString
+                 )
           } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
             (failure: CoralogixOperatorFailure) =>
-              logFailure(s"Failed to delete alert '${name.value}'", Cause.fail(failure)).as(
-                StatusUpdate.RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
-              )
+              Log
+                .error(
+                  CoralogixOperatorFailure.toThrowable.toThrowable(failure),
+                  "CannotDelete",
+                  "name" := name.value,
+                  "id"   := id.value
+                )
+                .as(
+                  StatusUpdate
+                    .RecordFailure(name, CoralogixOperatorFailure.toFailureString(failure))
+                )
           }
       }
 
@@ -194,9 +224,7 @@ object AlertSetOperator {
       case Optional.Present(status) =>
         f(status)
       case Optional.Absent =>
-        log.warn(
-          s"Rule group set '${alertSet.metadata.flatMap(_.name).getOrElse("")}' has no status information"
-        )
+        Log.warn("StatusIsMissing", "name" := alertSet.metadata.flatMap(_.name))
     }
 
   private def mappingToMap(
@@ -240,7 +268,7 @@ object AlertSetOperator {
     ZIO.service[AlertSets.Service].flatMap { alertSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ logEvents @@ metered(metrics)
+          eventProcessor() @@ metered(metrics)
         )(Some(namespace), buffer)
         .provide(alertSets.asGeneric)
     }
@@ -256,7 +284,7 @@ object AlertSetOperator {
     ZIO.service[AlertSets.Service].flatMap { alertSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ logEvents @@ metered(metrics)
+          eventProcessor() @@ metered(metrics)
         )(None, buffer)
         .provide(alertSets.asGeneric)
     }

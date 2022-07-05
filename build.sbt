@@ -35,44 +35,15 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(
     scalaVersion := ScalaVer,
     resolvers += privateNexus,
-    libraryDependencies ++= Seq(
-      "com.coralogix"                 %% "zio-k8s-client"           % "1.4.3",
-      "com.coralogix"                 %% "zio-k8s-operator"         % "1.4.3",
-      "com.coralogix"                 %% "zio-k8s-client-quicklens" % "1.4.3",
-      "com.softwaremill.quicklens"    %% "quicklens"                % "1.8.4",
-      "nl.vroste"                     %% "rezilience"               % "0.7.0",
-      "com.softwaremill.sttp.client3" %% "httpclient-backend-zio"   % "3.3.18",
-      "com.softwaremill.sttp.client3" %% "slf4j-backend"            % "3.3.18",
-      "io.github.kitlangton"          %% "zio-magic"                % "0.3.11",
-      // Config
-      "dev.zio" %% "zio-config"          % "1.0.10",
-      "dev.zio" %% "zio-config-magnolia" % "1.0.10",
-      "dev.zio" %% "zio-config-typesafe" % "1.0.10",
-      // Logging
-      "dev.zio" %% "zio-logging"              % "0.5.14",
-      "dev.zio" %% "zio-logging-slf4j-bridge" % "0.5.14",
-      // gRPC
-      "com.thesamet.scalapb"               %% "scalapb-runtime-grpc"                    % scalapb.compiler.Version.scalapbVersion,
-      "io.grpc"                             % "grpc-netty"                              % scalapb.compiler.Version.grpcJavaVersion,
-      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0" % "protobuf",
-      "com.thesamet.scalapb.common-protos" %% "proto-google-common-protos-scalapb_0.10" % "1.17.0-0",
-      "io.github.scalapb-json"             %% "scalapb-circe"                           % "0.7.1",
-      // Metrics
-      "dev.zio" %% "zio-metrics-prometheus" % "1.0.14",
-      // Tests
-      "dev.zio" %% "zio-test"          % "1.0.13" % Test,
-      "dev.zio" %% "zio-test-sbt"      % "1.0.13" % Test,
-      "dev.zio" %% "zio-test-magnolia" % "1.0.13" % Test
-      //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
-    ),
+    libraryDependencies ++= Dependencies.all,
     PB.targets in Compile := Seq(
       scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
       scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
     ),
     PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
-    fork          := true,
-    Test / fork   := true,
+    fork        := true,
+    Test / fork := true,
 //    run / envVars := Map("CORALOGIX_CONFIG" -> "../charts/config/development.conf"),
     // K8s
     externalCustomResourceDefinitions := Seq(
@@ -82,21 +53,24 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
-    nativeImageVersion  := "20.3.5",
+    nativeImageVersion  := "21.1.0",
     nativeImageOptions ++= Seq(
-      "--initialize-at-build-time=org.slf4j",
+      "--initialize-at-build-time=org.apache.logging",
+      "--initialize-at-build-time=com.fasterxml.jackson",
+      "--initialize-at-build-time=org.yaml.snakeyaml",
+      "--initialize-at-build-time=jdk.management.jfr.SettingDescriptorInfo",
       "--initialize-at-build-time=scala.Predef$",
       "--initialize-at-build-time=scala.Symbol$",
       "--initialize-at-build-time=scala.collection",
       "--initialize-at-build-time=scala.reflect",
       "--initialize-at-build-time=scala.package$",
       "--initialize-at-build-time=scala.math",
-      "--initialize-at-run-time=io.netty.handler.ssl",
-      "--initialize-at-run-time=io.netty.util.internal.logging.Log4JLogger",
+      "--initialize-at-run-time=io.netty",
       "--enable-https",
       "--no-fallback",
       "--allow-incomplete-classpath",
       "--install-exit-handlers",
+      "-H:+PrintClassInitialization",
       "-H:+ReportExceptionStackTraces",
       "-H:+AllowVMInspection",
       "-H:JNIConfigurationFiles=../../src/graalvm/jni-config.json",

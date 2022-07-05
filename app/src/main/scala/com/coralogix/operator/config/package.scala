@@ -1,5 +1,7 @@
 package com.coralogix.operator.config
 
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.typesafe.config.ConfigFactory
 import zio._
@@ -96,7 +98,7 @@ object OperatorConfig {
   val live: ZLayer[system.System with Logging, Exception, Has[OperatorConfig]] = fromLocationM(
     configLocation.tap(path =>
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: "config" :: Nil)) {
-        log.info(s"Loading configuration $path")
+        Log.info("LoadingConfiguration", "path" := path.toString())
       }
     )
   )

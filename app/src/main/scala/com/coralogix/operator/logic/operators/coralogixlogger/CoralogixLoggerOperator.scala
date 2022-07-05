@@ -1,15 +1,17 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic.aspects._
 import com.coralogix.operator.logic.{ CoralogixOperatorFailure, ProvisioningFailed }
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.K8sFailure.syntax._
 import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
-import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
+import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.model.K8sObject._
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.v1.serviceaccounts.ServiceAccounts
@@ -25,7 +27,7 @@ import com.coralogix.zio.k8s.operator.{
 }
 import izumi.reflect.Tag
 import zio.clock.Clock
-import zio.logging.{ log, Logging }
+import zio.logging.Logging
 import zio.{ Cause, Has, Ref, ZIO }
 
 object CoralogixLoggerOperator {
@@ -42,7 +44,7 @@ object CoralogixLoggerOperator {
           setupLogger(ctx, failedProvisions, item)
         case Modified(item) =>
           setupLogger(ctx, failedProvisions, item)
-        case Deleted(item) =>
+        case Deleted(_) =>
           // The generated items are owned by the logger and get automatically garbage collected
           ZIO.unit
       }
@@ -82,21 +84,21 @@ object CoralogixLoggerOperator {
                      "Provisioning Succeeded",
                      s"CoralogixLogger '$name' successfully provisioned in namespace '${resource.metadata.flatMap(_.namespace).getOrElse("-")}'"
                    )
-              _ <- log.info("Provision succeeded")
+              _ <- Log.info("ProvisionSucceeded")
             } yield ()
           }
         }
       }
     }.catchSome {
       case OperatorError(ProvisioningFailed) =>
-        log.info(s"Provision failed")
+        Log.info(s"ProvisionFailed")
     }
 
   private def skipIfAlredyRunning[R <: Logging](resource: CoralogixLogger)(
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     if (resource.status.flatMap(_.state).contains("RUNNING"))
-      log.info(s"CoralogixLogger is already running, skipping")
+      Log.info("AlreadyRunning", "action" := "Skipping")
     else
       f
 
@@ -107,7 +109,7 @@ object CoralogixLoggerOperator {
     f: ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit]
   ): ZIO[R, OperatorFailure[CoralogixOperatorFailure], Unit] =
     ZIO.ifM(failedProvisions.isRecordedFailure(resource))(
-      onTrue = log.info(s"CoralogixLogger failed before, skipping"),
+      onTrue = Log.info("FailedBefore", "action" := "Skipping"),
       onFalse = f
     )
 
@@ -127,7 +129,7 @@ object CoralogixLoggerOperator {
         )
           f
         else
-          log.info(s"Event refers to an outdated resource, skipping")
+          Log.info("OutdatedResource", "action" := "skipping")
     } yield ()
 
   private def withCurrentResource[R, E, A](
@@ -293,7 +295,11 @@ object CoralogixLoggerOperator {
                         componentKind,
                         s"Provisioning of $componentKind..."
                       )
-                 _ <- log.info(s"Creating a new $componentKind with name $componentName")
+                 _ <- Log.info(
+                        "CreatingNew",
+                        "kind" := componentKind,
+                        "name" := componentName
+                      )
                  _ <- resourceClient
                         .create(component, componentNamespace)
                         .catchAll { failure =>
@@ -319,7 +325,7 @@ object CoralogixLoggerOperator {
                       )
                } yield ()
              case Right(_) =>
-               log.info(s"Skip: $componentKind already exists") *>
+               Log.info("AlreadyExist", "kind" := componentKind) *>
                  replaceStatus(
                    currentResource,
                    status =>
