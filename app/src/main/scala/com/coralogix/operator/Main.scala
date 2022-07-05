@@ -2,6 +2,8 @@ package com.coralogix.operator
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax._
 import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
@@ -23,7 +25,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{ k8sCluster, kubeconfig, serviceAccount }
+import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
@@ -40,12 +42,13 @@ import zio.console.Console
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.magic._
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, URIO, ZIO }
+import zio.{ console, App, ExitCode, Fiber, URIO, ZIO, ZManaged }
 
 object Main extends App {
+  val logger = Log.logger("cx-operator")
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
-    val config = (System.any ++ logging.live) >>> OperatorConfig.live
+    val config = (System.any ++ logger) >>> OperatorConfig.live
     val ruleGroupsClient =
       (config.narrow(
         _.grpc.clients.rulegroups
@@ -56,42 +59,51 @@ object Main extends App {
         _.grpc.clients.alerts
       ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.alerts.live
 
-    val service =
+    val spawnOperators =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
-        runAsLeader {
-          for {
-            _       <- log.info(s"Operator started")
-            config  <- getConfig[OperatorConfig]
-            metrics <- OperatorMetrics.make
+        for {
+          _       <- Log.info(s"OperatorStarted")
+          config  <- getConfig[OperatorConfig]
+          metrics <- OperatorMetrics.make
 
-            _ <- register(
-                   rulegroupsets.customResourceDefinition
+          _ <- register(
+                 rulegroupsets.customResourceDefinition
+               ) <&>
+                 register(
+                   coralogixloggers.customResourceDefinition
                  ) <&>
-                   register(
-                     coralogixloggers.customResourceDefinition
-                   ) <&>
-                   register(
-                     alertsets.customResourceDefinition
-                   )
-            rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
-            loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-            alertFibers     <- spawnAlertOperators(metrics, config.resources)
-            allFibers = rulegroupFibers ::: loggerFibers ::: alertFibers
-            _ <- ZIO.never.raceAll(allFibers.map(_.await))
-          } yield ()
-        }
+                 register(
+                   alertsets.customResourceDefinition
+                 )
+          rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
+          loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
+          alertFibers     <- spawnAlertOperators(metrics, config.resources)
+        } yield rulegroupFibers ::: loggerFibers ::: alertFibers
       }
 
-    service
+    val leader = runAsLeader {
+      ZManaged
+        .makeInterruptible(spawnOperators)(fibers =>
+          ZIO.foreach(fibers)(
+            _.interrupt.tapCause(cause =>
+              console
+                .putStrLnErr(s"Interrupt failure\n${cause.squash}")
+                .ignore
+                .provideLayer(console.Console.live)
+            )
+          )
+        )
+        .use(fibers => ZIO.never.raceAll(fibers.map(_.await)))
+    }
+
+    leader
       .injectSome[Blocking with System with Clock with Console](
         OperatorConfig.live,
         monitoring.live,
-        logging.live,
-        kubeconfig(disableHostnameVerification = true)
-          .project(_.dropTrailingDot)
-          .orElse(serviceAccount()),
+        defaultConfigChain.project(_.dropTrailingDot),
         k8sSttpClient,
         k8sCluster,
+        logger,
         CustomResourceDefinitions.live,
         ServiceAccounts.live,
         ClusterRoles.live,
@@ -110,15 +122,12 @@ object Main extends App {
         LeaderElection.configMapLock("cx-operator-lock")
       )
       .provideSomeLayer[Blocking with System with Clock with Console](
-        (config.narrow(_.grpc) ++ logging.live) >>> grpc.server
+        (config.narrow(_.grpc) ++ logger) >>> grpc.server
       )
       .tapCause { cause =>
         console.putStrLnErr(s"Critical failure\n${cause.squash}")
       }
       .exitCode
-      .ensuring {
-        console.putStrLnErr("Shutting down").ignore
-      }
       .untraced
   }
 
@@ -138,26 +147,26 @@ object Main extends App {
         OperatorMetrics
       ) => ZIO[R, E, Operator[ROp, CoralogixOperatorFailure, T]]
     ): ZIO[ROp with Clock with Logging with R, E, List[Fiber.Runtime[Nothing, Unit]]] =
-      if (resourceSelector(resources).isEmpty)
-        for {
-          _       <- log.info(s"Starting $name for all namespaces")
-          op      <- constructAll(resources.defaultBuffer, metrics)
-          opFiber <- op.start()
-        } yield List(opFiber)
-      else
-        ZIO.foreach(resourceSelector(resources)) { config =>
+      Log.annotate("operator" := name) {
+        if (resourceSelector(resources).isEmpty)
           for {
-            _ <- log.info(
-                   s"Starting $name for namespace ${config.namespace.value}"
-                 )
-            op <- constructForNamespace(
-                    config.namespace,
-                    config.buffer.getOrElse(resources.defaultBuffer),
-                    metrics
-                  )
+            _       <- Log.info(s"Starting", "namespace" := "all")
+            op      <- constructAll(resources.defaultBuffer, metrics)
             opFiber <- op.start()
-          } yield opFiber
-        }
+          } yield List(opFiber)
+        else
+          ZIO.foreach(resourceSelector(resources)) { config =>
+            for {
+              _ <- Log.info(s"Starting", "namespace" := config.namespace.value)
+              op <- constructForNamespace(
+                      config.namespace,
+                      config.buffer.getOrElse(resources.defaultBuffer),
+                      metrics
+                    )
+              opFiber <- op.start()
+            } yield opFiber
+          }
+      }
   }
 
   private def spawnRuleGroupOperators(
@@ -169,7 +178,7 @@ object Main extends App {
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
     SpawnOperators[RuleGroupSet](
-      "rule group operator",
+      "RuleGroupSet",
       metrics,
       resources,
       _.rulegroups,
@@ -194,7 +203,7 @@ object Main extends App {
       daemonSets          <- ZIO.service[DaemonSets.Service]
       op <-
         SpawnOperators[CoralogixLogger](
-          "coralogix logger operator",
+          "CoralogixLogger",
           metrics,
           resources,
           _.coralogixLoggers,
@@ -214,7 +223,7 @@ object Main extends App {
     List[Fiber.Runtime[Nothing, Unit]]
   ] =
     SpawnOperators[AlertSet](
-      "alert operator",
+      "AlertSet",
       metrics,
       resources,
       _.alerts,
@@ -243,7 +252,7 @@ object Main extends App {
              )
              .mapError(registrationFailure)
       name <- definition.getName.mapError(registrationFailure)
-      _    <- log.info(s"Registered $name CRD")
+      _    <- Log.info(s"RegisteredCRD", "name" := name)
     } yield ()
 
   private def registrationFailure(failure: K8sFailure): Throwable =

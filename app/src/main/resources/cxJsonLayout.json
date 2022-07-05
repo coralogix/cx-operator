@@ -1,0 +1,34 @@
+{
+  "@timestamp": {
+    "$resolver": "timestamp"
+  },
+  "level": {
+    "$resolver": "level",
+    "field": "name"
+  },
+  "event": {
+    "$resolver": "message"
+  },
+  "exception": {
+    "exception_class": {
+      "$resolver": "exception",
+      "field": "className"
+    },
+    "exception_message": {
+      "$resolver": "exception",
+      "field": "message",
+      "stringified": true
+    },
+    "stacktrace": {
+      "$resolver": "exception",
+      "field": "stackTrace",
+      "stackTrace": {
+        "stringified": true
+      }
+    }
+  },
+  "logger_name": {
+    "$resolver": "logger",
+    "field": "name"
+  }
+}

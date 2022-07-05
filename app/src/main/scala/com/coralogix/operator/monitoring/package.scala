@@ -1,6 +1,8 @@
 package com.coralogix.operator
 
 import com.coralogix.operator.config.PrometheusConfig
+import com.coralogix.operator.logging.Log
+import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.HTTPServer
 import io.prometheus.client.hotspot.{
@@ -35,7 +37,7 @@ package object monitoring {
             registry <- getCurrentRegistry()
             _        <- initializeDefaultExportsExceptThread(registry)
             server   <- http(registry, config.port)
-            _        <- log.info(s"Prometheus metrics are exposed on port ${config.port}")
+            _        <- Log.info("StartedMetricsServe", "port" := config.port)
           } yield PrometheusExport(server)
         }
       )(export => stopHttp(export.server).ignore)
