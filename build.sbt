@@ -13,6 +13,8 @@ val sonatypePass = sys.env.getOrElse("NEXUS_PASSWORD", "")
 
 lazy val privateNexus = ("Private Nexus" at sonatypeBaseUrl + "repository/maven-public/")
   .withAllowInsecureProtocol(true)
+lazy val sonatypeSnapshots =
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 val commonSettings = Seq(
   organization := "com.coralogix",
@@ -34,7 +36,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)
   .settings(
     scalaVersion := ScalaVer,
-    resolvers += privateNexus,
+    resolvers ++= Seq(privateNexus, sonatypeSnapshots),
     libraryDependencies ++= Dependencies.all,
     PB.targets in Compile := Seq(
       scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,

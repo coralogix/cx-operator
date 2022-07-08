@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val Versions = new {
-    val zioK8s = "1.4.7"
+    val zioK8s = "1.4.7+1-f4d09d3c-SNAPSHOT"
     val quickLens = "1.8.4"
     val sttp = "3.3.18"
     val zioConfig = "1.0.10"
