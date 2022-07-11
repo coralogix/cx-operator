@@ -265,7 +265,12 @@ object CoralogixLoggerOperator {
   ], Unit] =
     for {
       resource <- currentResource.get
-      component     = createComponent(name, resource).attachOwner(name, uid, ctx.resourceType)
+      component = createComponent(name, resource).attachOwner(
+                    name,
+                    uid,
+                    ctx.resourceType,
+                    CoralogixLogger.metadata.kind
+                  )
       componentKind = implicitly[ResourceMetadata[T]].kind
       componentName <- component.getName.mapError(KubernetesFailure.apply)
       namespace = resource.metadata
