@@ -12,6 +12,7 @@ import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, Und
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService._
 import com.coralogix.rules.v1.{ DeleteRuleGroupRequest, UpdateRuleGroupRequest }
+import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
@@ -19,6 +20,7 @@ import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
 import com.coralogix.zio.k8s.operator.Operator._
 import com.coralogix.zio.k8s.operator._
+import sttp.model.StatusCode
 import zio.ZIO
 import zio.clock.Clock
 import zio.logging.Logging
@@ -276,6 +278,10 @@ object RuleGroupSetOperator {
           .map(K8sNamespace.apply)
           .getOrElse(K8sNamespace.default)
       )
+      .catchSome {
+        case HttpFailure(_, message, StatusCode.Conflict) =>
+          Log.warn("ReplaceStatusConflict", "responseMessage" := message, "status" := 409)
+      }
       .mapError(KubernetesFailure.apply)
       .unit
   }.when(updates.nonEmpty)
