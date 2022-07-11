@@ -9,6 +9,7 @@ import com.coralogix.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.alertset.ModelTransformations._
 import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpdates
 import com.coralogix.operator.monitoring.OperatorMetrics
+import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
@@ -17,6 +18,7 @@ import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.zio.k8s.operator.aspects.logEvents
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
+import sttp.model.StatusCode
 import zio.ZIO
 import zio.clock.Clock
 import zio.logging.Logging
@@ -252,6 +254,10 @@ object AlertSetOperator {
           .map(K8sNamespace.apply)
           .getOrElse(K8sNamespace.default)
       )
+      .catchSome {
+        case HttpFailure(_, message, StatusCode.Conflict) =>
+          Log.warn("ReplaceStatusConflict", "responseMessage" := message, "status" := 409)
+      }
       .mapError(KubernetesFailure.apply)
       .unit
   }.when(updates.nonEmpty)
