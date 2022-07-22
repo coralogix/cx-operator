@@ -2,6 +2,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
   target = "github.com/coralogix/rules-api-protobuf/"
+  subgroup = ""
   revision = "60d89c5a28af84648eadf8cfc4457cdf882f17f8"
   branch = ""
   path = ""
@@ -9,6 +10,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 
 [[dependencies]]
   target = "github.com/coralogix/alerts-api-protobuf/"
+  subgroup = ""
   revision = "69915825fdb08fc05ea9acba03284eef26057dff"
   branch = ""
   path = ""
