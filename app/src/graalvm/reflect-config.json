@@ -2044,26 +2044,26 @@
   "name":"scala.collection.immutable.List[]"
 },
 {
-  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3509/0x000000084100f840",
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3794/0x00000008410d8c40",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3514/0x000000084100cc40",
-  "methods":[{"name":"writeReplace","parameterTypes":[] }]
-},
-{
-  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3520/0x000000084100bc40",
-  "methods":[{"name":"writeReplace","parameterTypes":[] }]
-},
-{
-  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3525/0x0000000841031040",
-  "methods":[{"name":"writeReplace","parameterTypes":[] }]
-},
-{
-  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3528/0x0000000841032840",
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3878/0x0000000841125440",
   "methods":[
     {"name":"writeReplace","parameterTypes":[] }
   ]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3886/0x000000084112a440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3888/0x000000084112c840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3892/0x000000084112d840",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
   "name":"short[]"
@@ -2299,11 +2299,11 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.App$$Lambda$4091/0x00000008411b8040",
+  "name":"zio.App$$Lambda$4154/0x00000008411de840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$58/0x000000084011a440",
+  "name":"zio.App$$Lambda$58/0x0000000840122440",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2315,23 +2315,23 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$820/0x000000084049d040",
+  "name":"zio.App$$Lambda$820/0x000000084049c840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$837/0x00000008404a7040",
+  "name":"zio.App$$Lambda$835/0x00000008404a6840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$840/0x00000008404a9040",
+  "name":"zio.App$$Lambda$838/0x00000008404a7840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$anon$1$$Lambda$3996/0x000000084117fc40",
+  "name":"zio.App$$anon$1$$Lambda$4013/0x000000084117f840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$3551/0x0000000841040040",
+  "name":"zio.Fiber$$Lambda$3930/0x0000000841143840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2343,19 +2343,19 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Promise$$Lambda$940/0x00000008404f6840",
+  "name":"zio.Promise$$Lambda$935/0x00000008404ef440",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$27/0x00000008400e4840",
+  "name":"zio.ZIO$$$Lambda$27/0x00000008400e3040",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$28/0x00000008400e4040",
+  "name":"zio.ZIO$$$Lambda$28/0x00000008400e2840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$39/0x0000000840105840",
+  "name":"zio.ZIO$$$Lambda$39/0x0000000840107040",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2371,15 +2371,15 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$1242/0x0000000840715440",
+  "name":"zio.ZIO$$Lambda$1238/0x0000000840747c40",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$4082/0x00000008411b3840",
+  "name":"zio.ZIO$$Lambda$4145/0x00000008411da840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$4086/0x00000008411b5840",
+  "name":"zio.ZIO$$Lambda$4149/0x00000008411dc840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2387,15 +2387,15 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$932/0x00000008404ee840",
+  "name":"zio.ZIO$$Lambda$924/0x00000008404e9040",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$WhenM$$$Lambda$2131/0x0000000840b94840",
+  "name":"zio.ZIO$WhenM$$$Lambda$2134/0x0000000840b8c840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZQueue$$anon$5$$Lambda$1303/0x00000008407d7440",
+  "name":"zio.ZQueue$$anon$5$$Lambda$1297/0x00000008407d2c40",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2405,21 +2405,19 @@
   ]
 },
 {
-  "name":"zio.ZRef$Atomic$$Lambda$968/0x000000084050d040",
-  "methods":[
-    {"name":"writeReplace","parameterTypes":[] }
-  ]
-},
-{
-  "name":"zio.ZScope$$$Lambda$4083/0x00000008411b4040",
+  "name":"zio.ZRef$Atomic$$Lambda$964/0x000000084050a840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZScope$$$Lambda$976/0x0000000840511840",
+  "name":"zio.ZScope$$$Lambda$4146/0x00000008411da440",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZScope$Local$$Lambda$4081/0x00000008411b3040",
+  "name":"zio.ZScope$$$Lambda$971/0x000000084050e440",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.ZScope$Local$$Lambda$4144/0x00000008411d9840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2430,7 +2428,7 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$$Lambda$975/0x0000000840511440",
+  "name":"zio.internal.FiberContext$$Lambda$970/0x000000084050e040",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2438,19 +2436,19 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2127/0x0000000840b92840",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2130/0x0000000840b8e840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2128/0x0000000840b93040",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2131/0x0000000840b8e040",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2138/0x0000000840b99040",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2141/0x0000000840b99840",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2141/0x0000000840b99c40",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2144/0x0000000840b9a440",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
