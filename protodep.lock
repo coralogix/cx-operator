@@ -11,7 +11,7 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
 [[dependencies]]
   target = "github.com/coralogix/alerts-api-protobuf/"
   subgroup = ""
-  revision = "ed9a4cbd349dee0ce3c25c513c3ada7dcc4ec121"
+  revision = "69915825fdb08fc05ea9acba03284eef26057dff"
   branch = ""
   path = ""
   protocol = ""
