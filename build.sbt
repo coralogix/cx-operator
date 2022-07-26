@@ -55,7 +55,8 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
-    nativeImageInstalled := true,
+    nativeImageJvm      := "graalvm-java17",
+    nativeImageVersion  := "22.1.0",
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.apache.logging",
       "--initialize-at-run-time=com.fasterxml.jackson",
