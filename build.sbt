@@ -38,9 +38,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers ++= Seq(privateNexus, sonatypeSnapshots),
     libraryDependencies ++= Dependencies.all,
-    PB.targets in Compile := Seq(
-      scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
-      scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
+    Compile / PB.targets := Seq(
+      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value
     ),
     PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
@@ -55,10 +55,11 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
-    nativeImageVersion  := "21.1.0",
+    nativeImageJvm      := "graalvm-java17",
+    nativeImageVersion  := "22.1.0",
     nativeImageOptions ++= Seq(
       "--initialize-at-build-time=org.apache.logging",
-      "--initialize-at-build-time=com.fasterxml.jackson",
+      "--initialize-at-run-time=com.fasterxml.jackson",
       "--initialize-at-build-time=org.yaml.snakeyaml",
       "--initialize-at-build-time=jdk.management.jfr.SettingDescriptorInfo",
       "--initialize-at-build-time=scala.Predef$",
@@ -68,6 +69,11 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       "--initialize-at-build-time=scala.package$",
       "--initialize-at-build-time=scala.math",
       "--initialize-at-run-time=io.netty",
+      "--initialize-at-run-time=javax.xml.parsers.FactoryFinder",
+      "--initialize-at-run-time=javax.xml.datatype.DatatypeFactory",
+      "--initialize-at-run-time=jdk.xml.internal.SecuritySupport",
+      "--initialize-at-run-time=org.apache.logging.log4j.core.async.AsyncLoggerContext",
+      "--initialize-at-run-time=org.apache.logging.log4j.core.pattern.JAnsiTextRenderer",
       "--enable-https",
       "--no-fallback",
       "--allow-incomplete-classpath",
