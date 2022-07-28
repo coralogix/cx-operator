@@ -97,6 +97,11 @@ package object primitives {
     override lazy val typeClasses = ValueTypeClasses(AlertId.apply, _.value)
   }
 
+  final case class UniqueAlertId(value: String) extends AnyVal
+  object UniqueAlertId extends ValueTypeImplicits[UniqueAlertId, String] {
+    override lazy val typeClasses = ValueTypeClasses(UniqueAlertId.apply, _.value)
+  }
+
   final case class EmailAddress(value: String) extends AnyVal
   object EmailAddress extends ValueTypeImplicits[EmailAddress, String] {
     override lazy val typeClasses = ValueTypeClasses(EmailAddress.apply, _.value)

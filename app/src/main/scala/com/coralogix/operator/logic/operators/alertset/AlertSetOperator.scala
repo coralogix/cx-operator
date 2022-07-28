@@ -1,7 +1,7 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.alerts.v1.{ DeleteAlertRequest, UpdateAlertRequest }
+import com.coralogix.alerts.v1.{ DeleteAlertRequest, GetAlertByUniqueIdRequest, UpdateAlertRequest }
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic._
@@ -14,10 +14,12 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertS
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.model._
-import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
+import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName, UniqueAlertId }
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.zio.k8s.operator.aspects.logEvents
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
+import com.google.rpc.code.Code.NOT_FOUND
+import io.grpc.Status
 import sttp.model.StatusCode
 import zio.ZIO
 import zio.clock.Clock
@@ -115,13 +117,14 @@ object AlertSetOperator {
                  "name"     := alert.name.value,
                  "response" := response.toString
                )
-          alertId <- ZIO.fromEither(
-                       response.alert
-                         .flatMap(_.id)
-                         .map(AlertId.apply)
-                         .toRight(UndefinedGrpcField("CreateAlertResponse.alert.id"))
-                     )
-        } yield StatusUpdate.AddRuleGroupMapping(alert.name, alertId)).catchAll {
+          uniqueAlertId <-
+            ZIO.fromEither(
+              response.alert
+                .flatMap(_.uniqueIdentifier)
+                .map(UniqueAlertId.apply)
+                .toRight(UndefinedGrpcField("CreateAlertResponse.alert.uniqueIdentifier"))
+            )
+        } yield StatusUpdate.AddRuleGroupMapping(alert.name, uniqueAlertId)).catchAll {
           (failure: CoralogixOperatorFailure) =>
             Log
               .error(
@@ -141,27 +144,37 @@ object AlertSetOperator {
   private def modifyExistingAlerts(
     ctx: OperatorContext,
     name: String,
-    mappings: Map[AlertName, (AlertId, AlertSet.Spec.Alerts)]
+    mappings: Map[AlertName, (UniqueAlertId, AlertSet.Spec.Alerts)]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(mappings.toVector) {
-        case (alertName, (id, data)) =>
+        case (alertName, (uniqueAlertId, data)) =>
           (for {
-            _ <- Log.info("Modifying", "name" := alertName.value, "id" := id.value)
+            _ <- Log.info(
+                   "Modifying",
+                   "name"             := alertName.value,
+                   "uniqueIdentifier" := uniqueAlertId.value
+                 )
+
+            maybeAlertId <-
+              AlertServiceClient
+                .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
+                .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
+            alertId <-
+              ZIO.fromOption(maybeAlertId).mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
+
             alert <-
-              ZIO.fromEither(toAlert(data, id, ctx, name)).mapError(CustomResourceError.apply)
+              ZIO.fromEither(toAlert(data, alertId, ctx, name)).mapError(CustomResourceError.apply)
+
             response <- AlertServiceClient
-                          .updateAlert(
-                            UpdateAlertRequest(
-                              alert = Some(alert)
-                            )
-                          )
+                          .updateAlert(UpdateAlertRequest(alert = Some(alert)))
                           .mapError(GrpcFailure.apply)
             _ <- Log.trace(
                    "ModifyApiResponse",
-                   "name"     := alertName.value,
-                   "id"       := id,
-                   "response" := response.toString
+                   "name"          := alertName.value,
+                   "id"            := alertId,
+                   "uniqueAlertId" := uniqueAlertId,
+                   "response"      := response.toString
                  )
             alertId <- ZIO.fromEither(
                          response.alert
@@ -169,7 +182,7 @@ object AlertSetOperator {
                            .map(AlertId.apply)
                            .toRight(UndefinedGrpcField("UpdateAlertResponse.alert.id"))
                        )
-          } yield StatusUpdate.AddRuleGroupMapping(alertName, alertId)).catchAll {
+          } yield StatusUpdate.AddRuleGroupMapping(alertName, uniqueAlertId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
               Log
                 .error(
@@ -187,21 +200,29 @@ object AlertSetOperator {
       }
 
   private def deleteAlerts(
-    mappings: Map[AlertName, AlertId]
+    mappings: Map[AlertName, UniqueAlertId]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(mappings.toVector) {
-        case (name, id) =>
+        case (name, uniqueAlertId) =>
           (for {
-            _ <- Log.info("Delete", "name" := name.value, "id" := id.value)
+            _ <- Log.info("Delete", "name" := name.value, "uniqueIdentifier" := uniqueAlertId.value)
+            maybeAlertId <-
+              AlertServiceClient
+                .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
+                .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
+            alertId <-
+              ZIO.fromOption(maybeAlertId).mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
+
             response <- AlertServiceClient
-                          .deleteAlert(DeleteAlertRequest(Some(id.value)))
+                          .deleteAlert(DeleteAlertRequest(Some(alertId.value)))
                           .mapError(GrpcFailure.apply)
             _ <- Log.trace(
                    "DeleteApiResponse",
-                   "name"     := name,
-                   "id"       := id,
-                   "response" := response.toString
+                   "name"          := name,
+                   "id"            := alertId,
+                   "uniqueAlertId" := uniqueAlertId,
+                   "response"      := response.toString
                  )
           } yield StatusUpdate.DeleteRuleGroupMapping(name)).catchAll {
             (failure: CoralogixOperatorFailure) =>
@@ -209,8 +230,8 @@ object AlertSetOperator {
                 .error(
                   CoralogixOperatorFailure.toThrowable.toThrowable(failure),
                   "CannotDelete",
-                  "name" := name.value,
-                  "id"   := id.value
+                  "name"          := name.value,
+                  "uniqueAlertId" := uniqueAlertId.value
                 )
                 .as(
                   StatusUpdate
@@ -231,9 +252,9 @@ object AlertSetOperator {
 
   private def mappingToMap(
     mappings: Vector[AlertSet.Status.AlertIds]
-  ): Map[AlertName, AlertId] =
+  ): Map[AlertName, UniqueAlertId] =
     mappings.map { mapping =>
-      mapping.name -> mapping.id
+      mapping.name -> UniqueAlertId(mapping.id.value)
     }.toMap
 
   private def applyStatusUpdates(

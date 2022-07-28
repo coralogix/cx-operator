@@ -1,7 +1,7 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
-import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName }
+import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName, UniqueAlertId }
 import zio.test.Assertion._
 import zio.test._
 import zio.test.environment.TestEnvironment
@@ -24,8 +24,8 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           StatusUpdate.runStatusUpdates(
             emptyStatus,
             Vector(
-              StatusUpdate.AddRuleGroupMapping(AlertName("g1"), AlertId("id1")),
-              StatusUpdate.AddRuleGroupMapping(AlertName("g2"), AlertId("id2"))
+              StatusUpdate.AddRuleGroupMapping(AlertName("g1"), UniqueAlertId("id1")),
+              StatusUpdate.AddRuleGroupMapping(AlertName("g2"), UniqueAlertId("id2"))
             )
           )
         )(equalTo(statusG1G2))
@@ -35,7 +35,7 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           StatusUpdate.runStatusUpdates(
             statusG1G2,
             Vector(
-              StatusUpdate.AddRuleGroupMapping(AlertName("g3"), AlertId("id3"))
+              StatusUpdate.AddRuleGroupMapping(AlertName("g3"), UniqueAlertId("id3"))
             )
           )
         )(
@@ -57,7 +57,7 @@ object StatusUpdateSpec extends DefaultRunnableSpec {
           StatusUpdate.runStatusUpdates(
             statusG1G2,
             Vector(
-              StatusUpdate.AddRuleGroupMapping(AlertName("g1"), AlertId("id3"))
+              StatusUpdate.AddRuleGroupMapping(AlertName("g1"), UniqueAlertId("id3"))
             )
           )
         )(
