@@ -211,9 +211,10 @@ object AlertSetOperator {
               AlertServiceClient
                 .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
                 .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
-            alertId <-
-              ZIO.fromOption(maybeAlertId).mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
-
+            alertId <- ZIO
+                         .fromOption(maybeAlertId)
+                         .map(AlertId(_))
+                         .catchAll(_ => ZIO.succeed(AlertId(uniqueAlertId.value)))
             response <- AlertServiceClient
                           .deleteAlert(DeleteAlertRequest(Some(alertId.value)))
                           .mapError(GrpcFailure.apply)
