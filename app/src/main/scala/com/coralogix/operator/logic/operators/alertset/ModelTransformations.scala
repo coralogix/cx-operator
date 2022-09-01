@@ -72,14 +72,14 @@ object ModelTransformations {
 
   def toAlert(
     alert: AlertSet.Spec.Alerts,
-    id: AlertId,
+    id: Option[AlertId],
     ctx: OperatorContext,
     setName: String
   ): Either[String, Alert] =
     alert.activeWhen.map(a => toActiveWhen(a).map(Some.apply)).getOrElse(Right(None)).map {
       activeWhen =>
         Alert(
-          id = Some(id.value),
+          id = id.map(_.value),
           name = Some(alert.name.value),
           description = alert.description.orElse(defaultDescription(ctx, setName)),
           isActive = Some(alert.isActive),
