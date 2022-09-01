@@ -1,7 +1,12 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.alerts.v1.{ DeleteAlertRequest, GetAlertByUniqueIdRequest, UpdateAlertRequest }
+import com.coralogix.alerts.v1.{
+  DeleteAlertRequest,
+  GetAlertByUniqueIdRequest,
+  UpdateAlertRequest,
+  ValidateAlertRequest
+}
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic._
@@ -11,17 +16,18 @@ import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpd
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName, UniqueAlertId }
+import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.DeleteOptions
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
-import com.coralogix.zio.k8s.operator.aspects.logEvents
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
-import com.google.rpc.code.Code.NOT_FOUND
+import io.circe.Json
 import io.grpc.Status
 import sttp.model.StatusCode
-import zio.ZIO
+import zio.{ Has, ZIO }
 import zio.clock.Clock
 import zio.logging.Logging
 
@@ -35,29 +41,44 @@ object AlertSetOperator {
       event match {
         case Reseted() =>
           ZIO.unit
-        case Added(item) =>
-          if (
-            item.generation == 0L || // new item
-            !item.status
-              .flatMap(_.lastUploadedGeneration)
-              .contains(item.generation) // already synchronized
-          ) for {
-            name    <- item.getName.mapError(KubernetesFailure.apply)
-            updates <- createNewAlerts(ctx, name, item.spec.alerts.toSet)
-            _ <- applyStatusUpdates(
-                   ctx,
-                   item,
-                   StatusUpdate.ClearFailures +:
-                     StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
-                     updates
-                 )
+
+        case Added(item)
+            if item.generation == 0L || // new item
+              !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
+          for {
+            alertSetName <- item.getName.mapError(KubernetesFailure.apply)
+            setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
+            _ <- ZIO.when(setIsValid) {
+                   createNewAlerts(ctx, alertSetName, item.spec.alerts.toSet).flatMap(updates =>
+                     applyStatusUpdates(
+                       ctx,
+                       item,
+                       StatusUpdate.ClearFailures +:
+                         StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
+                         updates
+                     )
+                   )
+                 }
+            _ <- alertsets
+                   .delete(
+                     alertSetName,
+                     DeleteOptions(),
+                     item.metadata
+                       .flatMap(_.namespace)
+                       .map(K8sNamespace.apply)
+                       .getOrElse(K8sNamespace.default)
+                   )
+                   .mapError(KubernetesFailure)
+                   .unless(setIsValid)
           } yield ()
-          else
-            Log.debug(
-              "AlreadyAdded",
-              "name"       := item.metadata.flatMap(_.name),
-              "generation" := item.generation
-            )
+
+        case Added(item) =>
+          Log.debug(
+            "AlreadyAdded",
+            "name"       := item.metadata.flatMap(_.name),
+            "generation" := item.generation
+          )
+
         case Modified(item) =>
           withExpectedStatus(item) { status =>
             if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
@@ -72,17 +93,30 @@ object AlertSetOperator {
               }
 
               for {
-                name <- item.getName.mapError(KubernetesFailure.apply)
-                up0  <- modifyExistingAlerts(ctx, name, toUpdate)
-                up1  <- createNewAlerts(ctx, name, toAdd.map(byName.apply))
-                up2  <- deleteAlerts(toRemove)
+                alertSetName <- item.getName.mapError(KubernetesFailure.apply)
+                setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
+                _ <- ZIO.when(setIsValid) {
+                       for {
+                         up0 <- modifyExistingAlerts(ctx, alertSetName, toUpdate)
+                         up1 <- createNewAlerts(ctx, alertSetName, toAdd.map(byName.apply))
+                         up2 <- deleteAlerts(toRemove)
+                         _ <- applyStatusUpdates(
+                                ctx,
+                                item,
+                                StatusUpdate.ClearFailures +:
+                                  StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
+                                  (up0 ++ up1 ++ up2)
+                              )
+                       } yield ()
+                     }
                 _ <- applyStatusUpdates(
                        ctx,
                        item,
-                       StatusUpdate.ClearFailures +:
-                         StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
-                         (up0 ++ up1 ++ up2)
-                     )
+                       Vector(
+                         StatusUpdate.ClearFailures,
+                         StatusUpdate.UpdateLastUploadedGeneration(item.generation)
+                       )
+                     ).unless(setIsValid)
               } yield ()
             } else
               Log.debug(
@@ -91,11 +125,36 @@ object AlertSetOperator {
                 "generation" := item.generation
               )
           }
+
         case Deleted(item) =>
           withExpectedStatus(item) { status =>
             val mappings = status.alertIds.getOrElse(Vector.empty)
             deleteAlerts(mappingToMap(mappings)).unit
           }
+      }
+
+  private def isSetValid(
+    setName: String,
+    alerts: Vector[Alerts],
+    ctx: OperatorContext
+  ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Boolean] =
+    ZIO
+      .foreachPar(alerts) { a =>
+        for {
+          alert <- ZIO
+                     .fromEither(toAlert(a, None, ctx, setName))
+                     .mapError(Status.INVALID_ARGUMENT.withDescription)
+          _ <- AlertServiceClient.validateAlert(ValidateAlertRequest(Some(alert)))
+        } yield ()
+      }
+      .as(true)
+      .catchAll { failure =>
+        val warnMessage =
+          if (failure.getDescription.contains("Invalid integration name"))
+            "InvalidIntegrationName"
+          else
+            "InvalidAlertSet"
+        Log.warn(warnMessage, "description" -> Json.fromString(failure.getDescription)).as(false)
       }
 
   private def createNewAlerts(
@@ -143,7 +202,7 @@ object AlertSetOperator {
 
   private def modifyExistingAlerts(
     ctx: OperatorContext,
-    name: String,
+    setName: String,
     mappings: Map[AlertName, (UniqueAlertId, AlertSet.Spec.Alerts)]
   ): ZIO[AlertServiceClient with Logging, Nothing, Vector[StatusUpdate]] =
     ZIO
@@ -163,8 +222,9 @@ object AlertSetOperator {
             alertId <-
               ZIO.fromOption(maybeAlertId).mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
 
-            alert <-
-              ZIO.fromEither(toAlert(data, alertId, ctx, name)).mapError(CustomResourceError.apply)
+            alert <- ZIO
+                       .fromEither(toAlert(data, Some(alertId), ctx, setName))
+                       .mapError(CustomResourceError.apply)
 
             response <- AlertServiceClient
                           .updateAlert(UpdateAlertRequest(alert = Some(alert)))
@@ -176,12 +236,12 @@ object AlertSetOperator {
                    "uniqueAlertId" := uniqueAlertId,
                    "response"      := response.toString
                  )
-            alertId <- ZIO.fromEither(
-                         response.alert
-                           .flatMap(_.id)
-                           .map(AlertId.apply)
-                           .toRight(UndefinedGrpcField("UpdateAlertResponse.alert.id"))
-                       )
+            _ <- ZIO.fromEither(
+                   response.alert
+                     .flatMap(_.id)
+                     .map(AlertId.apply)
+                     .toRight(UndefinedGrpcField("UpdateAlertResponse.alert.id"))
+                 )
           } yield StatusUpdate.AddRuleGroupMapping(alertName, uniqueAlertId)).catchAll {
             (failure: CoralogixOperatorFailure) =>
               Log
