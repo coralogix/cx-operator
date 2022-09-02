@@ -6,5 +6,4 @@ revision = "v0.12"
 
 [[dependencies]]
 target = "github.com/coralogix/alerts-api-protobuf/"
-branch = "SC-8904-alert-validation"
-protocol = "https"
+revision = "v0.24"
