@@ -1,0 +1,27 @@
+enabled: true
+alerts:
+  coralogix:
+    zeroErrorPolicyAlertEnabled: true
+    alertsSequence:
+      - name: Unsupported integration in in applied alert set
+        description: Attempt to create \ modify alert set with provided unsupported integration
+        severity: WARNING
+        condition:
+          type: IMMEDIATE
+        filters:
+          filterType: Text
+          query: |-
+            log_obj.event._message:"InvalidIntegrationName"
+          logSeverities:
+            - WARNING
+      - name: Invalid alert in applied alertset
+        description: Attempt to create \ modify alert set with provided unsupported integration
+        severity: WARNING
+        condition:
+          type: IMMEDIATE
+        filters:
+          filterType: Text
+          query: |-
+            log_obj.event._message:"InvalidAlertSet"
+          logSeverities:
+            - WARNING
