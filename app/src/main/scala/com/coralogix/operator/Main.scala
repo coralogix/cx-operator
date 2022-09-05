@@ -132,9 +132,9 @@ object Main extends App {
   }
 
   object SpawnOperators {
-    def apply[T <: Object] = new SpawnOperators[T]
+    def apply[T] = new SpawnOperators[T]
   }
-  class SpawnOperators[T <: Object] {
+  class SpawnOperators[T] {
     def apply[R, E, ROp](
       name: String,
       metrics: OperatorMetrics,
