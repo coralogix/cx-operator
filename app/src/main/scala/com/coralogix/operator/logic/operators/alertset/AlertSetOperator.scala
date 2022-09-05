@@ -32,6 +32,7 @@ import zio.clock.Clock
 import zio.logging.Logging
 
 object AlertSetOperator {
+  private val CX_PREFIX = "CX_"
   private def eventProcessor(): EventProcessor[
     Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
@@ -49,7 +50,15 @@ object AlertSetOperator {
             alertSetName <- item.getName.mapError(KubernetesFailure.apply)
             setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
             _ <- ZIO.when(setIsValid) {
-                   createNewAlerts(ctx, alertSetName, item.spec.alerts.toSet).flatMap(updates =>
+                   createNewAlerts(
+                     ctx,
+                     alertSetName,
+                     item.spec.alerts.toSet,
+                     item.metadata
+                       .flatMap(_.labels)
+                       .getOrElse(Map.empty)
+                       .filter(_._1.startsWith(CX_PREFIX))
+                   ).flatMap(updates =>
                      applyStatusUpdates(
                        ctx,
                        item,
@@ -98,7 +107,15 @@ object AlertSetOperator {
                 _ <- ZIO.when(setIsValid) {
                        for {
                          up0 <- modifyExistingAlerts(ctx, alertSetName, toUpdate)
-                         up1 <- createNewAlerts(ctx, alertSetName, toAdd.map(byName.apply))
+                         up1 <- createNewAlerts(
+                                  ctx,
+                                  alertSetName,
+                                  toAdd.map(byName.apply),
+                                  item.metadata
+                                    .flatMap(_.labels)
+                                    .getOrElse(Map.empty)
+                                    .filter(_._1.startsWith(CX_PREFIX))
+                                )
                          up2 <- deleteAlerts(toRemove)
                          _ <- applyStatusUpdates(
                                 ctx,
@@ -160,14 +177,16 @@ object AlertSetOperator {
   private def createNewAlerts(
     ctx: OperatorContext,
     name: String,
-    alerts: Set[AlertSet.Spec.Alerts]
+    alerts: Set[AlertSet.Spec.Alerts],
+    labels: Map[String, String]
   ): ZIO[Logging with AlertServiceClient, Nothing, Vector[StatusUpdate]] =
     ZIO
       .foreachPar(alerts.toVector) { alert =>
         (for {
           _ <- Log.info("Create", "name" := alert.name.value)
-          createAlert <-
-            ZIO.fromEither(toCreateAlert(alert, ctx, name)).mapError(CustomResourceError.apply)
+          createAlert <- ZIO
+                           .fromEither(toCreateAlert(alert, ctx, name, labels))
+                           .mapError(CustomResourceError.apply)
           response <- AlertServiceClient
                         .createAlert(createAlert)
                         .mapError(GrpcFailure.apply)
