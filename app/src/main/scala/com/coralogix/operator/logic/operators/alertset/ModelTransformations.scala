@@ -50,7 +50,8 @@ object ModelTransformations {
   def toCreateAlert(
     alert: AlertSet.Spec.Alerts,
     ctx: OperatorContext,
-    setName: String
+    setName: String,
+    labels: Map[String, String]
   ): Either[String, CreateAlertRequest] =
     alert.activeWhen.map(a => toActiveWhen(a).map(Some.apply)).getOrElse(Right(None)).map {
       activeWhen =>
@@ -66,7 +67,8 @@ object ModelTransformations {
           notifyEvery = alert.notifyEvery.map(_.value),
           activeWhen = activeWhen,
           notificationPayloadFilters =
-            alert.notificationPayloadFilters.map(_.map(_.value)).getOrElse(Seq.empty)
+            alert.notificationPayloadFilters.map(_.map(_.value)).getOrElse(Seq.empty),
+          metaLabels = labels.map { case (k, v) => MetaLabel(Some(k), Some(v)) }.toSeq
         )
     }
 
