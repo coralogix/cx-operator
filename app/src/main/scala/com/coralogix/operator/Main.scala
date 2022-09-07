@@ -77,7 +77,7 @@ object Main extends App {
                  )
           rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
           loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
-          alertFibers     <- spawnAlertOperators(metrics, config.resources)
+          alertFibers     <- spawnAlertOperators(metrics, config.resources, config.alertLabels)
         } yield rulegroupFibers ::: loggerFibers ::: alertFibers
       }
 
@@ -216,7 +216,8 @@ object Main extends App {
 
   private def spawnAlertOperators(
     metrics: OperatorMetrics,
-    resources: OperatorResources
+    resources: OperatorResources,
+    alertLabels: List[String]
   ): ZIO[
     Clock with Logging with AlertSets with AlertServiceClient,
     Nothing,
@@ -227,8 +228,8 @@ object Main extends App {
       metrics,
       resources,
       _.alerts,
-      AlertSetOperator.forAllNamespaces,
-      AlertSetOperator.forNamespace
+      AlertSetOperator.forAllNamespaces(alertLabels),
+      AlertSetOperator.forNamespace(alertLabels)
     )
 
   private def register(

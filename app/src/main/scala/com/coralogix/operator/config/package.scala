@@ -51,7 +51,8 @@ case class GrpcConfig(port: Int, clients: GrpcClientsConfig)
 case class OperatorConfig(
   prometheus: PrometheusConfig,
   grpc: GrpcConfig,
-  resources: OperatorResources
+  resources: OperatorResources,
+  alertLabels: List[String]
 )
 
 object OperatorConfig {
