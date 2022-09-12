@@ -60,4 +60,11 @@ data:
         {{- end }}
       ]
     }
+    
+    alertLabels = [
+      {{- .Values.config.alertLabels }}
+        {{ . | quote }},
+      {{- end }}  
+    ]
+
 

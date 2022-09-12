@@ -31,9 +31,18 @@ import zio.{ Has, ZIO }
 import zio.clock.Clock
 import zio.logging.Logging
 
+import java.util.regex.Pattern
+
 object AlertSetOperator {
-  private val CX_PREFIX = "CX_"
-  private def eventProcessor(): EventProcessor[
+  private[alertset] def filterLabels(alertLabels: List[String])(
+    metadataLabels: Map[String, String]
+  ): Map[String, String] =
+    metadataLabels.filter {
+      case (key, _) =>
+        alertLabels.exists(label => key.matches(label))
+    }
+
+  private def eventProcessor(alertLabels: List[String]): EventProcessor[
     Logging with AlertSets with AlertServiceClient,
     CoralogixOperatorFailure,
     AlertSet
@@ -54,10 +63,7 @@ object AlertSetOperator {
                      ctx,
                      alertSetName,
                      item.spec.alerts.toSet,
-                     item.metadata
-                       .flatMap(_.labels)
-                       .getOrElse(Map.empty)
-                       .filter(_._1.startsWith(CX_PREFIX))
+                     filterLabels(alertLabels)(item.metadata.flatMap(_.labels).getOrElse(Map.empty))
                    ).flatMap(updates =>
                      applyStatusUpdates(
                        ctx,
@@ -111,10 +117,9 @@ object AlertSetOperator {
                                   ctx,
                                   alertSetName,
                                   toAdd.map(byName.apply),
-                                  item.metadata
-                                    .flatMap(_.labels)
-                                    .getOrElse(Map.empty)
-                                    .filter(_._1.startsWith(CX_PREFIX))
+                                  filterLabels(alertLabels)(
+                                    item.metadata.flatMap(_.labels).getOrElse(Map.empty)
+                                  )
                                 )
                          up2 <- deleteAlerts(toRemove)
                          _ <- applyStatusUpdates(
@@ -363,7 +368,7 @@ object AlertSetOperator {
       .unit
   }.when(updates.nonEmpty)
 
-  def forNamespace(
+  def forNamespace(alertLabels: List[String])(
     namespace: K8sNamespace,
     buffer: Int,
     metrics: OperatorMetrics
@@ -375,12 +380,12 @@ object AlertSetOperator {
     ZIO.service[AlertSets.Service].flatMap { alertSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ metered(metrics)
+          eventProcessor(alertLabels) @@ metered(metrics)
         )(Some(namespace), buffer)
         .provide(alertSets.asGeneric)
     }
 
-  def forAllNamespaces(
+  def forAllNamespaces(alertLabels: List[String])(
     buffer: Int,
     metrics: OperatorMetrics
   ): ZIO[AlertSets, Nothing, Operator[
@@ -391,7 +396,7 @@ object AlertSetOperator {
     ZIO.service[AlertSets.Service].flatMap { alertSets =>
       Operator
         .namespaced(
-          eventProcessor() @@ metered(metrics)
+          eventProcessor(alertLabels) @@ metered(metrics)
         )(None, buffer)
         .provide(alertSets.asGeneric)
     }
@@ -403,7 +408,7 @@ object AlertSetOperator {
   ]] =
     ZIO.service[AlertSets.Service].flatMap { alertSets =>
       Operator
-        .namespaced(eventProcessor())(Some(K8sNamespace("default")), 256)
+        .namespaced(eventProcessor(List.empty))(Some(K8sNamespace("default")), 256)
         .provide(alertSets.asGeneric)
     }
 }
