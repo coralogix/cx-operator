@@ -31,12 +31,12 @@ object AlertSetOperatorSpec extends DefaultRunnableSpec {
         test("filters by empty list") {
           val alertLabels = List.empty[String]
           val metadataLabels = Map(
-            "CX_AZ" -> "eu-north-1a",
+            "CX_AZ"                 -> "eu-north-1a",
             "CX_CLOUDFLARE_SITE_ID" -> "af3dbe35ffaf30c9101725801c315767",
-            "L1_TEST_1" -> "VALUE_1",
-            "L2_TEST" -> "VALUE_2",
-            "OPERATOR" -> "VALUE_3",
-            "UNKNOWN" -> "VALUE_4"
+            "L1_TEST_1"             -> "VALUE_1",
+            "L2_TEST"               -> "VALUE_2",
+            "OPERATOR"              -> "VALUE_3",
+            "UNKNOWN"               -> "VALUE_4"
           )
 
           assertTrue(AlertSetOperator.filterLabels(alertLabels)(metadataLabels).isEmpty)

@@ -1,7 +1,12 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
-import com.coralogix.alerts.v1.{DeleteAlertRequest, GetAlertByUniqueIdRequest, UpdateAlertRequest, ValidateAlertRequest}
+import com.coralogix.alerts.v1.{
+  DeleteAlertRequest,
+  GetAlertByUniqueIdRequest,
+  UpdateAlertRequest,
+  ValidateAlertRequest
+}
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic._
@@ -15,14 +20,14 @@ import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertS
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.model._
-import com.coralogix.zio.k8s.client.model.primitives.{AlertId, AlertName, UniqueAlertId}
+import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName, UniqueAlertId }
 import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.DeleteOptions
-import com.coralogix.zio.k8s.operator.Operator.{EventProcessor, OperatorContext}
-import com.coralogix.zio.k8s.operator.{KubernetesFailure, Operator}
+import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
+import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
 import io.circe.Json
 import io.grpc.Status
 import sttp.model.StatusCode
-import zio.{Has, ZIO}
+import zio.{ Has, ZIO }
 import zio.clock.Clock
 import zio.logging.Logging
 
