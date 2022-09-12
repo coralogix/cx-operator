@@ -10,8 +10,7 @@ config:
     coralogixLoggers: []
     alerts: []
   # list of labels to add to alerts from alertset CRD, it matches label keys using regular expressions
-  alertLabels:
-    - CX_.* # add all labels starting with CX_
+  alertLabels: []
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
