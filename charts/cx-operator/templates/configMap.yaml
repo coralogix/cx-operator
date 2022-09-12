@@ -62,7 +62,7 @@ data:
     }
     
     alertLabels = [
-      {{- .Values.config.alertLabels }}
+      {{- range .Values.config.alertLabels }}
         {{ . | quote }},
       {{- end }}  
     ]
