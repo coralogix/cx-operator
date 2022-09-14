@@ -134,10 +134,7 @@ object AlertSetOperator {
                 _ <- applyStatusUpdates(
                        ctx,
                        item,
-                       Vector(
-                         StatusUpdate.ClearFailures,
-                         StatusUpdate.UpdateLastUploadedGeneration(item.generation)
-                       )
+                       Vector(StatusUpdate.UpdateLastUploadedGeneration(item.generation))
                      ).unless(setIsValid)
               } yield ()
             } else
@@ -176,7 +173,7 @@ object AlertSetOperator {
             "InvalidIntegrationName"
           else
             "InvalidAlertSet"
-        Log.warn(warnMessage, "description" -> Json.fromString(failure.getDescription)).as(false)
+        Log.error(warnMessage, "description" -> Json.fromString(failure.getDescription)).as(false)
       }
 
   private def createNewAlerts(
