@@ -74,17 +74,18 @@ object AlertSetOperator {
                      )
                    )
                  }
-            _ <- alertsets
-                   .delete(
-                     alertSetName,
-                     DeleteOptions(),
-                     item.metadata
-                       .flatMap(_.namespace)
-                       .map(K8sNamespace.apply)
-                       .getOrElse(K8sNamespace.default)
-                   )
-                   .mapError(KubernetesFailure)
-                   .unless(setIsValid)
+            _ <- ZIO.when(!setIsValid && item.generation == 0L) {
+                   alertsets
+                     .delete(
+                       alertSetName,
+                       DeleteOptions(),
+                       item.metadata
+                         .flatMap(_.namespace)
+                         .map(K8sNamespace.apply)
+                         .getOrElse(K8sNamespace.default)
+                     )
+                     .mapError(KubernetesFailure)
+                 }
           } yield ()
 
         case Added(item) =>
