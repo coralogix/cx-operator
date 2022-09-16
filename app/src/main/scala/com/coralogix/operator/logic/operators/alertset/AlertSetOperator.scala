@@ -12,7 +12,10 @@ import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic._
 import com.coralogix.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.alertset.ModelTransformations._
-import com.coralogix.operator.logic.operators.alertset.StatusUpdate.runStatusUpdates
+import com.coralogix.operator.logic.operators.alertset.StatusUpdate.{
+  runStatusUpdates,
+  RecordFailure
+}
 import com.coralogix.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
@@ -25,6 +28,7 @@ import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.DeleteOptions
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
 import io.circe.Json
+import io.circe.syntax.EncoderOps
 import io.grpc.Status
 import sttp.model.StatusCode
 import zio.{ Has, ZIO }
@@ -52,40 +56,37 @@ object AlertSetOperator {
         case Reseted() =>
           ZIO.unit
 
-        case Added(item)
-            if item.generation == 0L || // new item
-              !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
+        case Added(item) if item.generation == 0L => // new item
           for {
-            alertSetName <- item.getName.mapError(KubernetesFailure.apply)
-            setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
-            _ <- ZIO.when(setIsValid) {
-                   createNewAlerts(
-                     ctx,
-                     alertSetName,
-                     item.spec.alerts.toSet,
-                     filterLabels(alertLabels)(item.metadata.flatMap(_.labels).getOrElse(Map.empty))
-                   ).flatMap(updates =>
-                     applyStatusUpdates(
-                       ctx,
-                       item,
-                       StatusUpdate.ClearFailures +:
-                         StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
-                         updates
-                     )
-                   )
-                 }
-            _ <- alertsets
-                   .delete(
-                     alertSetName,
-                     DeleteOptions(),
-                     item.metadata
-                       .flatMap(_.namespace)
-                       .map(K8sNamespace.apply)
-                       .getOrElse(K8sNamespace.default)
-                   )
-                   .mapError(KubernetesFailure)
-                   .unless(setIsValid)
+            alertSetName  <- item.getName.mapError(KubernetesFailure.apply)
+            setValidation <- isSetValid(alertSetName, item.spec.alerts, ctx)
+            updates <- {
+              setValidation match {
+                case Right(_) =>
+                  createNewAlerts(
+                    ctx,
+                    alertSetName,
+                    item.spec.alerts.toSet,
+                    filterLabels(alertLabels)(item.metadata.flatMap(_.labels).getOrElse(Map.empty))
+                  ).map(updates =>
+                    StatusUpdate.ClearFailures +: StatusUpdate.UpdateLastUploadedGeneration(
+                      item.generation
+                    ) +: updates
+                  )
+                case Left(failures) => ZIO.succeed(failures)
+              }
+
+            }
+            _ <- applyStatusUpdates(
+                   ctx,
+                   item,
+                   StatusUpdate.UpdateLastUploadedGeneration(item.generation) +: updates
+                 )
           } yield ()
+
+        case Added(item)
+            if !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
+          modifyFlow(ctx, item)(alertLabels)
 
         case Added(item) =>
           Log.debug(
@@ -95,55 +96,7 @@ object AlertSetOperator {
           )
 
         case Modified(item) =>
-          withExpectedStatus(item) { status =>
-            if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
-              val mappings = status.alertIds.getOrElse(Vector.empty)
-              val byName = item.spec.alerts.map(alert => alert.name -> alert).toMap
-              val alreadyAssigned = mappingToMap(mappings)
-              val toAdd = byName.keySet.diff(alreadyAssigned.keySet)
-              val toRemove = alreadyAssigned -- byName.keysIterator
-              val toUpdate = alreadyAssigned.flatMap {
-                case (name, status) =>
-                  byName.get(name).map(data => name -> (status, data))
-              }
-
-              for {
-                alertSetName <- item.getName.mapError(KubernetesFailure.apply)
-                setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
-                _ <- ZIO.when(setIsValid) {
-                       for {
-                         up0 <- modifyExistingAlerts(ctx, alertSetName, toUpdate)
-                         up1 <- createNewAlerts(
-                                  ctx,
-                                  alertSetName,
-                                  toAdd.map(byName.apply),
-                                  filterLabels(alertLabels)(
-                                    item.metadata.flatMap(_.labels).getOrElse(Map.empty)
-                                  )
-                                )
-                         up2 <- deleteAlerts(toRemove)
-                         _ <- applyStatusUpdates(
-                                ctx,
-                                item,
-                                StatusUpdate.ClearFailures +:
-                                  StatusUpdate.UpdateLastUploadedGeneration(item.generation) +:
-                                  (up0 ++ up1 ++ up2)
-                              )
-                       } yield ()
-                     }
-                _ <- applyStatusUpdates(
-                       ctx,
-                       item,
-                       Vector(StatusUpdate.UpdateLastUploadedGeneration(item.generation))
-                     ).unless(setIsValid)
-              } yield ()
-            } else
-              Log.debug(
-                "SkippingModification",
-                "name"       := item.metadata.flatMap(_.name),
-                "generation" := item.generation
-              )
-          }
+          modifyFlow(ctx, item)(alertLabels)
 
         case Deleted(item) =>
           withExpectedStatus(item) { status =>
@@ -152,28 +105,96 @@ object AlertSetOperator {
           }
       }
 
+  private def modifyFlow(ctx: OperatorContext, item: AlertSet)(
+    alertLabels: List[String]
+  ): ZIO[Logging with AlertSets with AlertServiceClient, KubernetesFailure, Unit] =
+    withExpectedStatus(item) { status =>
+      if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
+        val mappings = status.alertIds.getOrElse(Vector.empty)
+        val byName = item.spec.alerts.map(alert => alert.name -> alert).toMap
+        val alreadyAssigned = mappingToMap(mappings)
+        val toAdd = byName.keySet.diff(alreadyAssigned.keySet)
+        val toRemove = alreadyAssigned -- byName.keysIterator
+        val toUpdate = alreadyAssigned.flatMap {
+          case (name, status) =>
+            byName.get(name).map(data => name -> (status, data))
+        }
+
+        for {
+          alertSetName <- item.getName.mapError(KubernetesFailure.apply)
+          setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
+          updates <- {
+            setIsValid match {
+              case Right(_) =>
+                for {
+                  up0 <- modifyExistingAlerts(ctx, alertSetName, toUpdate)
+                  up1 <- createNewAlerts(
+                           ctx,
+                           alertSetName,
+                           toAdd.map(byName.apply),
+                           filterLabels(alertLabels)(
+                             item.metadata.flatMap(_.labels).getOrElse(Map.empty)
+                           )
+                         )
+                  up2 <- deleteAlerts(toRemove)
+                } yield StatusUpdate.ClearFailures +: (up0 ++ up1 ++ up2)
+              case Left(failures) => ZIO.succeed(failures)
+            }
+
+          }
+          _ <- applyStatusUpdates(
+                 ctx,
+                 item,
+                 StatusUpdate.UpdateLastUploadedGeneration(item.generation) +: updates
+               )
+        } yield ()
+      } else
+        Log.debug(
+          "SkippingModification",
+          "name"       := item.metadata.flatMap(_.name),
+          "generation" := item.generation
+        )
+    }
+
   private def isSetValid(
     setName: String,
     alerts: Vector[Alerts],
     ctx: OperatorContext
-  ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Boolean] =
+  ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Either[Vector[
+    RecordFailure
+  ], Unit]] =
     ZIO
       .foreachPar(alerts) { a =>
         for {
-          alert <- ZIO
-                     .fromEither(toAlert(a, None, ctx, setName))
-                     .mapError(Status.INVALID_ARGUMENT.withDescription)
-          _ <- AlertServiceClient.validateAlert(ValidateAlertRequest(Some(alert)))
+          alert <-
+            ZIO
+              .fromEither(toAlert(a, None, ctx, setName))
+              .mapError(description => a -> Status.INVALID_ARGUMENT.withDescription(description))
+          _ <- AlertServiceClient.validateAlert(ValidateAlertRequest(Some(alert))).mapError(a -> _)
         } yield ()
       }
-      .as(true)
-      .catchAll { failure =>
-        val warnMessage =
-          if (failure.getDescription.contains("Invalid integration name"))
-            "InvalidIntegrationName"
-          else
-            "InvalidAlertSet"
-        Log.error(warnMessage, "description" -> Json.fromString(failure.getDescription)).as(false)
+      .as(Right(()))
+      .catchAll {
+        case (alert, failure) =>
+          val alertName = alert.name
+          val integrations =
+            alert.notifications.flatMap(_.integrations).map(_.mkString(", ")).getOrElse("")
+          val warnMessage =
+            if (
+              failure.getDescription.contains(
+                s"Invalid integration names ($integrations) in alert ${alertName.value}"
+              )
+            )
+              "InvalidIntegrationName"
+            else
+              "InvalidAlertSet"
+          Log
+            .error(
+              warnMessage,
+              "description" -> failure.getDescription.asJson,
+              "alertName"   -> alertName.value.asJson
+            )
+            .as(Left(Vector(RecordFailure(alertName, failure.getDescription))))
       }
 
   private def createNewAlerts(
