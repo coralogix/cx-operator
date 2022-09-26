@@ -1,5 +1,8 @@
 val ScalaVer = "2.13.4"
 
+import com.coralogix.sbtprotodep.backends.BackendType
+
+
 enablePlugins(Protodep)
 Global / protodepUseHttps := true
 
@@ -22,9 +25,9 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
   .aggregate(app)
 
 lazy val grpcDeps = Protodep
-  .generateProject("grpc-deps")
+  .generateProject("grpc-deps", backend = BackendType.Protofetch)
   .settings(
-    Compile / PB.targets += com.coralogix.crdgen.compiler.CodeGenerator -> (Compile / sourceManaged).value,
+    Compile / PB.targets += com.coralogix.crdgen.compiler.CrdSchemaGenerator -> (Compile / sourceManaged).value,
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
 
@@ -63,8 +66,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       //"com.oracle.substratevm" % "svm"               % "19.2.1" % Provided
     ),
     PB.targets in Compile := Seq(
-      scalapb.gen(grpc = true)          -> (sourceManaged in Compile).value,
-      scalapb.zio_grpc.ZioCodeGenerator -> (sourceManaged in Compile).value
+      scalapb.gen(grpc = true)                            -> (sourceManaged in Compile).value,
+      com.coralogix.crdgen.compiler.OperatorCodeGenerator -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator                   -> (sourceManaged in Compile).value
     ),
     PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
@@ -77,7 +81,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       file("crds/crd-coralogix-loggers.yaml"),
       file("crds/crd-coralogix-alert-set.yaml"),
       file(
-        "grpc-deps/target/scala-2.13/src_managed/main/com/coralogix/rules/v2/RuleGroupCRDSchema.yaml"
+        "grpc-deps/target/scala-2.13/src_managed/main/crds/coralogix-com-rule-group-v2.yaml"
       )
     ),
     // Native image

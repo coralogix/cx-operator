@@ -1,0 +1,38 @@
+module_name = 'cx-operator'
+proto_out_dir = './grpc-deps/target/protobuf_external_src'
+
+[[dependencies]]
+commit_hash = '4d537943ddda113fdae21bd4b3b3eee6c4e8aeec'
+
+[dependencies.coordinate]
+forge = 'github.com'
+organization = 'coralogix'
+protocol = 'ssh'
+repository = 'cx-api-annotations'
+
+[dependencies.name]
+value = 'cx-api-annotations'
+
+[dependencies.rules]
+prune = false
+transitive = false
+
+[[dependencies]]
+commit_hash = 'fce6b5914c5483ab0cd357ef1a5d17626710be9d'
+
+[[dependencies.dependencies]]
+value = 'cx-api-annotations'
+
+[dependencies.coordinate]
+branch = 'feature/v2'
+forge = 'github.com'
+organization = 'coralogix'
+protocol = 'ssh'
+repository = 'rules-api-protobuf'
+
+[dependencies.name]
+value = 'dependencies'
+
+[dependencies.rules]
+prune = false
+transitive = false
