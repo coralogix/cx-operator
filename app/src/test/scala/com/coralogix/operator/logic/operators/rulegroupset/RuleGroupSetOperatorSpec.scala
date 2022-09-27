@@ -24,7 +24,6 @@ import com.coralogix.zio.k8s.client.{
   ResourceStatus
 }
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
-import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.rules.v1.{ CreateRuleGroupRequest, UpdateRuleGroupRequest }
 import com.coralogix.rules.v1.RuleMatcher

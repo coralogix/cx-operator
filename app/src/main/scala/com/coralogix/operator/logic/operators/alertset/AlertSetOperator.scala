@@ -7,16 +7,22 @@ import com.coralogix.alerts.v1.{
   UpdateAlertRequest,
   ValidateAlertRequest
 }
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure.{
+  CustomResourceError,
+  GrpcFailure,
+  UndefinedGrpcField
+}
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
 import com.coralogix.operator.logic._
-import com.coralogix.operator.logic.aspects.metered
+import com.coralogix.crdgen.core.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.alertset.ModelTransformations._
 import com.coralogix.operator.logic.operators.alertset.StatusUpdate.{
   runStatusUpdates,
   RecordFailure
 }
-import com.coralogix.operator.monitoring.OperatorMetrics
+import com.coralogix.crdgen.core.operator.monitoring.OperatorMetrics
 import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts
@@ -24,18 +30,14 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.model._
 import com.coralogix.zio.k8s.client.model.primitives.{ AlertId, AlertName, UniqueAlertId }
-import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.DeleteOptions
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
-import io.circe.Json
 import io.circe.syntax.EncoderOps
 import io.grpc.Status
 import sttp.model.StatusCode
 import zio.{ Has, ZIO }
 import zio.clock.Clock
 import zio.logging.Logging
-
-import java.util.regex.Pattern
 
 object AlertSetOperator {
   private[alertset] def filterLabels(alertLabels: List[String])(

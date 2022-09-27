@@ -4,6 +4,7 @@ import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ GrpcClientConfig, GrpcConfig }
 import com.coralogix.operator.monitoring.ClientMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.tags.v2.tags_service.ZioTagsService.TagsServiceClient
 import io.grpc.protobuf.services.ProtoReflectionService
 import io.grpc._
 import izumi.reflect.Tag
@@ -207,6 +208,13 @@ package object grpc {
         ClientMetrics
       ] with Clock, Throwable, AlertServiceClient] =
         grpcClientLayer("com.coralogix.alerts.v1.AlertService", AlertServiceClient.managed)
+    }
+
+    object tags {
+      val live: ZLayer[Has[GrpcClientConfig] with Has[
+        ClientMetrics
+      ] with Clock, Throwable, TagsServiceClient] =
+        grpcClientLayer("com.coralogix.tags.v2.TagsService", TagsServiceClient.managed)
     }
   }
 }

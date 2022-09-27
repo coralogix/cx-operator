@@ -2,9 +2,10 @@ package com.coralogix.operator.logic.operators.coralogixlogger
 
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
-import com.coralogix.operator.logic.aspects._
-import com.coralogix.operator.logic.{ CoralogixOperatorFailure, ProvisioningFailed }
-import com.coralogix.operator.monitoring.OperatorMetrics
+import com.coralogix.crdgen.core.operator.logic.aspects.metered
+import com.coralogix.crdgen.core.operator.monitoring.OperatorMetrics
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure.ProvisioningFailed
 import com.coralogix.zio.k8s.client.K8sFailure.syntax._
 import com.coralogix.zio.k8s.client.apps.v1.daemonsets.DaemonSets
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.ClusterRoleBindings

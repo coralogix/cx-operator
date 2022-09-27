@@ -1,15 +1,19 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure.{
+  GrpcFailure,
+  UndefinedGrpcField
+}
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax.FieldBuilder
-import com.coralogix.operator.logic.aspects._
+import com.coralogix.crdgen.core.operator.logic.aspects.metered
 import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.{
   toCreateRuleGroup,
   RuleGroupWithIndex
 }
 import com.coralogix.operator.logic.operators.rulegroupset.StatusUpdate.runStatusUpdates
-import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, UndefinedGrpcField }
-import com.coralogix.operator.monitoring.OperatorMetrics
+import com.coralogix.crdgen.core.operator.monitoring.OperatorMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService._
 import com.coralogix.rules.v1.{ DeleteRuleGroupRequest, UpdateRuleGroupRequest }
 import com.coralogix.zio.k8s.client.HttpFailure
