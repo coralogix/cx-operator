@@ -1,0 +1,18 @@
+proto_out_dir = "./grpc-deps/target/protobuf_external_src"
+name = 'cx-operator'
+
+[rules-api]
+url = "github.com/coralogix/rules-api-protobuf"
+protocol = "ssh"
+revision = "v0.12"
+
+[alerts-api]
+url = "github.com/coralogix/alerts-api-protobuf"
+protocol = "ssh"
+revision = "v0.24"
+
+[tags-api]
+url = "github.com/coralogix/tags-api-protobuf"
+branch = "feature/v2" # TODO use master
+protocol = "ssh"
+revision = "8fd099a1ffea97100d9fd85b269a271316f2d083"

@@ -1,3 +1,5 @@
+import com.coralogix.sbtprotodep.backends.BackendType
+
 val ScalaVer = "2.13.4"
 
 enablePlugins(Protodep)
@@ -27,8 +29,9 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
   )
 
 lazy val grpcDeps = Protodep
-  .generateProject("grpc-deps")
+  .generateProject("grpc-deps", backend = BackendType.Protofetch)
   .settings(
+    Compile / PB.targets += com.coralogix.crdgen.compiler.CrdSchemaGenerator -> (Compile / sourceManaged).value,
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
 
@@ -38,9 +41,13 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers ++= Seq(privateNexus, sonatypeSnapshots),
     libraryDependencies ++= Dependencies.all,
+    Compile / PB.protoSources ++= Seq(
+      (ThisBuild / baseDirectory).value / "grpc-deps" / "target" / "protobuf_external_src"
+    ),
     Compile / PB.targets := Seq(
-      scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,
-      scalapb.zio_grpc.ZioCodeGenerator -> (Compile / sourceManaged).value
+      scalapb.gen(grpc = true)                            -> (Compile / sourceManaged).value,
+      com.coralogix.crdgen.compiler.OperatorCodeGenerator -> (Compile / sourceManaged).value,
+      scalapb.zio_grpc.ZioCodeGenerator                   -> (Compile / sourceManaged).value
     ),
     PB.deleteTargetDirectory := false,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
@@ -51,7 +58,10 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     externalCustomResourceDefinitions := Seq(
       file("crds/crd-coralogix-rule-group-set.yaml"),
       file("crds/crd-coralogix-loggers.yaml"),
-      file("crds/crd-coralogix-alert-set.yaml")
+      file("crds/crd-coralogix-alert-set.yaml"),
+      file(
+        "grpc-deps/target/scala-2.13/src_managed/main/crds/coralogix-com-tag-v2.yaml"
+      )
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
