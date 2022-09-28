@@ -18,13 +18,6 @@
       "$resolver": "exception",
       "field": "message",
       "stringified": true
-    },
-    "stacktrace": {
-      "$resolver": "exception",
-      "field": "stackTrace",
-      "stackTrace": {
-        "stringified": true
-      }
     }
   },
   "logger_name": {
