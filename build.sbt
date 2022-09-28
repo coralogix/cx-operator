@@ -31,6 +31,7 @@ lazy val root = Project("coralogix-kubernetes-operator", file("."))
 lazy val grpcDeps = Protodep
   .generateProject("grpc-deps", backend = BackendType.Protofetch)
   .settings(
+    // generates CRD openspec in "grpc-deps/target/scala-2.13/src_managed/main/crds" directory
     Compile / PB.targets += com.coralogix.crdgen.compiler.CrdSchemaGenerator -> (Compile / sourceManaged).value,
     Compile / PB.protoSources += file((Compile / sourceDirectory).value + "/protobuf-scala")
   )
@@ -41,6 +42,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
     scalaVersion := ScalaVer,
     resolvers ++= Seq(privateNexus, sonatypeSnapshots),
     libraryDependencies ++= Dependencies.all,
+    // We need this so that operator plugin can use proto sources to generate operator scala code
     Compile / PB.protoSources ++= Seq(
       (ThisBuild / baseDirectory).value / "grpc-deps" / "target" / "protobuf_external_src"
     ),
@@ -59,6 +61,7 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
       file("crds/crd-coralogix-rule-group-set.yaml"),
       file("crds/crd-coralogix-loggers.yaml"),
       file("crds/crd-coralogix-alert-set.yaml"),
+      // references to CRD that we generated with crd plugin in grpc-deps project
       file(
         "grpc-deps/target/scala-2.13/src_managed/main/crds/coralogix-com-tag-v2.yaml"
       )

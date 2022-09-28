@@ -1,39 +1,18 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
-import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Status.GroupIds
-import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
-import com.coralogix.zio.k8s.client.model.{
-  Added,
-  FieldSelector,
-  K8sNamespace,
-  LabelSelector,
-  ListResourceVersion,
-  Modified,
-  PropagationPolicy,
-  TypedWatchEvent
-}
-import com.coralogix.zio.k8s.client.{
-  K8sFailure,
-  NamespacedResource,
-  NamespacedResourceStatus,
-  NotFound,
-  Resource,
-  ResourceDelete,
-  ResourceDeleteAll,
-  ResourceStatus
-}
 import com.coralogix.operator.grpc.RuleGroupsServiceClientMock
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
-import com.coralogix.rules.v1.{ CreateRuleGroupRequest, UpdateRuleGroupRequest }
-import com.coralogix.rules.v1.RuleMatcher
-import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
+import com.coralogix.rules.v1.{ CreateRuleGroupRequest, RuleMatcher, UpdateRuleGroupRequest }
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Status.GroupIds
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
+import com.coralogix.zio.k8s.client.model.primitives.{ RuleGroupId, RuleGroupName }
+import com.coralogix.zio.k8s.client.model._
+import com.coralogix.zio.k8s.client._
+import _root_.com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
 import zio._
 import zio.clock.Clock
 import zio.console.Console
-import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.{ DeleteOptions, Status }
-import com.coralogix.zio.k8s.operator.{ KubernetesFailure, OperatorError, OperatorFailure }
 import zio.duration._
 import zio.logging.{ LogLevel, Logging }
 import zio.stm.TMap
