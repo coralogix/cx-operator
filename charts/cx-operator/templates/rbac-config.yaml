@@ -37,6 +37,12 @@ rules:
       - alertsets/status
     verbs: ["get", "watch", "update"]
   - apiGroups:
+    - coralogix.com
+    resources:
+      - tags
+      - tags/status
+    verbs: [ "get", "watch", "update" ]
+  - apiGroups:
       - apiextensions.k8s.io
     resources:
       - customresourcedefinitions

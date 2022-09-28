@@ -1,9 +1,9 @@
 package com.coralogix.operator.logic.operators.coralogixlogger
 
-import com.coralogix.operator.logic.CoralogixOperatorFailure
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, OperatorFailure }
-import zio.{ IO, UIO, ZIO }
+import zio.{ IO, UIO }
 import zio.stm.TMap
 
 class FailedProvisions(failedProvisions: TMap[String, Option[String]]) {

@@ -28,6 +28,16 @@ data:
             X-Coralogix-API: alerts
           }
         }
+    
+        tags {
+          name = {{ .Values.config.coralogixApi.host }}
+          port = {{ .Values.config.coralogixApi.port }}
+          tls = {{ .Values.config.coralogixApi.tls }}
+          token = ${RULES_API_TOKEN}
+          headers {
+            X-Coralogix-API: tags
+          }
+        }
       }
     }
 
@@ -59,6 +69,16 @@ data:
         },
         {{- end }}
       ]
+    
+      tags = [
+        {{- range .Values.config.resources.tags }}
+        {
+          namespace = {{ .namespace }}
+          {{ if .buffer }}buffer = {{ .buffer }}{{ end }}
+        },
+        {{- end }}
+      ]
+    
     }
     
     alertLabels = [

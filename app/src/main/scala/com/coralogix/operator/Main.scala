@@ -1,15 +1,18 @@
 package com.coralogix.operator
 
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.crdgen.core.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax._
-import com.coralogix.operator.logic.CoralogixOperatorFailure
 import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
-import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
+import com.coralogix.operator.monitoring.clientMetrics
+import com.coralogix.crdgen.core.operator.monitoring.OperatorMetrics
 import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.tags.v2.tag.operator.TagsOperator
+import com.coralogix.tags.v2.tags_service.ZioTagsService.TagsServiceClient
 import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
 import com.coralogix.zio.k8s.client.apiextensions.v1.{ customresourcedefinitions => crd }
@@ -18,12 +21,15 @@ import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterrolebindings.Cl
 import com.coralogix.zio.k8s.client.authorization.rbac.v1.clusterroles.ClusterRoles
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.tag.v2.Tag
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.definitions.coralogixlogger.v1.CoralogixLogger
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers
 import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.CoralogixLoggers
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
+import com.coralogix.zio.k8s.client.com.coralogix.v2.tags
+import com.coralogix.zio.k8s.client.com.coralogix.v2.tags.Tags
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
@@ -59,6 +65,11 @@ object Main extends App {
         _.grpc.clients.alerts
       ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.alerts.live
 
+    val tagsClient =
+      (config.narrow(
+        _.grpc.clients.tags
+      ) ++ (monitoring.live >>> clientMetrics) ++ Clock.any) >>> grpc.clients.tags.live
+
     val spawnOperators =
       log.locally(LogAnnotation.Name("com" :: "coralogix" :: "operator" :: Nil)) {
         for {
@@ -74,10 +85,14 @@ object Main extends App {
                  ) <&>
                  register(
                    alertsets.customResourceDefinition
+                 ) <&>
+                 register(
+                   tags.customResourceDefinition
                  )
           rulegroupFibers <- spawnRuleGroupOperators(metrics, config.resources)
           loggerFibers    <- spawnLoggerOperators(metrics, config.resources)
           alertFibers     <- spawnAlertOperators(metrics, config.resources, config.alertLabels)
+          tagsFibers      <- spawnTagsOperator(metrics, config.resources)
         } yield rulegroupFibers ::: loggerFibers ::: alertFibers
       }
 
@@ -114,8 +129,10 @@ object Main extends App {
         RuleGroupSets.live,
         CoralogixLoggers.live,
         AlertSets.live,
+        Tags.live,
         ruleGroupsClient,
         alertsClient,
+        tagsClient,
         contextinfo.ContextInfo.live.mapError(error =>
           contextInfoFailureToThrowable.toThrowable(error)
         ),
@@ -230,6 +247,23 @@ object Main extends App {
       _.alerts,
       AlertSetOperator.forAllNamespaces(alertLabels),
       AlertSetOperator.forNamespace(alertLabels)
+    )
+
+  private def spawnTagsOperator(
+    metrics: OperatorMetrics,
+    resources: OperatorResources
+  ): ZIO[
+    Clock with Logging with Tags with TagsServiceClient,
+    Nothing,
+    List[Fiber.Runtime[Nothing, Unit]]
+  ] =
+    SpawnOperators[Tag](
+      "Tags",
+      metrics,
+      resources,
+      _.tags,
+      TagsOperator.forAllNamespaces,
+      TagsOperator.forNamespace
     )
 
   private def register(
