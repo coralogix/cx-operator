@@ -14,6 +14,8 @@ Configuration:
         level: info
       - name: io.netty
         level: info
+      - name: sttp.client3.logging.slf4j.Slf4jLoggingBackend
+        level: off
     root:
       level: info
       AppenderRef:
