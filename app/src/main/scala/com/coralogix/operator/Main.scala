@@ -1,6 +1,6 @@
 package com.coralogix.operator
 
-import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax._
@@ -9,7 +9,7 @@ import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
-import com.coralogix.rules.v1.ZioRuleGroupsService.RuleGroupsServiceClient
+import com.coralogix.rules.v1.rule_groups_service.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
 import com.coralogix.zio.k8s.client.apiextensions.v1.{ customresourcedefinitions => crd }

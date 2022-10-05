@@ -1,31 +1,34 @@
 package com.coralogix.operator.logic.operators.alertset
 
 import cats.implicits._
-import com.coralogix.alerts.v1.MetricAlertConditionParameters.{ ArithmeticOperator, MetricSource }
-import com.coralogix.alerts.v1.{
-  Alert,
+import com.coralogix.alerts.v1.alert.{ Alert, MetaLabel }
+import com.coralogix.alerts.v1.alert_active_when.{
   AlertActiveTimeframe,
   AlertActiveWhen,
-  AlertCondition,
-  AlertFilters,
-  AlertNotifications,
-  AlertSeverity,
-  ConditionParameters,
-  CreateAlertRequest,
-  Date,
   DayOfWeek,
+  TimeRange
+}
+import com.coralogix.alerts.v1.alert_condition.{
+  AlertCondition,
+  ConditionParameters,
   ImmediateCondition,
   LessThanCondition,
-  MetaLabel,
   MetricAlertConditionParameters,
   MetricAlertPromqlConditionParameters,
   MoreThanCondition,
   MoreThanUsualCondition,
   NewValueCondition,
-  Time,
-  TimeRange,
   Timeframe
 }
+import com.coralogix.alerts.v1.alert_condition.MetricAlertConditionParameters.{
+  ArithmeticOperator,
+  MetricSource
+}
+import com.coralogix.alerts.v1.alert_filters.AlertFilters
+import com.coralogix.alerts.v1.alert_notifications.AlertNotifications
+import com.coralogix.alerts.v1.alert_service.CreateAlertRequest
+import com.coralogix.alerts.v1.alert_severity.AlertSeverity
+import com.coralogix.alerts.v1.date_time.{ Date, Time }
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.ActiveWhen.Timeframes.DaysOfWeek
