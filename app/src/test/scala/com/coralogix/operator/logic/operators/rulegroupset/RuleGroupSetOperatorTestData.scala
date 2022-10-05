@@ -1,7 +1,11 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.rules.v1.RuleMatcher.Constraint
-import com.coralogix.rules.v1._
+import com.coralogix.rules.v1.rule_matcher.RuleMatcher.Constraint
+import com.coralogix.rules.v1.rule_matcher._
+import com.coralogix.rules.v1.rule_groups_service._
+import com.coralogix.rules.v1.rule._
+import com.coralogix.rules.v1.rule_group._
+import com.coralogix.rules.v1.rule_subgroup._
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup

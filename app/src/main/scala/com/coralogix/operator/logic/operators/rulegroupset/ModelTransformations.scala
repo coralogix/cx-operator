@@ -1,18 +1,17 @@
 package com.coralogix.operator.logic.operators.rulegroupset
 
-import com.coralogix.rules.v1.ExtractTimestampParameters.FormatStandard
+import com.coralogix.rules.v1.rule.ExtractTimestampParameters.FormatStandard
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.AndSequence.OrGroup.JsonExtract.DestField
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet.Spec.RuleGroupsSequence.Matcher.Severities
-import com.coralogix.rules.v1.JsonExtractParameters.DestinationField
-import com.coralogix.rules.v1.CreateRuleGroupRequest
-import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup
-import com.coralogix.rules.v1.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
-import com.coralogix.rules.v1.RuleMatcher.Constraint
-import com.coralogix.rules.v1.{
+import com.coralogix.rules.v1.rule.JsonExtractParameters.DestinationField
+import com.coralogix.rules.v1.rule_groups_service.CreateRuleGroupRequest
+import com.coralogix.rules.v1.rule_groups_service.CreateRuleGroupRequest.CreateRuleSubgroup
+import com.coralogix.rules.v1.rule_groups_service.CreateRuleGroupRequest.CreateRuleSubgroup.CreateRule
+import com.coralogix.rules.v1.rule_matcher.RuleMatcher.Constraint
+import com.coralogix.rules.v1.rule.{
   AllowParameters,
-  ApplicationNameConstraint,
   BlockParameters,
   ExtractParameters,
   ExtractTimestampParameters,
@@ -22,8 +21,11 @@ import com.coralogix.rules.v1.{
   ParseParameters,
   RemoveFieldsParameters,
   ReplaceParameters,
+  RuleParameters
+}
+import com.coralogix.rules.v1.rule_matcher.{
+  ApplicationNameConstraint,
   RuleMatcher,
-  RuleParameters,
   SeverityConstraint,
   SubsystemNameConstraint
 }

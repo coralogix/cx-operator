@@ -5,17 +5,6 @@ Global / protodepUseHttps := true
 
 ThisBuild / scalaVersion := ScalaVer
 
-val sonatypeDomain = "sonatype-nexus.default.svc.cluster.local"
-val sonatypeBaseUrl = s"http://$sonatypeDomain:8080/"
-
-val sonatypeUser = sys.env.getOrElse("NEXUS_USER", "")
-val sonatypePass = sys.env.getOrElse("NEXUS_PASSWORD", "")
-
-lazy val privateNexus = ("Private Nexus" at sonatypeBaseUrl + "repository/maven-public/")
-  .withAllowInsecureProtocol(true)
-lazy val sonatypeSnapshots =
-  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-
 val commonSettings = Seq(
   organization := "com.coralogix",
   version      := "0.1"
@@ -36,7 +25,6 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
   .settings(commonSettings)
   .settings(
     scalaVersion := ScalaVer,
-    resolvers ++= Seq(privateNexus, sonatypeSnapshots),
     libraryDependencies ++= Dependencies.all,
     Compile / PB.targets := Seq(
       scalapb.gen(grpc = true)          -> (Compile / sourceManaged).value,

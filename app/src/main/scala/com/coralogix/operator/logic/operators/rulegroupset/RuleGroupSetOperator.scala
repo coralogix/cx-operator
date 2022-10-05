@@ -10,8 +10,8 @@ import com.coralogix.operator.logic.operators.rulegroupset.ModelTransformations.
 import com.coralogix.operator.logic.operators.rulegroupset.StatusUpdate.runStatusUpdates
 import com.coralogix.operator.logic.{ CoralogixOperatorFailure, GrpcFailure, UndefinedGrpcField }
 import com.coralogix.operator.monitoring.OperatorMetrics
-import com.coralogix.rules.v1.ZioRuleGroupsService._
-import com.coralogix.rules.v1.{ DeleteRuleGroupRequest, UpdateRuleGroupRequest }
+import com.coralogix.rules.v1.rule_groups_service.ZioRuleGroupsService._
+import com.coralogix.rules.v1.rule_groups_service.{ DeleteRuleGroupRequest, UpdateRuleGroupRequest }
 import com.coralogix.zio.k8s.client.HttpFailure
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.rulegroupset.v1.RuleGroupSet
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets
