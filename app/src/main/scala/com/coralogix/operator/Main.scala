@@ -26,6 +26,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.Co
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
+import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster, K8sClusterConfig }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
@@ -49,13 +50,14 @@ import zio.{ console, App, ExitCode, Fiber, URIO, ZIO, ZLayer, ZManaged }
 object Main extends App {
   val logger = Log.logger("cx-operator")
 
-  private val tracing = (OtelTracer.live ++ Clock.live) >>> Tracing.live
-
-  private val kClient =
-    (tracing ++ ZLayer.service[K8sClusterConfig] ++ ZLayer.service[Blocking.Service] ++ ZLayer
-      .service[
-        System.Service
-      ]) >>> k8sClient
+  private val client =
+    getConfig[OperatorConfig].toLayer.flatMap { config =>
+      if (config.get.enableTracing)
+        (((OtelTracer.live ++ Clock.live) >>> Tracing.live) ++ ZLayer
+          .service[K8sClusterConfig] ++ ZLayer.service[Blocking.Service] ++ ZLayer
+          .service[System.Service]) >>> k8sClient
+      else k8sSttpClient
+    }
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     val config = (System.any ++ logger) >>> OperatorConfig.live
@@ -111,7 +113,7 @@ object Main extends App {
         OperatorConfig.live,
         monitoring.live,
         defaultConfigChain.project(_.dropTrailingDot),
-        kClient,
+        client,
         k8sCluster,
         logger,
         CustomResourceDefinitions.live,
