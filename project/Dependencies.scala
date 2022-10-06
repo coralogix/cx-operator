@@ -15,6 +15,9 @@ object Dependencies {
     val zioMagic = "0.3.11"
     val zioMetrics = "1.0.14"
     val rezilience = "0.7.0"
+    val opentelemetry = "1.18.0"
+    val grpcNetty = "1.47.0"
+    val zioOpenTelemetry = "1.0.0"
   }
 
   val zioK8s = Seq(
@@ -54,11 +57,18 @@ object Dependencies {
   val zioMagic = "io.github.kitlangton" %% "zio-magic"              % Versions.zioMagic
   val rezilience = "nl.vroste"          %% "rezilience"             % Versions.rezilience
 
+  val opentelemetry = Seq(
+    "io.opentelemetry" % "opentelemetry-exporter-otlp" % Versions.opentelemetry,
+    "io.opentelemetry" % "opentelemetry-sdk" % Versions.opentelemetry,
+    "io.grpc" % "grpc-netty-shaded" % Versions.grpcNetty,
+    "dev.zio" %% "zio-opentelemetry" % Versions.zioOpenTelemetry
+  )
+
   val zioTest = Seq(
     "dev.zio" %% "zio-test",
     "dev.zio" %% "zio-test-sbt",
     "dev.zio" %% "zio-test-magnolia"
   ).map(_ % Versions.zio % Test)
 
-  val all = Seq(metrics, zioMagic, rezilience) ++ zioK8s ++ zioConfig ++ logging ++ proto ++ zioTest
+  val all = Seq(metrics, zioMagic, rezilience) ++ zioK8s ++ zioConfig ++ logging ++ proto ++ zioTest ++ opentelemetry
 }

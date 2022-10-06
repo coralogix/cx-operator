@@ -2,6 +2,7 @@ package com.coralogix.operator
 
 import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
 import com.coralogix.operator.config.{ BaseOperatorConfig, OperatorConfig, OperatorResources }
+import com.coralogix.operator.kubernetes.client.k8sClient
 import com.coralogix.operator.logging.Log
 import com.coralogix.operator.logging.LogSyntax._
 import com.coralogix.operator.logic.CoralogixOperatorFailure
@@ -9,6 +10,7 @@ import com.coralogix.operator.logic.operators.alertset.AlertSetOperator
 import com.coralogix.operator.logic.operators.coralogixlogger.CoralogixLoggerOperator
 import com.coralogix.operator.logic.operators.rulegroupset.RuleGroupSetOperator
 import com.coralogix.operator.monitoring.{ clientMetrics, OperatorMetrics }
+import com.coralogix.operator.opentelemetry.OtelTracer
 import com.coralogix.rules.v1.rule_groups_service.ZioRuleGroupsService.RuleGroupsServiceClient
 import com.coralogix.zio.k8s.client.K8sFailure
 import com.coralogix.zio.k8s.client.apiextensions.v1.customresourcedefinitions.CustomResourceDefinitions
@@ -25,7 +27,7 @@ import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
 import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
-import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster }
+import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster, K8sClusterConfig }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
 import com.coralogix.zio.k8s.client.v1.pods.Pods
@@ -42,10 +44,19 @@ import zio.console.Console
 import zio.logging.{ log, LogAnnotation, Logging }
 import zio.magic._
 import zio.system.System
-import zio.{ console, App, ExitCode, Fiber, URIO, ZIO, ZManaged }
+import zio.telemetry.opentelemetry.Tracing
+import zio.{ console, App, ExitCode, Fiber, URIO, ZIO, ZLayer, ZManaged }
 
 object Main extends App {
   val logger = Log.logger("cx-operator")
+
+  private val tracing = (OtelTracer.live ++ Clock.live) >>> Tracing.live
+
+  private val kClient =
+    (tracing ++ ZLayer.service[K8sClusterConfig] ++ ZLayer.service[Blocking.Service] ++ ZLayer
+      .service[
+        System.Service
+      ]) >>> k8sClient
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     val config = (System.any ++ logger) >>> OperatorConfig.live
@@ -101,7 +112,7 @@ object Main extends App {
         OperatorConfig.live,
         monitoring.live,
         defaultConfigChain.project(_.dropTrailingDot),
-        k8sSttpClient,
+        kClient,
         k8sCluster,
         logger,
         CustomResourceDefinitions.live,
