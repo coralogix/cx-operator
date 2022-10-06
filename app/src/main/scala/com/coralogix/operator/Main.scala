@@ -26,7 +26,6 @@ import com.coralogix.zio.k8s.client.com.coralogix.loggers.v1.coralogixloggers.Co
 import com.coralogix.zio.k8s.client.com.coralogix.v1.alertsets.AlertSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.rulegroupsets.RuleGroupSets
 import com.coralogix.zio.k8s.client.com.coralogix.v1.{ alertsets, rulegroupsets }
-import com.coralogix.zio.k8s.client.config.httpclient.k8sSttpClient
 import com.coralogix.zio.k8s.client.config.{ defaultConfigChain, k8sCluster, K8sClusterConfig }
 import com.coralogix.zio.k8s.client.model.K8sNamespace
 import com.coralogix.zio.k8s.client.v1.configmaps.ConfigMaps
