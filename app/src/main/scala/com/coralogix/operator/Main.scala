@@ -51,7 +51,7 @@ object Main extends App {
   val logger = Log.logger("cx-operator")
 
   private val client =
-    getConfig[OperatorConfig].toLayer.flatMap { config =>
+    ZLayer.service[OperatorConfig].flatMap { config =>
       if (config.get.enableTracing)
         (((OtelTracer.live ++ Clock.live) >>> Tracing.live) ++ ZLayer
           .service[K8sClusterConfig] ++ ZLayer.service[Blocking.Service] ++ ZLayer
