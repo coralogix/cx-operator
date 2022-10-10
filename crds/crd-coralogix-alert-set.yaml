@@ -70,6 +70,7 @@ spec:
                               - MORE_THAN
                               - MORE_THAN_USUAL
                               - NEW_VALUE
+                              - FLOW
                           parameters:
                             description: Condition parameters, required for all types except IMMEDIATE
                             type: object
@@ -83,7 +84,7 @@ spec:
                               timeframe:
                                 description: The valid timeframes depend on the condition type. For NEW_VALUE alerts it can be 12H..3M, otherwise 5Min..24H
                                 type: string
-                                enum: ["5Min", "10Min", "20Min", "30Min", "1H", "2H", "3H", "4H", "6H", "12H", "24H", "48H", "72H", "1W", "1M", "2M", "3M"]
+                                enum: ["1Min", "2Min", "5Min", "10Min", "20Min", "30Min", "1H", "2H", "3H", "4H", "6H", "12H", "24H", "48H", "72H", "1W", "1M", "2M", "3M"]
                               groupBy:
                                 description: Required for NEW_VALUE conditions
                                 type: string
@@ -146,6 +147,47 @@ spec:
                                   swapNullValues:
                                     description: Swap null values with 0
                                     type: boolean
+                          stages:
+                            description: Condition parameters, required for all types except IMMEDIATE
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                timeframe:
+                                  type: object
+                                  properties:
+                                    ms:
+                                      type: integer
+                                      format: int32
+                                groups:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      alerts:
+                                        type: object
+                                        properties:
+                                          op:
+                                            type: string
+                                            enum:
+                                              - OR
+                                              - AND
+                                          values:
+                                            type: array
+                                            items:
+                                              type: object
+                                              properties:
+                                                id:
+                                                  type: string
+                                                not:
+                                                  type: boolean
+                                      nextOp:
+                                        type: string
+                                        enum:
+                                          - OR
+                                          - AND
+                                    required:
+                                      - nextOp
                       notifications:
                         type: object
                         properties:
