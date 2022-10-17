@@ -52,7 +52,10 @@ object AlertSetOperator {
         case Reseted() =>
           ZIO.unit
 
-        case Added(item) if item.generation == 0L => // new item
+        case Added(item)
+            if item.generation == 1L && item.status
+              .flatMap(_.lastUploadedGeneration)
+              .isEmpty => // new item
           for {
             alertSetName  <- item.getName.mapError(KubernetesFailure.apply)
             setValidation <- isSetValid(alertSetName, item.spec.alerts, ctx)
