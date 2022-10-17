@@ -105,6 +105,26 @@ spec:
         integrations: []
 ```
 
+##### Alert flow
+There is possibility to add coralogix alert flow for managing various combination and rules.
+You can make it with new type of `condition` in alertset
+```yaml
+        condition:
+        type: FLOW
+        stages:
+          - timeframe:
+              ms: 60000
+            groups:
+              - nextOp: AND
+                alerts:
+                  op: OR
+                  values:
+                    - id: "1234"
+                      not: false
+                    - id: "5678"
+                      not: true
+```
+
 #### Logger
 The `CoralogixLogger` custom resource provisions a _FluentD daemonset_ with Coralogix support. The provisioned resources
 are the following:
