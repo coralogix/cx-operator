@@ -66,5 +66,7 @@ data:
         {{ . | quote }},
       {{- end }}  
     ]
+    
+    enableTracing = {{ .Values.config.resources.enableTracing }}
 
 
