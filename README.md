@@ -126,6 +126,11 @@ spec:
   private_key: "01234567-0123-0123-0123-012345678901"
 ```
 
+#### Tracing
+It is possible enable open telemetry tracing. To do so you need to set value `enableTracing` as true.
+Important to have exported env vars: `OTEL_EXPORTER_AGENT_PORT`, `OTEL_EXPORTER_AGENT_HOST` and `OTEL_SERVICE_NAME`.
+for telemetry exporter.
+
 ### Communication
 
 - Communicates with the Kubernetes cluster on the _Kubernetes REST API_
