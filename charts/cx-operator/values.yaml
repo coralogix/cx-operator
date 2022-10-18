@@ -11,6 +11,7 @@ config:
     alerts: []
   # list of labels to add to alerts from alertset CRD, it matches label keys using regular expressions
   alertLabels: []
+  enableTracing: false
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
