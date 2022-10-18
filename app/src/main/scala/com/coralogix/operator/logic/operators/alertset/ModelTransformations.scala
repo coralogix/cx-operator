@@ -11,6 +11,7 @@ import com.coralogix.alerts.v1.alert_active_when.{
 import com.coralogix.alerts.v1.alert_condition.{
   AlertCondition,
   ConditionParameters,
+  FlowCondition,
   ImmediateCondition,
   LessThanCondition,
   MetricAlertConditionParameters,
@@ -29,10 +30,20 @@ import com.coralogix.alerts.v1.alert_notifications.AlertNotifications
 import com.coralogix.alerts.v1.alert_service.CreateAlertRequest
 import com.coralogix.alerts.v1.alert_severity.AlertSeverity
 import com.coralogix.alerts.v1.date_time.{ Date, Time }
+import com.coralogix.alerts.v1.flow_alert.{
+  FlowAlert,
+  FlowAlerts,
+  FlowGroup,
+  FlowOperator,
+  FlowStage,
+  FlowTimeframe
+}
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.ActiveWhen.Timeframes.DaysOfWeek
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Condition.Parameters
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Condition.Stages.Groups
+import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Condition.Stages.Groups.Alerts.Op
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Condition.Type
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Filters.FilterType
 import com.coralogix.zio.k8s.client.com.coralogix.definitions.alertset.v1.AlertSet.Spec.Alerts.Filters.Severities
@@ -134,6 +145,12 @@ object ModelTransformations {
           AlertCondition.Condition.NewValue(
             NewValueCondition(condition.parameters.map(toConditionParameters))
           )
+        case Type.members.Flow =>
+          AlertCondition.Condition.Flow(
+            FlowCondition(
+              condition.stages.getOrElse(Seq.empty).map(toFlowStage)
+            )
+          )
       }
     )
 
@@ -146,6 +163,32 @@ object ModelTransformations {
       metricAlertParameters = condition.metricAlertParameters.map(toMetricAlertParameters).toOption,
       metricAlertPromqlParameters =
         condition.metricAlertPromqlParameters.map(toMetricAlertPromqlParameters).toOption
+    )
+
+  private def toFlowStage(stage: Alerts.Condition.Stages): FlowStage =
+    FlowStage(
+      groups = stage.groups.getOrElse(Vector.empty).map { group =>
+        FlowGroup(
+          alerts = group.alerts.map(a =>
+            FlowAlerts(
+              op = a.op
+                .map {
+                  case Op.members.And => FlowOperator.AND
+                  case Op.members.Or  => FlowOperator.OR
+                }
+                .getOrElse(FlowOperator.AND),
+              values = a.values.getOrElse(Vector.empty).map { v =>
+                FlowAlert(id = v.id, not = v.not)
+              }
+            )
+          ),
+          nextOp = group.nextOp match {
+            case Groups.NextOp.members.And => FlowOperator.AND
+            case Groups.NextOp.members.Or  => FlowOperator.OR
+          }
+        )
+      },
+      timeframe = stage.timeframe.map(tf => FlowTimeframe(tf.ms))
     )
 
   private def toMetricAlertParameters(
@@ -207,6 +250,8 @@ object ModelTransformations {
 
   private def toTimeframe(timeframe: Alerts.Condition.Parameters.Timeframe): Timeframe =
     timeframe match {
+      case Parameters.Timeframe.members.`1Min`  => Timeframe.TIMEFRAME_1_MIN
+      case Parameters.Timeframe.members.`2Min`  => Timeframe.TIMEFRAME_2_MIN
       case Parameters.Timeframe.members.`5Min`  => Timeframe.TIMEFRAME_5_MIN_OR_UNSPECIFIED
       case Parameters.Timeframe.members.`10Min` => Timeframe.TIMEFRAME_10_MIN
       case Parameters.Timeframe.members.`20Min` => Timeframe.TIMEFRAME_20_MIN
