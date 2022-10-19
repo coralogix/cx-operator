@@ -2,6 +2,9 @@
   "resources":{
   "includes":[
     {
+      "pattern":"\\QMETA-INF/native/libio_grpc_netty_shaded_netty_tcnative_osx_aarch_64.jnilib\\E"
+    }, 
+    {
       "pattern":"\\QMETA-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat\\E"
     }, 
     {
@@ -32,15 +35,6 @@
       "pattern":"\\QStackTraceElementLayout.json\\E"
     }, 
     {
-      "pattern":"\\Qcrds/crd-coralogix-alert-set.yaml\\E"
-    }, 
-    {
-      "pattern":"\\Qcrds/crd-coralogix-loggers.yaml\\E"
-    }, 
-    {
-      "pattern":"\\Qcrds/crd-coralogix-rule-group-set.yaml\\E"
-    }, 
-    {
       "pattern":"\\QcxJsonLayout.json\\E"
     }, 
     {
@@ -48,12 +42,6 @@
     }, 
     {
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
-    }, 
-    {
-      "pattern":"\\Qscalapb/zio_grpc/client/UnaryClientCallListener.class\\E"
-    }, 
-    {
-      "pattern":"\\Qshared.conf\\E"
     }, 
     {
       "pattern":"\\Qzio/App$$anon$1.class\\E"
@@ -65,37 +53,22 @@
       "pattern":"\\Qzio/Fiber.class\\E"
     }, 
     {
-      "pattern":"\\Qzio/Promise.class\\E"
-    }, 
-    {
       "pattern":"\\Qzio/ZIO$.class\\E"
     }, 
     {
-      "pattern":"\\Qzio/ZIO$WhenM$.class\\E"
+      "pattern":"\\Qzio/ZIO$ZipLeftFn.class\\E"
     }, 
     {
       "pattern":"\\Qzio/ZIO.class\\E"
     }, 
     {
-      "pattern":"\\Qzio/ZQueue$$anon$5.class\\E"
-    }, 
-    {
-      "pattern":"\\Qzio/ZRef$Atomic.class\\E"
-    }, 
-    {
       "pattern":"\\Qzio/ZScope$.class\\E"
-    }, 
-    {
-      "pattern":"\\Qzio/ZScope$Local.class\\E"
     }, 
     {
       "pattern":"\\Qzio/internal/FiberContext$InterruptExit$.class\\E"
     }, 
     {
       "pattern":"\\Qzio/internal/FiberContext.class\\E"
-    }, 
-    {
-      "pattern":"\\Qzio/interop/reactivestreams/Adapters$$anon$1.class\\E"
     }
   ]},
   "bundles":[]

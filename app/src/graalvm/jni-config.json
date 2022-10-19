@@ -1,9 +1,15 @@
 [
 {
+  "name":"[B"
+},
+{
   "name":"[Lcom.sun.management.internal.DiagnosticCommandArgumentInfo;"
 },
 {
   "name":"[Lcom.sun.management.internal.DiagnosticCommandInfo;"
+},
+{
+  "name":"[Ljava.lang.String;"
 },
 {
   "name":"com.coralogix.operator.Main",
@@ -18,6 +24,68 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String","java.lang.String","java.lang.String","java.lang.String","java.lang.String","boolean","java.util.List"] }]
 },
 {
+  "name":"io.grpc.netty.shaded.io.netty.handler.ssl.OpenSslClientSessionCache"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.ssl.OpenSslSessionCache",
+  "methods":[
+    {"name":"getSession","parameterTypes":["long","byte[]"] }, 
+    {"name":"sessionCreated","parameterTypes":["long","long"] }
+  ]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.ssl.ReferenceCountedOpenSslClientContext$ExtendedTrustManagerVerifyCallback"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.ssl.ReferenceCountedOpenSslContext$AbstractCertificateVerifier",
+  "methods":[{"name":"verify","parameterTypes":["long","byte[][]","java.lang.String"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.Buffer"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateCallbackTask",
+  "methods":[{"name":"<init>","parameterTypes":["long","byte[]","byte[][]","io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateCallback"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateVerifierTask",
+  "methods":[{"name":"<init>","parameterTypes":["long","byte[][]","java.lang.String","io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateVerifier"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.Library"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.NativeStaticallyReferencedJniMethods"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSL"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLContext"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLPrivateKeyMethodDecryptTask",
+  "methods":[{"name":"<init>","parameterTypes":["long","byte[]","io.grpc.netty.shaded.io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLPrivateKeyMethodSignTask",
+  "methods":[{"name":"<init>","parameterTypes":["long","int","byte[]","io.grpc.netty.shaded.io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLPrivateKeyMethodTask",
+  "fields":[{"name":"resultBytes"}]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLSession"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.SSLTask",
+  "fields":[
+    {"name":"complete"}, 
+    {"name":"returnValue"}
+  ]
+},
+{
   "name":"java.lang.Boolean",
   "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
 },
@@ -29,8 +97,22 @@
   ]
 },
 {
+  "name":"java.lang.Exception"
+},
+{
+  "name":"java.lang.IllegalArgumentException"
+},
+{
+  "name":"java.lang.NullPointerException"
+},
+{
+  "name":"java.lang.OutOfMemoryError"
+},
+{
   "name":"java.lang.String",
   "methods":[
+    {"name":"<init>","parameterTypes":["byte[]"] }, 
+    {"name":"getBytes","parameterTypes":[] }, 
     {"name":"lastIndexOf","parameterTypes":["int"] }, 
     {"name":"substring","parameterTypes":["int"] }
   ]
