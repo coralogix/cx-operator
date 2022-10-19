@@ -2,6 +2,9 @@
   "resources":{
   "includes":[
     {
+      "pattern":"\\QMETA-INF/native/libio_grpc_netty_shaded_netty_tcnative_osx_aarch_64.jnilib\\E"
+    }, 
+    {
       "pattern":"\\QMETA-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat\\E"
     }, 
     {
@@ -50,12 +53,6 @@
       "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
     }, 
     {
-      "pattern":"\\Qscalapb/zio_grpc/client/UnaryClientCallListener.class\\E"
-    }, 
-    {
-      "pattern":"\\Qshared.conf\\E"
-    }, 
-    {
       "pattern":"\\Qzio/App$$anon$1.class\\E"
     }, 
     {
@@ -80,13 +77,7 @@
       "pattern":"\\Qzio/ZQueue$$anon$5.class\\E"
     }, 
     {
-      "pattern":"\\Qzio/ZRef$Atomic.class\\E"
-    }, 
-    {
       "pattern":"\\Qzio/ZScope$.class\\E"
-    }, 
-    {
-      "pattern":"\\Qzio/ZScope$Local.class\\E"
     }, 
     {
       "pattern":"\\Qzio/internal/FiberContext$InterruptExit$.class\\E"
