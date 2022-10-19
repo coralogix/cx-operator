@@ -35,6 +35,15 @@
       "pattern":"\\QStackTraceElementLayout.json\\E"
     }, 
     {
+      "pattern":"\\Qcrds/crd-coralogix-alert-set.yaml\\E"
+    }, 
+    {
+      "pattern":"\\Qcrds/crd-coralogix-loggers.yaml\\E"
+    }, 
+    {
+      "pattern":"\\Qcrds/crd-coralogix-rule-group-set.yaml\\E"
+    }, 
+    {
       "pattern":"\\QcxJsonLayout.json\\E"
     }, 
     {
@@ -53,13 +62,19 @@
       "pattern":"\\Qzio/Fiber.class\\E"
     }, 
     {
+      "pattern":"\\Qzio/Promise.class\\E"
+    }, 
+    {
       "pattern":"\\Qzio/ZIO$.class\\E"
     }, 
     {
-      "pattern":"\\Qzio/ZIO$ZipLeftFn.class\\E"
+      "pattern":"\\Qzio/ZIO$WhenM$.class\\E"
     }, 
     {
       "pattern":"\\Qzio/ZIO.class\\E"
+    }, 
+    {
+      "pattern":"\\Qzio/ZQueue$$anon$5.class\\E"
     }, 
     {
       "pattern":"\\Qzio/ZScope$.class\\E"
@@ -69,6 +84,9 @@
     }, 
     {
       "pattern":"\\Qzio/internal/FiberContext.class\\E"
+    }, 
+    {
+      "pattern":"\\Qzio/interop/reactivestreams/Adapters$$anon$1.class\\E"
     }
   ]},
   "bundles":[]

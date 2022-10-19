@@ -51,6 +51,9 @@
   "name":"[Lsun.security.pkcs.SignerInfo;"
 },
 {
+  "name":"[Lzio.stm.ZTRef;"
+},
+{
   "name":"[S"
 },
 {
@@ -209,7 +212,15 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"com.sun.crypto.provider.TlsKeyMaterialGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.crypto.provider.TlsPrfGenerator$V12",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -386,10 +397,6 @@
 {
   "name":"io.grpc.netty.shaded.io.netty.util.AbstractReferenceCounted",
   "fields":[{"name":"refCnt"}]
-},
-{
-  "name":"io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil",
-  "queryAllDeclaredMethods":true
 },
 {
   "name":"io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryUtil",
@@ -2144,6 +2151,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"sun.security.provider.certpath.PKIXCertPathValidator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "name":"sun.security.rsa.PSSParameters",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -2238,7 +2249,7 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.App$$Lambda$2276/0x0000000801478ab0",
+  "name":"zio.App$$Lambda$3732/0x000000080167c480",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2246,51 +2257,43 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$826/0x0000000800f422b8",
+  "name":"zio.App$$Lambda$792/0x0000000800f31ed8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$856/0x0000000800f54f58",
+  "name":"zio.App$$Lambda$822/0x0000000800f450a8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$858/0x0000000800f55818",
+  "name":"zio.App$$Lambda$824/0x0000000800f45758",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$875/0x0000000800f5b828",
+  "name":"zio.App$$Lambda$842/0x0000000800f4bbf8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$877/0x0000000800f5c230",
+  "name":"zio.App$$Lambda$844/0x0000000800f4c600",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$anon$1$$Lambda$2279/0x0000000801479610",
+  "name":"zio.App$$anon$1$$Lambda$3529/0x0000000801642558",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$2071/0x0000000801442b68",
+  "name":"zio.Fiber$$Lambda$3530/0x0000000801642818",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$870/0x0000000800f5a450",
+  "name":"zio.Fiber$$Lambda$838/0x0000000800f4ab00",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$873/0x0000000800f5aec8",
+  "name":"zio.Fiber$$Lambda$840/0x0000000800f4b188",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$1044/0x0000000800f95000",
-  "methods":[{"name":"writeReplace","parameterTypes":[] }]
-},
-{
-  "name":"zio.ZIO$$$Lambda$1046/0x0000000800f95580",
-  "methods":[{"name":"writeReplace","parameterTypes":[] }]
-},
-{
-  "name":"zio.ZIO$$$Lambda$1049/0x0000000800f978b0",
+  "name":"zio.Promise$$Lambda$940/0x0000000800f73618",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
@@ -2306,39 +2309,63 @@
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$860/0x0000000800f57198",
+  "name":"zio.ZIO$$$Lambda$826/0x0000000800f470d8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$866/0x0000000800f58d78",
+  "name":"zio.ZIO$$$Lambda$834/0x0000000800f49408",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$868/0x0000000800f59400",
+  "name":"zio.ZIO$$$Lambda$835/0x0000000800f4a080",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$909/0x0000000800f657a0",
+  "name":"zio.ZIO$$Lambda$1256/0x00000008011c1838",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$ZipLeftFn$$Lambda$978/0x0000000800f851b0",
+  "name":"zio.ZIO$$Lambda$926/0x0000000800f6f8b8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZScope$$$Lambda$1021/0x0000000800f90000",
+  "name":"zio.ZIO$WhenM$$$Lambda$2873/0x000000080153d970",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$$Lambda$1019/0x0000000800f88800",
+  "name":"zio.ZQueue$$anon$5$$Lambda$1328/0x000000080120c800",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$$Lambda$864/0x0000000800f583d0",
+  "name":"zio.ZScope$$$Lambda$982/0x0000000800f7b378",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$886/0x0000000800f60580",
+  "name":"zio.internal.FiberContext$$Lambda$832/0x0000000800f48d78",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$$Lambda$980/0x0000000800f7adf8",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$852/0x0000000800f50580",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2869/0x000000080153fb88",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2870/0x000000080153d000",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2884/0x000000080153dd40",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2893/0x00000008015831e0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 }
 ]
