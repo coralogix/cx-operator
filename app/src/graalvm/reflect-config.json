@@ -176,6 +176,45 @@
   ]
 },
 {
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions",
+  "queriedMethods":[
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getIdempotencyLevel","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }, 
+    {"name":"hasIdempotencyLevel","parameterTypes":[] }
+  ]
+},
+{
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions$Builder",
+  "queriedMethods":[
+    {"name":"addUninterpretedOption","parameterTypes":["com.google.protobuf.DescriptorProtos$UninterpretedOption"] }, 
+    {"name":"clearDeprecated","parameterTypes":[] }, 
+    {"name":"clearIdempotencyLevel","parameterTypes":[] }, 
+    {"name":"clearUninterpretedOption","parameterTypes":[] }, 
+    {"name":"getDeprecated","parameterTypes":[] }, 
+    {"name":"getIdempotencyLevel","parameterTypes":[] }, 
+    {"name":"getUninterpretedOption","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionBuilder","parameterTypes":["int"] }, 
+    {"name":"getUninterpretedOptionCount","parameterTypes":[] }, 
+    {"name":"getUninterpretedOptionList","parameterTypes":[] }, 
+    {"name":"hasDeprecated","parameterTypes":[] }, 
+    {"name":"hasIdempotencyLevel","parameterTypes":[] }, 
+    {"name":"setDeprecated","parameterTypes":["boolean"] }, 
+    {"name":"setIdempotencyLevel","parameterTypes":["com.google.protobuf.DescriptorProtos$MethodOptions$IdempotencyLevel"] }, 
+    {"name":"setUninterpretedOption","parameterTypes":["int","com.google.protobuf.DescriptorProtos$UninterpretedOption"] }
+  ]
+},
+{
+  "name":"com.google.protobuf.DescriptorProtos$MethodOptions$IdempotencyLevel",
+  "queriedMethods":[
+    {"name":"getValueDescriptor","parameterTypes":[] }, 
+    {"name":"valueOf","parameterTypes":["com.google.protobuf.Descriptors$EnumValueDescriptor"] }
+  ]
+},
+{
   "name":"com.google.protobuf.DescriptorProtos$UninterpretedOption",
   "queriedMethods":[{"name":"newBuilder","parameterTypes":[] }]
 },
@@ -280,6 +319,48 @@
   "name":"io.grpc.netty.NettyChannelProvider"
 },
 {
+  "name":"io.grpc.netty.shaded.io.grpc.netty.AbstractNettyHandler",
+  "queriedMethods":[
+    {"name":"channelActive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }
+  ]
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler",
+  "queriedMethods":[
+    {"name":"channelInactive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"close","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"write","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }
+  ]
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.ProtocolNegotiators$ClientTlsHandler"
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.ProtocolNegotiators$GrpcNegotiationHandler",
+  "queriedMethods":[{"name":"userEventTriggered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.ProtocolNegotiators$ProtocolNegotiationHandler",
+  "queriedMethods":[{"name":"userEventTriggered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.ProtocolNegotiators$WaitUntilActiveHandler",
+  "queriedMethods":[{"name":"channelActive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }]
+},
+{
+  "name":"io.grpc.netty.shaded.io.grpc.netty.WriteBufferingAndExceptionHandler",
+  "queriedMethods":[
+    {"name":"channelInactive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelRead","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
+    {"name":"close","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"connect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
+    {"name":"flush","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"write","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }
+  ]
+},
+{
   "name":"io.grpc.netty.shaded.io.netty.bootstrap.ServerBootstrap$1"
 },
 {
@@ -298,6 +379,19 @@
   "fields":[{"name":"refCnt"}]
 },
 {
+  "name":"io.grpc.netty.shaded.io.netty.channel.ChannelDuplexHandler",
+  "queriedMethods":[
+    {"name":"bind","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"close","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"connect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"deregister","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"disconnect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"flush","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"read","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"write","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }
+  ]
+},
+{
   "name":"io.grpc.netty.shaded.io.netty.channel.ChannelInboundHandlerAdapter",
   "queriedMethods":[
     {"name":"channelActive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
@@ -307,6 +401,7 @@
     {"name":"channelRegistered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"channelUnregistered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
     {"name":"channelWritabilityChanged","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
     {"name":"userEventTriggered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
   ]
 },
@@ -368,10 +463,47 @@
 },
 {
   "name":"io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel",
-  "queriedMethods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"io.grpc.netty.shaded.io.netty.channel.unix.PeerCredentials"
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.codec.ByteToMessageDecoder",
+  "queriedMethods":[
+    {"name":"channelRead","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }, 
+    {"name":"userEventTriggered","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object"] }
+  ]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.codec.http2.Http2ConnectionHandler",
+  "queriedMethods":[
+    {"name":"bind","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"channelReadComplete","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelWritabilityChanged","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"connect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"deregister","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"disconnect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"flush","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"read","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }
+  ]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.handler.ssl.SslHandler",
+  "queriedMethods":[
+    {"name":"bind","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"channelActive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelInactive","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"channelReadComplete","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"close","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"connect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.net.SocketAddress","java.net.SocketAddress","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"deregister","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"disconnect","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }, 
+    {"name":"exceptionCaught","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Throwable"] }, 
+    {"name":"flush","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"read","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext"] }, 
+    {"name":"write","parameterTypes":["io.grpc.netty.shaded.io.netty.channel.ChannelHandlerContext","java.lang.Object","io.grpc.netty.shaded.io.netty.channel.ChannelPromise"] }
+  ]
 },
 {
   "name":"io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateCallback"
@@ -397,6 +529,10 @@
 {
   "name":"io.grpc.netty.shaded.io.netty.util.AbstractReferenceCounted",
   "fields":[{"name":"refCnt"}]
+},
+{
+  "name":"io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"io.grpc.netty.shaded.io.netty.util.internal.NativeLibraryUtil",
@@ -571,6 +707,10 @@
   "name":"java.math.BigInteger"
 },
 {
+  "name":"java.net.InetSocketAddress",
+  "methods":[{"name":"getHostString","parameterTypes":[] }]
+},
+{
   "name":"java.nio.Bits",
   "fields":[{"name":"UNALIGNED"}]
 },
@@ -635,11 +775,11 @@
 {
   "name":"java.util.concurrent.atomic.LongAdder",
   "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }],
-  "queriedMethods":[
-    {"name":"add","parameterTypes":["long"] }, 
-    {"name":"sum","parameterTypes":[] }
-  ]
+  "methods":[
+    {"name":"<init>","parameterTypes":[] }, 
+    {"name":"add","parameterTypes":["long"] }
+  ],
+  "queriedMethods":[{"name":"sum","parameterTypes":[] }]
 },
 {
   "name":"java.util.logging.LogManager",
@@ -2018,6 +2158,26 @@
   "methods":[{"name":"apply","parameterTypes":["java.lang.String"] }]
 },
 {
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3434/0x000000080171d8d0",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3489/0x0000000801734f18",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3491/0x0000000801735ab0",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3492/0x0000000801735d70",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"scalapb.zio_grpc.client.UnaryClientCallListener$$Lambda$3493/0x0000000801736140",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
   "name":"sun.management.ClassLoadingImpl",
   "queryAllPublicConstructors":true
 },
@@ -2249,123 +2409,131 @@
   "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
 },
 {
-  "name":"zio.App$$Lambda$3732/0x000000080167c480",
+  "name":"zio.App$$Lambda$4037/0x00000008017d5418",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$66/0x0000000800ce5728",
+  "name":"zio.App$$Lambda$71/0x0000000800ce9338",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$792/0x0000000800f31ed8",
+  "name":"zio.App$$Lambda$826/0x0000000800f42e18",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$822/0x0000000800f450a8",
+  "name":"zio.App$$Lambda$856/0x0000000800f55dc0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$824/0x0000000800f45758",
+  "name":"zio.App$$Lambda$858/0x0000000800f56470",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$842/0x0000000800f4bbf8",
+  "name":"zio.App$$Lambda$882/0x0000000800f603d0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$Lambda$844/0x0000000800f4c600",
+  "name":"zio.App$$Lambda$884/0x0000000800f60a08",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.App$$anon$1$$Lambda$3529/0x0000000801642558",
+  "name":"zio.App$$anon$1$$Lambda$3933/0x00000008017b5200",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$3530/0x0000000801642818",
+  "name":"zio.Fiber$$Lambda$3516/0x000000080173cff0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$838/0x0000000800f4ab00",
+  "name":"zio.Fiber$$Lambda$877/0x0000000800f5e690",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Fiber$$Lambda$840/0x0000000800f4b188",
+  "name":"zio.Fiber$$Lambda$878/0x0000000800f5ef10",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.Promise$$Lambda$940/0x0000000800f73618",
+  "name":"zio.Promise$$Lambda$973/0x0000000800f84970",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$28/0x0000000800cc5000",
+  "name":"zio.ZIO$$$Lambda$33/0x0000000800cd5870",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$29/0x0000000800cc4800",
+  "name":"zio.ZIO$$$Lambda$34/0x0000000800cd6868",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$40/0x0000000800cd5230",
+  "name":"zio.ZIO$$$Lambda$45/0x0000000800cd95b0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$826/0x0000000800f470d8",
+  "name":"zio.ZIO$$$Lambda$860/0x0000000800f58000",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$834/0x0000000800f49408",
+  "name":"zio.ZIO$$$Lambda$874/0x0000000800f5d018",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$$Lambda$835/0x0000000800f4a080",
+  "name":"zio.ZIO$$$Lambda$876/0x0000000800f5d6a0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$1256/0x00000008011c1838",
+  "name":"zio.ZIO$$Lambda$1294/0x0000000801202da0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$$Lambda$926/0x0000000800f6f8b8",
+  "name":"zio.ZIO$$Lambda$943/0x0000000800f77a28",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZIO$WhenM$$$Lambda$2873/0x000000080153d970",
+  "name":"zio.ZIO$WhenM$$$Lambda$2189/0x00000008014a54c8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZQueue$$anon$5$$Lambda$1328/0x000000080120c800",
+  "name":"zio.ZQueue$$anon$5$$Lambda$1378/0x0000000801252000",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.ZScope$$$Lambda$982/0x0000000800f7b378",
+  "name":"zio.ZRef$Atomic$$Lambda$1007/0x0000000800f8a3e8",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$$Lambda$832/0x0000000800f48d78",
+  "name":"zio.ZRef$Atomic$$Lambda$893/0x0000000800f62a20",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$$Lambda$980/0x0000000800f7adf8",
+  "name":"zio.ZScope$$$Lambda$1028/0x0000000800f92a70",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$852/0x0000000800f50580",
+  "name":"zio.internal.FiberContext$$Lambda$1024/0x0000000800f92230",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2869/0x000000080153fb88",
+  "name":"zio.internal.FiberContext$$Lambda$873/0x0000000800f5c998",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2870/0x000000080153d000",
+  "name":"zio.internal.FiberContext$InterruptExit$$$Lambda$886/0x0000000800f61098",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2884/0x000000080153dd40",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2185/0x00000008014a7500",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 },
 {
-  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2893/0x00000008015831e0",
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2186/0x00000008014a77c0",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2196/0x00000008014a8f30",
+  "methods":[{"name":"writeReplace","parameterTypes":[] }]
+},
+{
+  "name":"zio.interop.reactivestreams.Adapters$$anon$1$$Lambda$2199/0x00000008014a94b0",
   "methods":[{"name":"writeReplace","parameterTypes":[] }]
 }
 ]

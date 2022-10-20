@@ -12,6 +12,9 @@
   "name":"[Ljava.lang.String;"
 },
 {
+  "name":"[[B"
+},
+{
   "name":"com.coralogix.operator.Main",
   "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]
 },
