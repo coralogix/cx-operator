@@ -57,9 +57,10 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: {{ .Chart.Name }}
             - name: OTEL_EXPORTER_AGENT_HOST
-              fieldRef:
-                apiVersion: v1
-                fieldPath: status.hostIP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
 {{- end }}
           envFrom:
             - secretRef:
