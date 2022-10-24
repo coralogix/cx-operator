@@ -53,9 +53,9 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-configmap
                   key: config.path
-{{- if .Values.config.enableTracing }}
+{{- if .Values.config.tracing.enabled }}
             - name: OTEL_EXPORTER_AGENT_PORT
-              value: "4317"
+              value: {{ .Values.config.tracing.port }}
             - name: OTEL_SERVICE_NAME
               value: {{ .Chart.Name }}
             - name: OTEL_EXPORTER_AGENT_HOST
