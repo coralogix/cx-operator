@@ -53,7 +53,7 @@ spec:
                   key: config.path
 {{- if .Values.config.enableTracing }}
             - name: OTEL_EXPORTER_AGENT_PORT
-              value: 4317
+              value: "4317"
             - name: OTEL_SERVICE_NAME
               value: {{ .Chart.Name }}
             - name: OTEL_EXPORTER_AGENT_HOST
