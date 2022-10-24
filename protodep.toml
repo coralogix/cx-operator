@@ -6,4 +6,8 @@ revision = "v0.12"
 
 [[dependencies]]
 target = "github.com/coralogix/alerts-api-protobuf/"
+<<<<<<< HEAD
 revision = "v0.26"
+=======
+revision = "v0.24"
+>>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
