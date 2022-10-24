@@ -52,8 +52,17 @@ case class OperatorConfig(
   prometheus: PrometheusConfig,
   grpc: GrpcConfig,
   resources: OperatorResources,
+<<<<<<< HEAD
   alertLabels: List[String],
   enableTracing: Boolean
+=======
+<<<<<<< HEAD
+  alertLabels: List[String]
+=======
+  alertLabels: List[String],
+  enableTracing: Boolean
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
 )
 
 object OperatorConfig {

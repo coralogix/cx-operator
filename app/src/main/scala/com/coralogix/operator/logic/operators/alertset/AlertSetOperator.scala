@@ -1,12 +1,21 @@
 package com.coralogix.operator.logic.operators.alertset
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
 import com.coralogix.alerts.v1.alert_service.{
 =======
 import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
 import com.coralogix.alerts.v1.{
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+import com.coralogix.alerts.v1.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.{
+=======
+import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
+import com.coralogix.alerts.v1.alert_service.{
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
   DeleteAlertRequest,
   GetAlertByUniqueIdRequest,
   UpdateAlertRequest,
@@ -33,18 +42,34 @@ import com.coralogix.zio.k8s.model.pkg.apis.meta.v1.DeleteOptions
 import com.coralogix.zio.k8s.operator.Operator.{ EventProcessor, OperatorContext }
 import com.coralogix.zio.k8s.operator.{ KubernetesFailure, Operator }
 <<<<<<< HEAD
+<<<<<<< HEAD
 import io.circe.syntax.EncoderOps
 import io.grpc.Status
 import sttp.model.StatusCode
 =======
+=======
+>>>>>>> 0be9ab2 (rebase)
 import io.circe.Json
 import io.grpc.Status
 import sttp.model.StatusCode
 import zio.{ Has, ZIO }
+<<<<<<< HEAD
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
 import zio.clock.Clock
 import zio.logging.Logging
 import zio.{ Has, ZIO }
+=======
+=======
+import io.circe.syntax.EncoderOps
+import io.grpc.Status
+import sttp.model.StatusCode
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+import zio.clock.Clock
+import zio.logging.Logging
+import zio.{ Has, ZIO }
+
+import java.util.regex.Pattern
+>>>>>>> 0be9ab2 (rebase)
 
 object AlertSetOperator {
   private[alertset] def filterLabels(alertLabels: List[String])(
@@ -66,6 +91,7 @@ object AlertSetOperator {
           ZIO.unit
 
         case Added(item)
+<<<<<<< HEAD
 <<<<<<< HEAD
             if item.generation == 1L && item.status
               .flatMap(_.lastUploadedGeneration)
@@ -102,6 +128,8 @@ object AlertSetOperator {
           modifyFlow(ctx, item)(alertLabels)
 
 =======
+=======
+>>>>>>> 0be9ab2 (rebase)
             if item.generation == 0L || // new item
               !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
           for {
@@ -131,7 +159,46 @@ object AlertSetOperator {
                    .unless(setIsValid)
           } yield ()
 
+<<<<<<< HEAD
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+=======
+            if item.generation == 1L && item.status
+              .flatMap(_.lastUploadedGeneration)
+              .isEmpty => // new item
+          for {
+            alertSetName  <- item.getName.mapError(KubernetesFailure.apply)
+            setValidation <- isSetValid(alertSetName, item.spec.alerts, ctx)
+            updates <- {
+              setValidation match {
+                case Right(_) =>
+                  createNewAlerts(
+                    ctx,
+                    alertSetName,
+                    item.spec.alerts.toSet,
+                    filterLabels(alertLabels)(item.metadata.flatMap(_.labels).getOrElse(Map.empty))
+                  ).map(updates =>
+                    StatusUpdate.ClearFailures +: StatusUpdate.UpdateLastUploadedGeneration(
+                      item.generation
+                    ) +: updates
+                  )
+                case Left(failures) => ZIO.succeed(failures)
+              }
+
+            }
+            _ <- applyStatusUpdates(
+                   ctx,
+                   item,
+                   StatusUpdate.UpdateLastUploadedGeneration(item.generation) +: updates
+                 )
+          } yield ()
+
+        case Added(item)
+            if !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
+          modifyFlow(ctx, item)(alertLabels)
+
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
         case Added(item) =>
           Log.debug(
             "AlreadyAdded",
@@ -143,7 +210,10 @@ object AlertSetOperator {
           modifyFlow(ctx, item)(alertLabels)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 0be9ab2 (rebase)
               for {
                 alertSetName <- item.getName.mapError(KubernetesFailure.apply)
                 setIsValid   <- isSetValid(alertSetName, item.spec.alerts, ctx)
@@ -178,7 +248,12 @@ object AlertSetOperator {
               )
           }
 
+<<<<<<< HEAD
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+=======
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
         case Deleted(item) =>
           withExpectedStatus(item) { status =>
             val mappings = status.alertIds.getOrElse(Vector.empty)
@@ -187,6 +262,10 @@ object AlertSetOperator {
       }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 0be9ab2 (rebase)
   private def modifyFlow(ctx: OperatorContext, item: AlertSet)(
     alertLabels: List[String]
   ): ZIO[Logging with AlertSets with AlertServiceClient, KubernetesFailure, Unit] =
@@ -238,12 +317,17 @@ object AlertSetOperator {
         )
     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
   private def isSetValid(
     setName: String,
     alerts: Vector[Alerts],
     ctx: OperatorContext
+<<<<<<< HEAD
 <<<<<<< HEAD
   ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Either[Vector[
     RecordFailure
@@ -281,6 +365,8 @@ object AlertSetOperator {
             )
             .as(Left(Vector(RecordFailure(alertName, failure.getDescription))))
 =======
+=======
+>>>>>>> 0be9ab2 (rebase)
   ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Boolean] =
     ZIO
       .foreachPar(alerts) { a =>
@@ -299,7 +385,47 @@ object AlertSetOperator {
           else
             "InvalidAlertSet"
         Log.warn(warnMessage, "description" -> Json.fromString(failure.getDescription)).as(false)
+<<<<<<< HEAD
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+=======
+  ): ZIO[Has[AlertServiceClient.ZService[Any, Any]] with Logging, Nothing, Either[Vector[
+    RecordFailure
+  ], Unit]] =
+    ZIO
+      .foreachPar(alerts) { a =>
+        for {
+          alert <-
+            ZIO
+              .fromEither(toAlert(a, None, ctx, setName))
+              .mapError(description => a -> Status.INVALID_ARGUMENT.withDescription(description))
+          _ <- AlertServiceClient.validateAlert(ValidateAlertRequest(Some(alert))).mapError(a -> _)
+        } yield ()
+      }
+      .as(Right(()))
+      .catchAll {
+        case (alert, failure) =>
+          val alertName = alert.name
+          val integrations =
+            alert.notifications.flatMap(_.integrations).map(_.mkString(", ")).getOrElse("")
+          val warnMessage =
+            if (
+              failure.getDescription.contains(
+                s"Invalid integration names ($integrations) in alert ${alertName.value}"
+              )
+            )
+              "InvalidIntegrationName"
+            else
+              "InvalidAlertSet"
+          Log
+            .error(
+              warnMessage,
+              "description" -> failure.getDescription.asJson,
+              "alertName"   -> alertName.value.asJson
+            )
+            .as(Left(Vector(RecordFailure(alertName, failure.getDescription))))
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
       }
 
   private def createNewAlerts(

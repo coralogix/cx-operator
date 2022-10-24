@@ -12,10 +12,17 @@ proto_outdir = "./grpc-deps/target/protobuf_external_src"
   target = "github.com/coralogix/alerts-api-protobuf/"
   subgroup = ""
 <<<<<<< HEAD
+<<<<<<< HEAD
   revision = "61b6e75aa1453e61516024ffd627a9fd74d596ec"
 =======
   revision = "ccdeeb5abded45841213a477e929d116db910fd7"
 >>>>>>> e3ef784 (SC-8904 add validation on create and modify (#80))
+=======
+  revision = "ccdeeb5abded45841213a477e929d116db910fd7"
+=======
+  revision = "61b6e75aa1453e61516024ffd627a9fd74d596ec"
+>>>>>>> 60ad98189c2a659c9e1f3bad45260a4c355c6334
+>>>>>>> 0be9ab2 (rebase)
   branch = ""
   path = ""
   protocol = ""
