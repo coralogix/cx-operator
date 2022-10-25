@@ -13,7 +13,7 @@ config:
   alertLabels: []
   tracing:
     enabled: true
-    port: '"4317"'
+    port: "4317"
 image:
   pullPolicy: IfNotPresent
   repository: coralogixrepo
