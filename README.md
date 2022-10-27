@@ -147,7 +147,7 @@ spec:
 ```
 
 #### Tracing
-It is possible enable open telemetry tracing. To do so you need to set value `enableTracing` as true.
+It is possible enable open telemetry tracing. To do so you need to set value `enabled` under `tracing`  as true.
 Important to have exported env vars: `OTEL_EXPORTER_AGENT_PORT`, `OTEL_EXPORTER_AGENT_HOST` and `OTEL_SERVICE_NAME`.
 for telemetry exporter.
 
