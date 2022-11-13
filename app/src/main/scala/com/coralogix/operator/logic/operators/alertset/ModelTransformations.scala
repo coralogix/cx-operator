@@ -262,6 +262,7 @@ object ModelTransformations {
       case Parameters.Timeframe.members.`4H`    => Timeframe.TIMEFRAME_4_H
       case Parameters.Timeframe.members.`6H`    => Timeframe.TIMEFRAME_6_H
       case Parameters.Timeframe.members.`12H`   => Timeframe.TIMEFRAME_12_H
+      case Parameters.Timeframe.members.`36H`   => Timeframe.TIMEFRAME_36_H
       case Parameters.Timeframe.members.`24H`   => Timeframe.TIMEFRAME_24_H
       case Parameters.Timeframe.members.`48H`   => Timeframe.TIMEFRAME_48_H
       case Parameters.Timeframe.members.`72H`   => Timeframe.TIMEFRAME_72_H
