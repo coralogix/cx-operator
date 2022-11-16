@@ -2,8 +2,20 @@ apiVersion: v1
 entries:
   cx-operator:
   - apiVersion: v2
+    appVersion: 0.5.13
+    created: "2022-11-16T10:28:39.901425322Z"
+    description: Coralogix Kubernetes Operator
+    digest: 57b9f1eb9babc9f34a33db0857c82f6d2682c47680c7cccf3274f151bae9ae15
+    name: cx-operator
+    sources:
+    - https://github.com/coralogix/cx-operator
+    type: application
+    urls:
+    - https://coralogix.github.io/cx-operator/cx-operator-0.5.13+923a6d9.tgz
+    version: 0.5.13+923a6d9
+  - apiVersion: v2
     appVersion: 0.5.12
-    created: "2022-10-27T14:03:01.430491728Z"
+    created: "2022-11-16T10:28:39.900800407Z"
     description: Coralogix Kubernetes Operator
     digest: 6146eb446b4f4063bff7d6a2f93eed733fe425d6357902edf02e95e627879740
     name: cx-operator
@@ -15,7 +27,7 @@ entries:
     version: 0.5.12+11cbc01
   - apiVersion: v2
     appVersion: 0.5.11
-    created: "2022-10-27T14:03:01.430092624Z"
+    created: "2022-11-16T10:28:39.900240493Z"
     description: Coralogix Kubernetes Operator
     digest: aa124903e1be62d2bc02030abd73d167af589d342ad8b2a4c03d62fd1a186573
     name: cx-operator
@@ -27,7 +39,7 @@ entries:
     version: 0.5.11+0881904
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.428072401Z"
+    created: "2022-11-16T10:28:39.897443523Z"
     description: Coralogix Kubernetes Operator
     digest: 51ed3ba79f9a7b23399c867dc239d46bcfe310cb5c5ae769f22b51786a76cce5
     name: cx-operator
@@ -39,7 +51,7 @@ entries:
     version: 0.5.10+4cddfcf
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.42888191Z"
+    created: "2022-11-16T10:28:39.898339245Z"
     description: Coralogix Kubernetes Operator
     digest: ac126029951374e000198ac62d050c223689e8e3d315ca7bd6b37a50a35d4176
     name: cx-operator
@@ -51,7 +63,7 @@ entries:
     version: 0.5.10+60ad981
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.428463406Z"
+    created: "2022-11-16T10:28:39.897849333Z"
     description: Coralogix Kubernetes Operator
     digest: d499fbff08119bb1ac1b613d3b4ce10a0fef7b92d90210d4f4bf2242ca1bfccf
     name: cx-operator
@@ -63,7 +75,7 @@ entries:
     version: 0.5.10+5826ef2
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.427660597Z"
+    created: "2022-11-16T10:28:39.896993812Z"
     description: Coralogix Kubernetes Operator
     digest: 1681217511a68ed8843ffa43d8dce4bff1cf6a42267e00ad9f7c68cfb5dd4353
     name: cx-operator
@@ -75,7 +87,7 @@ entries:
     version: 0.5.10+3000ad5
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.429277615Z"
+    created: "2022-11-16T10:28:39.898779456Z"
     description: Coralogix Kubernetes Operator
     digest: 7612026d9f3c4758ef40b8ca3c8b626ae76b23085b09ad02c8d257241744930a
     name: cx-operator
@@ -87,7 +99,7 @@ entries:
     version: 0.5.10+85decd1
   - apiVersion: v2
     appVersion: 0.5.10
-    created: "2022-10-27T14:03:01.429699419Z"
+    created: "2022-11-16T10:28:39.899648678Z"
     description: Coralogix Kubernetes Operator
     digest: fa7a5935cf1bcb2402eee3e8809833a431797fb09a8e88bf01b8ba77e03780c5
     name: cx-operator
@@ -99,7 +111,7 @@ entries:
     version: 0.5.10+d22baaa
   - apiVersion: v2
     appVersion: 0.5.9
-    created: "2022-10-27T14:03:01.434467372Z"
+    created: "2022-11-16T10:28:39.90693946Z"
     description: Coralogix Kubernetes Operator
     digest: 5709f6213ce4d5b5120afe015cc037120a44598882b2e401aff6dee1d6dddbb4
     name: cx-operator
@@ -111,7 +123,7 @@ entries:
     version: 0.5.9+c333c50
   - apiVersion: v2
     appVersion: 0.5.8
-    created: "2022-10-27T14:03:01.433666163Z"
+    created: "2022-11-16T10:28:39.906023337Z"
     description: Coralogix Kubernetes Operator
     digest: f02ce5f2dea796723c7a2d7279ce85a517f107e9e4b64eee65a741b7e80d4323
     name: cx-operator
@@ -123,7 +135,7 @@ entries:
     version: 0.5.8+b64d084
   - apiVersion: v2
     appVersion: 0.5.8
-    created: "2022-10-27T14:03:01.434091568Z"
+    created: "2022-11-16T10:28:39.906486248Z"
     description: Coralogix Kubernetes Operator
     digest: 22d1c38c7ebcf2d3af745bf746e2a278318b94e1ac6213d40574461a15ccab2a
     name: cx-operator
@@ -135,7 +147,7 @@ entries:
     version: 0.5.8+c3aeae2
   - apiVersion: v2
     appVersion: 0.5.7
-    created: "2022-10-27T14:03:01.433255159Z"
+    created: "2022-11-16T10:28:39.905540525Z"
     description: Coralogix Kubernetes Operator
     digest: ae018f95c008fb24116af6e1174b9d5c771269f3ddc9b2f5a4ccfd7c541a52aa
     name: cx-operator
@@ -147,7 +159,7 @@ entries:
     version: 0.5.7+2fcf3c5
   - apiVersion: v2
     appVersion: 0.5.6
-    created: "2022-10-27T14:03:01.43250345Z"
+    created: "2022-11-16T10:28:39.904497999Z"
     description: Coralogix Kubernetes Operator
     digest: df2869df4328eadf5b807698f9c7e6ae377d25fd9ebd3696afe300ef117816c5
     name: cx-operator
@@ -159,7 +171,7 @@ entries:
     version: 0.5.6+dc7d0f2
   - apiVersion: v2
     appVersion: 0.5.6
-    created: "2022-10-27T14:03:01.432877455Z"
+    created: "2022-11-16T10:28:39.905036412Z"
     description: Coralogix Kubernetes Operator
     digest: 63c26b29a0b0f3e08f31ee31535542d38a786bffa23d6fd435a4d156fda3617b
     name: cx-operator
@@ -171,7 +183,7 @@ entries:
     version: 0.5.6+fc50bd7
   - apiVersion: v2
     appVersion: 0.5.5
-    created: "2022-10-27T14:03:01.432122346Z"
+    created: "2022-11-16T10:28:39.903958285Z"
     description: Coralogix Kubernetes Operator
     digest: bb82bcbfd3071532c51d82a34ef433c85332c47cba115f74cab86a0f74275613
     name: cx-operator
@@ -183,7 +195,7 @@ entries:
     version: 0.5.5+c573c54
   - apiVersion: v2
     appVersion: 0.5.4
-    created: "2022-10-27T14:03:01.431718542Z"
+    created: "2022-11-16T10:28:39.903364171Z"
     description: Coralogix Kubernetes Operator
     digest: 18cc4bd0737203f80ffd2ccd66a062a66aac7eecbeb6000402025480b9eb4757
     name: cx-operator
@@ -195,7 +207,7 @@ entries:
     version: 0.5.4+b351bd9
   - apiVersion: v2
     appVersion: 0.5.3
-    created: "2022-10-27T14:03:01.431319237Z"
+    created: "2022-11-16T10:28:39.902810157Z"
     description: Coralogix Kubernetes Operator
     digest: ec634d3b6c3cfc0bbd3aced98024c3715d894d050dd49c56fff5b8d3cf0e3982
     name: cx-operator
@@ -207,7 +219,7 @@ entries:
     version: 0.5.3+6027e38
   - apiVersion: v2
     appVersion: 0.5.2
-    created: "2022-10-27T14:03:01.430911433Z"
+    created: "2022-11-16T10:28:39.902288644Z"
     description: Coralogix Kubernetes Operator
     digest: 83f46467929c9d44a739920ab71d7f49adb1f6158ff9c962ee1ad61f07c6dd93
     name: cx-operator
@@ -219,7 +231,7 @@ entries:
     version: 0.5.2+c9fbc97
   - apiVersion: v2
     appVersion: 0.5.1
-    created: "2022-10-27T14:03:01.427228392Z"
+    created: "2022-11-16T10:28:39.896542901Z"
     description: Coralogix Kubernetes Operator
     digest: fb51cc622daea5d4dc56e2f39b775b0a648ad9d8c2c52c7df2b06ef38bc31d65
     name: cx-operator
@@ -231,7 +243,7 @@ entries:
     version: 0.5.1+4ea77c3
   - apiVersion: v2
     appVersion: 0.5.0
-    created: "2022-10-27T14:03:01.426838588Z"
+    created: "2022-11-16T10:28:39.89612169Z"
     description: Coralogix Kubernetes Operator
     digest: 45b0f795b85c1f4893e632c1d6165d65a5d1fb7bacb715a7ecf950d6ed37d619
     name: cx-operator
@@ -243,7 +255,7 @@ entries:
     version: 0.5.0+4c6bb5c
   - apiVersion: v2
     appVersion: 0.4.3
-    created: "2022-10-27T14:03:01.426395783Z"
+    created: "2022-11-16T10:28:39.89569568Z"
     description: Coralogix Kubernetes Operator
     digest: 19d65d39d633807a87f0a72d6d45d320bdcf88dbef7eac5df3751ad1fea949b5
     name: cx-operator
@@ -255,7 +267,7 @@ entries:
     version: 0.4.3+8c70b6e
   - apiVersion: v2
     appVersion: 0.4.2
-    created: "2022-10-27T14:03:01.425541073Z"
+    created: "2022-11-16T10:28:39.895266969Z"
     description: Coralogix Kubernetes Operator
     digest: 12fc1d95d72970add43fa2b91ef6e9911e9cd039b16f54324f2b2471b9562bd1
     name: cx-operator
@@ -267,7 +279,7 @@ entries:
     version: 0.4.2+0c18808
   - apiVersion: v2
     appVersion: 0.4.1
-    created: "2022-10-27T14:03:01.425053468Z"
+    created: "2022-11-16T10:28:39.894815658Z"
     description: Coralogix Kubernetes Operator
     digest: 75443b3b1d743c31409dc91ea24355166b65422da0837ce7a0757dc5bc164405
     name: cx-operator
@@ -279,7 +291,7 @@ entries:
     version: 0.4.1+b9fb6cb
   - apiVersion: v2
     appVersion: 0.4.0
-    created: "2022-10-27T14:03:01.424570462Z"
+    created: "2022-11-16T10:28:39.894389647Z"
     description: Coralogix Kubernetes Operator
     digest: 4ebbf70c291d176c81ff4862c30fc82c2be2cab406ab695e3044fd7aaacb70ca
     name: cx-operator
@@ -291,7 +303,7 @@ entries:
     version: 0.4.0+20076e3
   - apiVersion: v2
     appVersion: 0.3.9
-    created: "2022-10-27T14:03:01.423400849Z"
+    created: "2022-11-16T10:28:39.893950836Z"
     description: Coralogix Kubernetes Operator
     digest: 655325de2dcacf829215603c62e5417f42a867e88be6253d757523e9b6ab0036
     name: cx-operator
@@ -303,7 +315,7 @@ entries:
     version: 0.3.9+be0fcbf
   - apiVersion: v2
     appVersion: 0.3.8
-    created: "2022-10-27T14:03:01.423038345Z"
+    created: "2022-11-16T10:28:39.893499025Z"
     description: Coralogix Kubernetes Operator
     digest: fe20a22f32661f4e4b8c03410eb15a085f0b825c21cc1e6fa2328244063fe8f2
     name: cx-operator
@@ -315,7 +327,7 @@ entries:
     version: 0.3.8+03a175e
   - apiVersion: v2
     appVersion: 0.3.7
-    created: "2022-10-27T14:03:01.422668641Z"
+    created: "2022-11-16T10:28:39.893068714Z"
     description: Coralogix Kubernetes Operator
     digest: 47e19a65ef93a5c8b0b025c203b1afa54fe6f2d210309f68ab8b50e0148eefd1
     name: cx-operator
@@ -327,7 +339,7 @@ entries:
     version: 0.3.7+e08afe2
   - apiVersion: v2
     appVersion: 0.3.6
-    created: "2022-10-27T14:03:01.422301937Z"
+    created: "2022-11-16T10:28:39.892651104Z"
     description: Coralogix Kubernetes Operator
     digest: edb51e2e08838d38ad9ef6515dbad4d104b84160d089701e31fdb2bf7eb7e001
     name: cx-operator
@@ -339,7 +351,7 @@ entries:
     version: 0.3.6+5c52c59
   - apiVersion: v2
     appVersion: 0.3.5
-    created: "2022-10-27T14:03:01.421933233Z"
+    created: "2022-11-16T10:28:39.892203193Z"
     description: Coralogix Kubernetes Operator
     digest: b9762ac60f114ab2186ec89d7824a6b79b992892c8abb696330b593021b49ebf
     name: cx-operator
@@ -351,7 +363,7 @@ entries:
     version: 0.3.5+ddf73a7
   - apiVersion: v2
     appVersion: 0.3.4
-    created: "2022-10-27T14:03:01.421539729Z"
+    created: "2022-11-16T10:28:39.891731281Z"
     description: Coralogix Kubernetes Operator
     digest: e854f409e23ce50f77516910deb43fb509cd4cfb992d46000ed8ab5c08a0aae6
     name: cx-operator
@@ -363,7 +375,7 @@ entries:
     version: 0.3.4+203e41e
   - apiVersion: v2
     appVersion: 0.3.3
-    created: "2022-10-27T14:03:01.421166025Z"
+    created: "2022-11-16T10:28:39.891327371Z"
     description: Coralogix Kubernetes Operator
     digest: c6eb61fe2af3be170a9e695572d40108d9e9833685c071a7f8f2272dbcbe99c5
     name: cx-operator
@@ -375,7 +387,7 @@ entries:
     version: 0.3.3+c6d785e
   - apiVersion: v2
     appVersion: 0.3.2
-    created: "2022-10-27T14:03:01.420791321Z"
+    created: "2022-11-16T10:28:39.890921261Z"
     description: Coralogix Kubernetes Operator
     digest: 0896890f11a7621dcc65475d801033360a49380a6f9c63c10d56d58f83b3c89d
     name: cx-operator
@@ -387,7 +399,7 @@ entries:
     version: 0.3.2+3638f3d
   - apiVersion: v2
     appVersion: 0.3.1
-    created: "2022-10-27T14:03:01.420371216Z"
+    created: "2022-11-16T10:28:39.89048175Z"
     description: Coralogix Kubernetes Operator
     digest: d0db2870df3b5136c8c5d33b243a1f44b3de8d58f68d700cf62d15bef3e2f5d7
     name: cx-operator
@@ -399,7 +411,7 @@ entries:
     version: 0.3.1+18fd4df
   - apiVersion: v2
     appVersion: 0.2.3
-    created: "2022-10-27T14:03:01.420017012Z"
+    created: "2022-11-16T10:28:39.89007474Z"
     description: Coralogix Kubernetes Operator
     digest: 9ad1357f8be302c999ad0627c634020fe15662cae4685b2d7856c5996a35100c
     name: cx-operator
@@ -411,7 +423,7 @@ entries:
     version: 0.2.3+12473b9
   - apiVersion: v2
     appVersion: 0.2.2
-    created: "2022-10-27T14:03:01.419659708Z"
+    created: "2022-11-16T10:28:39.889608128Z"
     description: Coralogix Kubernetes Operator
     digest: 95afd9a3e4b40fe12e05b807b6b27c0f461b33a91779078f2f153a4a21685f28
     name: cx-operator
@@ -423,7 +435,7 @@ entries:
     version: 0.2.2+32e8fbf
   - apiVersion: v2
     appVersion: 0.2.1
-    created: "2022-10-27T14:03:01.419307004Z"
+    created: "2022-11-16T10:28:39.889157217Z"
     description: Coralogix Kubernetes Operator
     digest: 2ef01dc33e8db8269748ab794979ecdec6babf804963f43d3a396c14bc2ae546
     name: cx-operator
@@ -435,7 +447,7 @@ entries:
     version: 0.2.1+ff3f162
   - apiVersion: v2
     appVersion: 0.2.0
-    created: "2022-10-27T14:03:01.4189384Z"
+    created: "2022-11-16T10:28:39.887631179Z"
     description: Coralogix Kubernetes Operator
     digest: 4864995b449a166e2f0cc5907075df6e7b7c6b9bf61867ee47649d192b07c50b
     name: cx-operator
@@ -447,7 +459,7 @@ entries:
     version: 0.2.0+e370c27
   - apiVersion: v2
     appVersion: 0.1.17
-    created: "2022-10-27T14:03:01.417059379Z"
+    created: "2022-11-16T10:28:39.884949712Z"
     description: Coralogix Kubernetes Operator
     digest: 41b64ff7d504971b69d972bccc502f7ac133ca893c2cd870f14e2d9b69bcf852
     name: cx-operator
@@ -459,7 +471,7 @@ entries:
     version: 0.1.17+5c9b4a0
   - apiVersion: v2
     appVersion: 0.1.15
-    created: "2022-10-27T14:03:01.416647975Z"
+    created: "2022-11-16T10:28:39.884561702Z"
     description: Coralogix Kubernetes Operator
     digest: 5c846902530c1a80a1f0d9786371fd048a09f398e26eb6beac8fe67c878d529d
     name: cx-operator
@@ -471,7 +483,7 @@ entries:
     version: 0.1.15+5400422
   - apiVersion: v2
     appVersion: 0.1.14
-    created: "2022-10-27T14:03:01.416289671Z"
+    created: "2022-11-16T10:28:39.884169992Z"
     description: Coralogix Kubernetes Operator
     digest: f666b92a9823fcc222090c09684907b1f3daa4e8e44c553c43f8fc40e928d656
     name: cx-operator
@@ -483,7 +495,7 @@ entries:
     version: 0.1.14+8e9a25b
   - apiVersion: v2
     appVersion: 0.1.13
-    created: "2022-10-27T14:03:01.415922666Z"
+    created: "2022-11-16T10:28:39.883750382Z"
     description: Coralogix Kubernetes Operator
     digest: f3cfcbdb737a0c3194bbe10913dd3ddc7e20fb56bd605043c3ffd0071a0b7f0b
     name: cx-operator
@@ -495,7 +507,7 @@ entries:
     version: 0.1.13+03b920e
   - apiVersion: v2
     appVersion: 0.1.12
-    created: "2022-10-27T14:03:01.415561362Z"
+    created: "2022-11-16T10:28:39.883312771Z"
     description: Coralogix Kubernetes Operator
     digest: 3752d004dff3ef70c1dd899cb188278ef54ccb6a54938a9f13f300361e9eedc5
     name: cx-operator
@@ -507,7 +519,7 @@ entries:
     version: 0.1.12+3df6bad
   - apiVersion: v2
     appVersion: 0.1.11
-    created: "2022-10-27T14:03:01.415194458Z"
+    created: "2022-11-16T10:28:39.882892761Z"
     description: Coralogix Kubernetes Operator
     digest: cfac59ddf80ddaf35ecf155dc85f6e47e07a523a849477b6a6b0dc2fb0b2673c
     name: cx-operator
@@ -519,7 +531,7 @@ entries:
     version: 0.1.11+4f28198
   - apiVersion: v2
     appVersion: 0.1.10
-    created: "2022-10-27T14:03:01.41446945Z"
+    created: "2022-11-16T10:28:39.882388948Z"
     description: Coralogix Kubernetes Operator
     digest: 9efc4b9bb6f15a198e468132e6d4b2e47259612a127be63602d7cbbb19d923a6
     name: cx-operator
@@ -531,7 +543,7 @@ entries:
     version: 0.1.10+ace4fbb
   - apiVersion: v2
     appVersion: 0.1.9
-    created: "2022-10-27T14:03:01.418527795Z"
+    created: "2022-11-16T10:28:39.887116266Z"
     description: Coralogix Kubernetes Operator
     digest: 83e2d75178731815b9936a7817f5e88ce59c2226c3e4812911175c7bb93d36f9
     name: cx-operator
@@ -543,7 +555,7 @@ entries:
     version: 0.1.9+03810bf
   - apiVersion: v2
     appVersion: 0.1.8
-    created: "2022-10-27T14:03:01.418166091Z"
+    created: "2022-11-16T10:28:39.886669355Z"
     description: Coralogix Kubernetes Operator
     digest: ac2a8e8dfe65bb94f9df5f3845241a1134e7995deb96f4144a28f1c54e31d919
     name: cx-operator
@@ -555,7 +567,7 @@ entries:
     version: 0.1.8+a2fc764
   - apiVersion: v2
     appVersion: 0.1.7
-    created: "2022-10-27T14:03:01.417824188Z"
+    created: "2022-11-16T10:28:39.886191143Z"
     description: Coralogix Kubernetes Operator
     digest: 4d334d5e9742436a03222b545b49d2b7378e35cc913d336f2174ed1345bf5ecf
     name: cx-operator
@@ -567,7 +579,7 @@ entries:
     version: 0.1.7+d761d7a
   - apiVersion: v2
     appVersion: 0.1.6
-    created: "2022-10-27T14:03:01.417451183Z"
+    created: "2022-11-16T10:28:39.885571327Z"
     description: Coralogix Kubernetes Operator
     digest: 4b3a49af29a47879d2f1f7ec16a22dbcf729fad9cf4f781c882289a38530e9e8
     name: cx-operator
@@ -601,4 +613,4 @@ entries:
     urls:
     - https://github.com/coralogix/cx-operator/releases/download/cx-operator-0.1.0/cx-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2022-10-27T14:03:01.413695542Z"
+generated: "2022-11-16T10:28:39.881726432Z"
