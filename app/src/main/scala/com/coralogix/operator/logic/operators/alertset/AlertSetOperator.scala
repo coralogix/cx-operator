@@ -3,6 +3,7 @@ package com.coralogix.operator.logic.operators.alertset
 import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
 import com.coralogix.alerts.v1.alert_service.{
   DeleteAlertRequest,
+  DeleteAlertResponse,
   GetAlertByUniqueIdRequest,
   UpdateAlertRequest,
   ValidateAlertRequest
@@ -311,13 +312,22 @@ object AlertSetOperator {
             maybeAlertId <-
               AlertServiceClient
                 .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
-                .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
+                .map(_.alert.flatMap(_.id))
+                .catchSome { case Status.NOT_FOUND => ZIO.none }
+                .mapError(GrpcFailure.apply)
+
             alertId <- ZIO
                          .fromOption(maybeAlertId)
                          .map(AlertId(_))
                          .catchAll(_ => ZIO.succeed(AlertId(uniqueAlertId.value)))
             response <- AlertServiceClient
                           .deleteAlert(DeleteAlertRequest(Some(alertId.value)))
+                          .catchSome{ case Status.NOT_FOUND =>
+                            Log.warn("DeleteNotFound",
+                              "alertId" := alertId,
+                              "uniqueAlertId" := uniqueAlertId
+                            ).as(DeleteAlertResponse())
+                          }
                           .mapError(GrpcFailure.apply)
             _ <- Log.trace(
                    "DeleteApiResponse",
