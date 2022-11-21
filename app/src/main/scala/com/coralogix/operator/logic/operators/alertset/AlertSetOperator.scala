@@ -3,6 +3,7 @@ package com.coralogix.operator.logic.operators.alertset
 import com.coralogix.alerts.v1.alert_service.ZioAlertService.AlertServiceClient
 import com.coralogix.alerts.v1.alert_service.{
   DeleteAlertRequest,
+  DeleteAlertResponse,
   GetAlertByUniqueIdRequest,
   UpdateAlertRequest,
   ValidateAlertRequest
@@ -83,7 +84,7 @@ object AlertSetOperator {
                  )
           } yield ()
 
-        case Added(item)
+        case Added(item) // when status present but status generation different from provided
             if !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
           modifyFlow(ctx, item)(alertLabels)
 
@@ -259,9 +260,15 @@ object AlertSetOperator {
             maybeAlertId <-
               AlertServiceClient
                 .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
-                .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
-            alertId <-
-              ZIO.fromOption(maybeAlertId).mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
+                .map(_.alert.flatMap(_.id))
+                .catchSome {
+                  case Status.NOT_FOUND => ZIO.some(uniqueAlertId.value)
+                }
+                .mapError(GrpcFailure.apply)
+
+            alertId <- ZIO
+                         .fromOption(maybeAlertId)
+                         .mapBoth(_ => GrpcFailure(Status.NOT_FOUND), AlertId(_))
 
             alert <- ZIO
                        .fromEither(toAlert(data, Some(alertId), ctx, setName))
@@ -311,13 +318,26 @@ object AlertSetOperator {
             maybeAlertId <-
               AlertServiceClient
                 .getAlertByUniqueId(GetAlertByUniqueIdRequest(Some(uniqueAlertId.value)))
-                .mapBoth(GrpcFailure.apply, _.alert.flatMap(_.id))
+                .map(_.alert.flatMap(_.id))
+                .catchSome { case Status.NOT_FOUND => ZIO.none }
+                .mapError(GrpcFailure.apply)
+
             alertId <- ZIO
                          .fromOption(maybeAlertId)
                          .map(AlertId(_))
                          .catchAll(_ => ZIO.succeed(AlertId(uniqueAlertId.value)))
             response <- AlertServiceClient
                           .deleteAlert(DeleteAlertRequest(Some(alertId.value)))
+                          .catchSome {
+                            case Status.NOT_FOUND =>
+                              Log
+                                .warn(
+                                  "DeleteNotFound",
+                                  "alertId"       := alertId,
+                                  "uniqueAlertId" := uniqueAlertId
+                                )
+                                .as(DeleteAlertResponse())
+                          }
                           .mapError(GrpcFailure.apply)
             _ <- Log.trace(
                    "DeleteApiResponse",
