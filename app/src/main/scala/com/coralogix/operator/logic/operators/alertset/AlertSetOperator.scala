@@ -58,6 +58,7 @@ object AlertSetOperator {
               .flatMap(_.lastUploadedGeneration)
               .isEmpty => // new item
           for {
+            _             <- Log.debug("CustomObjectAddedNew", "name" := item.metadata.flatMap(_.name))
             alertSetName  <- item.getName.mapError(KubernetesFailure.apply)
             setValidation <- isSetValid(alertSetName, item.spec.alerts, ctx)
             updates <- {
@@ -86,7 +87,13 @@ object AlertSetOperator {
 
         case Added(item) // when status present but status generation different from provided
             if !item.status.flatMap(_.lastUploadedGeneration).contains(item.generation) =>
-          modifyFlow(ctx, item)(alertLabels)
+          Log.debug(
+            "CustomObjectAddedModified",
+            "name"             := item.metadata.flatMap(_.name),
+            "generation"       := item.generation,
+            "statusGeneration" := item.status.flatMap(_.lastUploadedGeneration)
+          ) *>
+            modifyFlow(ctx, item)(alertLabels)
 
         case Added(item) =>
           Log.debug(
@@ -96,13 +103,23 @@ object AlertSetOperator {
           )
 
         case Modified(item) =>
-          modifyFlow(ctx, item)(alertLabels)
+          Log.debug(
+            "CustomObjectModified",
+            "name"       := item.metadata.flatMap(_.name),
+            "generation" := item.generation
+          ) *>
+            modifyFlow(ctx, item)(alertLabels)
 
         case Deleted(item) =>
-          withExpectedStatus(item) { status =>
-            val mappings = status.alertIds.getOrElse(Vector.empty)
-            deleteAlerts(mappingToMap(mappings)).unit
-          }
+          Log.debug(
+            "CustomObjectDeleted",
+            "name"       := item.metadata.flatMap(_.name),
+            "generation" := item.generation
+          ) *>
+            withExpectedStatus(item) { status =>
+              val mappings = status.alertIds.getOrElse(Vector.empty)
+              deleteAlerts(mappingToMap(mappings)).unit
+            }
       }
 
   private def modifyFlow(ctx: OperatorContext, item: AlertSet)(
