@@ -1,0 +1,389 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: alertsets.coralogix.com
+spec:
+  group: coralogix.com
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required:
+            - spec
+          properties:
+            spec:
+              type: object
+              required:
+                - alerts
+              properties:
+                alerts:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - isActive
+                      - severity
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: AlertName
+                      description:
+                        type: string
+                      isActive:
+                        type: boolean
+                      severity:
+                        type: string
+                        enum:
+                          - INFO
+                          - WARNING
+                          - CRITICAL
+                      labels:
+                        description: Labels attached to the alert
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - key
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                      expiration:
+                        type: string
+                        format: date
+                      condition:
+                        type: object
+                        required:
+                          - type
+                        properties:
+                          type:
+                            description: The type of condition. Metric alert is using only MORE_THAN and LESS_THAN condition.
+                            type: string
+                            enum:
+                              - IMMEDIATE
+                              - LESS_THAN
+                              - MORE_THAN
+                              - MORE_THAN_USUAL
+                              - NEW_VALUE
+                              - FLOW
+                          parameters:
+                            description: Condition parameters, required for all types except IMMEDIATE
+                            type: object
+                            required:
+                              - timeframe
+                            properties:
+                              threshold:
+                                type: number
+                                format: double
+                                minimum: 0
+                              timeframe:
+                                description: The valid timeframes depend on the condition type. For NEW_VALUE alerts it can be 12H..3M, otherwise 5Min..24H
+                                type: string
+                                enum: ["1Min", "2Min", "5Min", "10Min", "20Min", "30Min", "1H", "2H", "3H", "4H", "6H", "12H", "24H", "36H", "48H", "72H", "1W", "1M", "2M", "3M"]
+                              groupBy:
+                                description: Required for NEW_VALUE conditions
+                                type: string
+                              notifyOnResolved:
+                                descprition: Sends resolve notification when the alert criteria that you defined is no longer met
+                                type: boolean
+                                default: true
+                              metricAlertParameters:
+                                description: Lucene query for metric alerts
+                                type: object
+                                properties:
+                                  metricField:
+                                    description: The field to be used for the metric
+                                    type: string
+                                  metricSource:
+                                    description: The source of the metric
+                                    type: string
+                                    enum:
+                                      - LOGS2METRICS
+                                      - PROMETHEUS
+                                  arithmeticOperator:
+                                    description: The arithmetic operator to use for the metric alert.
+                                    type: string
+                                    enum:
+                                      - AVG
+                                      - MIN
+                                      - MAX
+                                      - SUM
+                                      - COUNT
+                                      - PERCENTILE
+                                  arithmeticOperatorModifier:
+                                    type: integer
+                                    format: int32
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  swapNullValues:
+                                    description: Swap null values with 0
+                                    type: boolean
+                              metricAlertPromqlParameters:
+                                description: Prometheus query for metric alerts
+                                type: object
+                                properties:
+                                  promQLText:
+                                    description: The promql expression to use for the metric alert
+                                    type: string
+                                  forOver:
+                                    description: The percentage of samples that must be in the window for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  atLeast:
+                                    description: The percentage of samples that must be non-null for the condition to be met
+                                    type: integer
+                                    format: int32
+                                  swapNullValues:
+                                    description: Swap null values with 0
+                                    type: boolean
+                          stages:
+                            description: Condition parameters, required for all types except IMMEDIATE
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                timeframe:
+                                  type: object
+                                  properties:
+                                    ms:
+                                      type: integer
+                                      format: int32
+                                groups:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      alerts:
+                                        type: object
+                                        properties:
+                                          op:
+                                            type: string
+                                            enum:
+                                              - OR
+                                              - AND
+                                          values:
+                                            type: array
+                                            items:
+                                              type: object
+                                              properties:
+                                                id:
+                                                  type: string
+                                                not:
+                                                  type: boolean
+                                      nextOp:
+                                        type: string
+                                        enum:
+                                          - OR
+                                          - AND
+                                    required:
+                                      - nextOp
+                      notifications:
+                        type: object
+                        properties:
+                          emails:
+                            type: array
+                            items:
+                              type: string
+                              x-scala-type: EmailAddress
+                          integrations:
+                            type: array
+                            items:
+                              type: string
+                              x-scala-type: IntegrationAlias
+                      filters:
+                        type: object
+                        required:
+                          - filterType
+                        properties:
+                          filterType:
+                            type: string
+                            enum:
+                              - TEXT
+                              - TEMPLATE
+                              - RATIO
+                              - METRIC
+                          severities:
+                            type: array
+                            items:
+                              type: string
+                              enum:
+                                - DEBUG
+                                - VERBOSE
+                                - INFO
+                                - WARNING
+                                - ERROR
+                                - CRITICAL
+                          metadata:
+                            type: object
+                            properties:
+                              categories:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: CategoryName
+                              applications:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ApplicationName
+                              subsystems:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: SubsystemName
+                              computers:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ComputerName
+                              classes:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: ClassName
+                              methods:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: MethodName
+                              ipAddresses:
+                                type: array
+                                items:
+                                  type: string
+                                  x-scala-type: IPAddress
+
+                          alias:
+                            type: string
+                            x-scala-type: QueryAlias
+                          text:
+                            type: string
+                            x-scala-type: Query
+                          ratioAlerts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                alias:
+                                  type: string
+                                  x-scala-type: QueryAlias
+                                text:
+                                  type: string
+                                  x-scala-type: Query
+                                severities:
+                                  type: array
+                                  items:
+                                    type: string
+                                    enum:
+                                      - DEBUG
+                                      - VERBOSE
+                                      - INFO
+                                      - WARNING
+                                      - ERROR
+                                      - CRITICAL
+                                applications:
+                                  type: array
+                                  items:
+                                    type: string
+                                    x-scala-type: ApplicationName
+                                subsystems:
+                                  type: array
+                                  items:
+                                    type: string
+                                    x-scala-type: SubsystemName
+                      notifyEvery:
+                        description: The suppress time for an alert in seconds
+                        type: number
+                        format: double
+                        x-scala-type: Seconds
+                      activeWhen:
+                        type: object
+                        required:
+                          - timeframes
+                        properties:
+                          timeframes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                daysOfWeek:
+                                  type: array
+                                  items:
+                                    type: string
+                                    enum:
+                                      - MONDAY
+                                      - TUESDAY
+                                      - WEDNESDAY
+                                      - THURSDAY
+                                      - FRIDAY
+                                      - SATURDAY
+                                      - SUNDAY
+                                range:
+                                  type: object
+                                  required:
+                                    - start
+                                    - end
+                                  properties:
+                                    start:
+                                      type: string
+                                      x-scala-type: Time
+                                    end:
+                                      type: string
+                                      x-scala-type: Time
+                      notificationPayloadFilters:
+                        type: array
+                        items:
+                          type: string
+                          x-scala-type: PayloadFilter
+            status:
+              type: object
+              properties:
+                # Maps the name of alerts in the spec to coralogix IDs. Alerts without an associated
+                # Coralogix alert are omitted
+                alert-ids:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - id
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: AlertName
+                      id:
+                        type: string
+                        x-scala-type: AlertId
+                last-uploaded-generation:
+                  type: integer
+                  format: int64
+                failures:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - failure
+                    properties:
+                      name:
+                        type: string
+                        x-scala-type: AlertName
+                      failure:
+                        type: string
+      subresources:
+        status: {}
+  scope: Namespaced
+  names:
+    plural: alertsets
+    singular: alertset
+    kind: AlertSet
