@@ -37,9 +37,9 @@ lazy val app = Project("coralogix-kubernetes-operator-app", file("app"))
 //    run / envVars := Map("CORALOGIX_CONFIG" -> "../charts/config/development.conf"),
     // K8s
     externalCustomResourceDefinitions := Seq(
-      file("crds/crd-coralogix-rule-group-set.yaml"),
-      file("crds/crd-coralogix-loggers.yaml"),
-      file("crds/crd-coralogix-alert-set.yaml")
+      file("charts/cx-operator/crds/crd-coralogix-rule-group-set.yaml"),
+      file("charts/cx-operator/crds/crd-coralogix-loggers.yaml"),
+      file("charts/cx-operator/crds/crd-coralogix-alert-set.yaml")
     ),
     // Native image
     Compile / mainClass := Some("com.coralogix.operator.Main"),
