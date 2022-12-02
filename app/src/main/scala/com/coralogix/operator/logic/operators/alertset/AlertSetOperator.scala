@@ -103,7 +103,7 @@ object AlertSetOperator {
           )
 
         case Modified(item) if item.spec.alerts.isEmpty =>
-          Log.error(
+          Log.warn(
             "CustomObjectModifiedWithoutBody",
             "name"       := item.metadata.flatMap(_.name),
             "generation" := item.generation,
