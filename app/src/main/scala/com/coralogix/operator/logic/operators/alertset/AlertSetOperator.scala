@@ -102,10 +102,18 @@ object AlertSetOperator {
             "generation" := item.generation
           )
 
+        case Modified(item) if item.spec.alerts.isEmpty =>
+          Log.error(
+            "CustomObjectModifiedWithoutBody",
+            "name"       := item.metadata.flatMap(_.name),
+            "generation" := item.generation,
+            "description" := "Body of custom object is empty. Evidence of produced Modified event with empty body instead of Deleted one."
+          )
+
         case Modified(item) =>
           Log.debug(
             "CustomObjectModified",
-            "name"       := item.metadata.flatMap(_.name),
+            "name" := item.metadata.flatMap(_.name),
             "generation" := item.generation
           ) *>
             modifyFlow(ctx, item)(alertLabels)
@@ -197,11 +205,7 @@ object AlertSetOperator {
           val integrations =
             alert.notifications.flatMap(_.integrations).map(_.mkString(", ")).getOrElse("")
           val warnMessage =
-            if (
-              failure.getDescription.contains(
-                s"Invalid integration names ($integrations) in alert ${alertName.value}"
-              )
-            )
+            if (failure.getDescription.contains(s"Invalid integration name"))
               "InvalidIntegrationName"
             else
               "InvalidAlertSet"
