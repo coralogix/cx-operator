@@ -82,7 +82,7 @@ object RuleGroupSetOperator {
             "CustomObjectModifiedWithoutBody",
             "name"        := item.metadata.flatMap(_.name),
             "generation"  := item.generation,
-            "description" := "Body of custom object is empty. Evidence of produced Modified event with empty body instead of Deleted one."
+            "description" := "Body of RuleGroup is empty. Evidence of produced Modified event with empty body instead of Deleted one."
           )
         case Modified(item) =>
           withExpectedStatus(item) { status =>
