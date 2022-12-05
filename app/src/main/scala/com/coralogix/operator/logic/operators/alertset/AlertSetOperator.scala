@@ -102,7 +102,11 @@ object AlertSetOperator {
             "generation" := item.generation
           )
 
-        case Modified(item) if item.spec.alerts.isEmpty =>
+        case Modified(item)
+          if item.spec.alerts.isEmpty && item.status
+              .flatMap(_.alertIds)
+              .filter(_.nonEmpty)
+              .isEmpty =>
           Log.warn(
             "CustomObjectModifiedWithoutBody",
             "name"        := item.metadata.flatMap(_.name),

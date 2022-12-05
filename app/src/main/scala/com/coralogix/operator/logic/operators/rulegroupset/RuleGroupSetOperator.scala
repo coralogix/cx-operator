@@ -73,7 +73,11 @@ object RuleGroupSetOperator {
               "name"       := item.metadata.flatMap(_.name),
               "generation" := item.generation
             )
-        case Modified(item) if item.spec.ruleGroupsSequence.isEmpty =>
+        case Modified(item)
+            if item.spec.ruleGroupsSequence.isEmpty && item.status
+              .flatMap(_.groupIds)
+              .filter(_.nonEmpty)
+              .isEmpty =>
           Log.warn(
             "CustomObjectModifiedWithoutBody",
             "name"        := item.metadata.flatMap(_.name),
