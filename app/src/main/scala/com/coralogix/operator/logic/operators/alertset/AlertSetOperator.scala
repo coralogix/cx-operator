@@ -103,7 +103,7 @@ object AlertSetOperator {
           )
 
         case Modified(item)
-          if item.spec.alerts.isEmpty && item.status
+            if item.spec.alerts.isEmpty && item.status
               .flatMap(_.alertIds)
               .filter(_.nonEmpty)
               .isEmpty =>
