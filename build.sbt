@@ -1,4 +1,4 @@
-val ScalaVer = "2.13.4"
+val ScalaVer = "2.13.10"
 
 enablePlugins(Protodep)
 Global / protodepUseHttps := true
