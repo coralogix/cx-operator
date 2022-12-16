@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 RUN set -eux; \
       apt-get update && \
       apt-get -y install --no-install-recommends libsnappy1v5 libsnappy-java libzstd1 liblz4-1 libbz2-1.0 curl jq && \
