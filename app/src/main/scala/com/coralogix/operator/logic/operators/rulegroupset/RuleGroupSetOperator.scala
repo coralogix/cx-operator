@@ -73,17 +73,6 @@ object RuleGroupSetOperator {
               "name"       := item.metadata.flatMap(_.name),
               "generation" := item.generation
             )
-        case Modified(item)
-            if item.spec.ruleGroupsSequence.isEmpty && item.status
-              .flatMap(_.groupIds)
-              .filter(_.nonEmpty)
-              .isEmpty =>
-          Log.warn(
-            "CustomObjectModifiedWithoutBody",
-            "name"        := item.metadata.flatMap(_.name),
-            "generation"  := item.generation,
-            "description" := "Body of RuleGroup is empty. Evidence of produced Modified event with empty body instead of Deleted one."
-          )
         case Modified(item) =>
           withExpectedStatus(item) { status =>
             if (status.lastUploadedGeneration.getOrElse(0L) < item.generation) {
