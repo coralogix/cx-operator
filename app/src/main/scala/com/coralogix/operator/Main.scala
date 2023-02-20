@@ -56,7 +56,7 @@ object Main extends App {
         (((OtelTracer.live ++ Clock.live) >>> Tracing.live) ++ ZLayer
           .service[K8sClusterConfig] ++ ZLayer.service[Blocking.Service] ++ ZLayer
           .service[System.Service]) >>> k8sClient
-      else k8sSttpClient()
+      else k8sSttpClient
     }
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
