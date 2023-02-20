@@ -197,10 +197,10 @@ $ helm install --set config.coralogixApi.host=grpc-api.app.coralogix.in cx-opera
 ```
 
 To also install a _Prometheus_ `ServiceMonitor` object, add: `--set serviceMonitor.create=true`
-
+```
 
 ### Links
-- [Rule group set CRD](https://github.com/coralogix/cx-operator/blob/master/charts/cx-operator/crds/crd-coralogix-rule-group-set.yaml)
-- [Alert set CRD](https://github.com/coralogix/cx-operator/blob/master/charts/cx-operator/crds/crd-coralogix-alert-set.yaml)
-- [Coralogix Logger CRD](https://github.com/coralogix/cx-operator/blob/master/charts/cx-operator/crds/crd-coralogix-loggers.yaml)
+- [Rule group set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-rule-group-set.yaml)
+- [Alert set CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-alert-set.yaml)
+- [Coralogix Logger CRD](https://github.com/coralogix/cx-operator/blob/master/crds/crd-coralogix-loggers.yaml)
 
